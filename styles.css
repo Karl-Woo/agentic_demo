@@ -1884,15 +1884,18 @@ svg .ico-fill { fill: currentColor; stroke: none; }
   justify-content: space-between;
   gap: var(--sp-4);
 }
+/* Two columns that never wrap: the figure and its caption take the room
+   that is left and the caption wraps inside it; the CTA keeps its own
+   width and sits on the bottom edge, right. With `flex-wrap` the long
+   caption's max-content width pushed the button onto a line of its own. */
 .wi-out-body {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--sp-4);
+  gap: var(--sp-6);
   margin-top: var(--sp-1);
 }
-.wi-metric { min-width: 0; }
+.wi-metric { flex: 1 1 auto; min-width: 0; }
 
 .wi-result-label {
   padding: 0;
@@ -1958,14 +1961,16 @@ svg .ico-fill { fill: currentColor; stroke: none; }
 /* Metric B: a caption under the figure, not a strip of its own. */
 .wi-hook {
   margin-top: var(--sp-1);
+  max-width: 52ch;
   font: var(--caption);
   color: var(--muted);
+  text-wrap: pretty;
 }
 .wi-hook.is-down { color: var(--down); }
 .wi-hook-sub { color: inherit; }
 
 /* ---- the soft CTA ---- */
-.wi-cta { flex: 0 0 auto; }
+.wi-cta { flex: 0 0 auto; align-self: flex-end; }
 /* Spoken with the button (aria-describedby) and shown as its title, but
    not drawn: the design keeps the panel to the figure and one action. */
 .wi-cta-note {
