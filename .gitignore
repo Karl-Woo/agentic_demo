@@ -1,0 +1,17 @@
+# Claude Code local config (personal permissions, dev-server launch)
+.claude/
+
+# Vercel
+.vercel/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Node (if you ever add a build step)
+node_modules/
+npm-debug.log
+yarn-error.log

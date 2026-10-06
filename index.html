@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gamification Exploration</title>
+<!-- Wrapper for user testing. Each variant is the full Insights page
+     (insights.html?variant=a|b|c; "A low" is ?variant=a&score=low) in its
+     own iframe, so each keeps its own
+     state when you swap away and back. The swap pill is hidden until the
+     cursor comes near the bottom centre of the screen, so it stays out of
+     a participant's way.
+
+     Keys: 1 / 2 / 3 / 4 jump to a variant (A, A low, B, C), arrow
+     left / right step through.
+     The URL hash (#a, #a-low, #b, #c) tracks the current variant, so a
+     session can be opened straight on one. -->
+<style>
+  @font-face {
+    font-family: 'Graphik';
+    src: url('asset/fonts/Graphik/Graphik-Regular.otf') format('opentype');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Graphik';
+    src: url('asset/fonts/Graphik/Graphik-Semibold.otf') format('opentype');
+    font-weight: 600;
+  }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #F2F2F2;
+    font-family: 'Graphik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .stage { position: fixed; inset: 0; }
+
+  .stage iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    visibility: hidden;
+  }
+  .stage iframe.is-active { visibility: visible; }
+
+  /* ---- the swap pill (after Combined Demo's .next-overlay) ---- */
+  .swap {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%) translateY(6px);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.78);
+    color: #1F1F1F;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.9) inset,
+      0 6px 18px rgba(0, 0, 0, 0.10),
+      0 0 0 1px rgba(0, 0, 0, 0.02);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      background-color 160ms ease;
+    z-index: 100;
+  }
+
+  body.show-swap .swap,
+  .swap:hover,
+  .swap:focus-within {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+  .swap:hover { background: #fff; }
+
+  .swap-label {
+    padding: 0 8px 0 10px;
+    color: #6B6B6B;
+    font-weight: 400;
+  }
+
+  .swap-seg {
+    appearance: none;
+    border: 0;
+    margin: 0;
+    min-width: 88px;
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 5px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 140ms ease, color 140ms ease;
+  }
+  .swap-seg:hover { background: rgba(0, 0, 0, 0.05); }
+  .swap-seg[aria-pressed="true"] {
+    background: #208000;
+    color: #fff;
+  }
+  .swap-seg:focus-visible { outline: 2px solid #208000; outline-offset: 2px; }
+
+  @media (max-width: 720px) {
+    .swap { bottom: 14px; font-size: 12px; }
+    .swap-seg { min-width: 0; padding: 0 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage"></div>
+
+<nav class="swap" id="swap" aria-label="Switch variant">
+  <span class="swap-label">Variant</span>
+  <button class="swap-seg" type="button" data-variant="a" aria-pressed="false">A</button>
+  <button class="swap-seg" type="button" data-variant="a-low" aria-pressed="false">A low</button>
+  <button class="swap-seg" type="button" data-variant="b" aria-pressed="false">B</button>
+  <button class="swap-seg" type="button" data-variant="c" aria-pressed="false">C</button>
+</nav>
+
+<script>
+(function () {
+  'use strict';
+
+  var VARIANTS = ['a', 'a-low', 'b', 'c'];
+  function pageFor(v) {
+    return v === 'a-low' ? 'insights.html?variant=a&score=low' : 'insights.html?variant=' + v;
+  }
+
+  var stage  = document.getElementById('stage');
+  var segs   = Array.prototype.slice.call(document.querySelectorAll('.swap-seg'));
+  var frames = {};
+  var current = null;
+
+  /* ---- frames ----
+     Created lazily: the first variant loads straight away, the others
+     are preloaded once it has finished, hidden. A hidden frame does not
+     play its entrance until it is shown — it waits for {kind:'show'}. */
+  function frameFor(v) {
+    if (frames[v]) return frames[v];
+    var f = document.createElement('iframe');
+    f.title = v === 'a-low' ? 'Variant A, low score' : 'Variant ' + v.toUpperCase();
+    f.src = pageFor(v);
+    f.addEventListener('load', function () {
+      bridge(f);
+      if (v === current) post(f);
+    });
+    stage.appendChild(f);
+    frames[v] = f;
+    return f;
+  }
+
+  function post(f) {
+    try { f.contentWindow.postMessage({ kind: 'show' }, '*'); } catch (e) {}
+  }
+
+  function show(v) {
+    if (VARIANTS.indexOf(v) < 0 || v === current) return;
+    current = v;
+    var f = frameFor(v);
+    Object.keys(frames).forEach(function (k) {
+      frames[k].classList.toggle('is-active', k === v);
+    });
+    segs.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-variant') === v));
+    });
+    post(f);   // harmless if it has not loaded yet; the load handler re-posts
+    if (history.replaceState) history.replaceState(null, '', '#' + v);
+    try { f.contentWindow.focus(); } catch (e) {}
+  }
+
+  function step(d) {
+    var i = VARIANTS.indexOf(current);
+    show(VARIANTS[(i + d + VARIANTS.length) % VARIANTS.length]);
+  }
+
+  segs.forEach(function (b) {
+    b.addEventListener('click', function () { show(b.getAttribute('data-variant')); });
+  });
+
+  /* ---- keys ---- */
+  function onKey(e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) &&
+              t.type !== 'range')) return;
+    if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
+      show(VARIANTS[+e.key - 1]);
+    } else if (e.key === 'ArrowRight' && !(t && t.type === 'range')) {
+      step(1);
+    } else if (e.key === 'ArrowLeft' && !(t && t.type === 'range')) {
+      step(-1);
+    } else {
+      return;
+    }
+    e.preventDefault();
+  }
+  window.addEventListener('keydown', onKey);
+
+  /* ---- hover reveal ----
+     The pill shows while the cursor is in the bottom-centre patch: a
+     90px band, 360px wide. The frames cover the whole window, so their
+     own mousemoves are listened to as well (same origin, capture phase,
+     so the demo's handlers are untouched). */
+  var BAND = 90, WIDTH = 360;
+  function near(x, y) {
+    var w = window.innerWidth, h = window.innerHeight;
+    return y >= h - BAND && Math.abs(x - w / 2) <= WIDTH / 2;
+  }
+  function track(x, y) { document.body.classList.toggle('show-swap', near(x, y)); }
+
+  window.addEventListener('mousemove', function (e) { track(e.clientX, e.clientY); });
+  document.addEventListener('mouseleave', function () {
+    document.body.classList.remove('show-swap');
+  });
+
+  function bridge(f) {
+    try {
+      var w = f.contentWindow;
+      w.addEventListener('mousemove', function (e) {
+        var r = f.getBoundingClientRect();
+        track(r.left + e.clientX, r.top + e.clientY);
+      }, true);
+      w.addEventListener('keydown', onKey, true);
+    } catch (e) { /* cross-origin: keys and hover only work over the pill */ }
+  }
+
+  /* ---- boot ---- */
+  var start = (location.hash || '').replace('#', '').toLowerCase();
+  if (VARIANTS.indexOf(start) < 0) start = 'a';
+  show(start);
+
+  frames[start].addEventListener('load', function () {
+    setTimeout(function () { VARIANTS.forEach(frameFor); }, 600);
+  });
+
+  window.addEventListener('hashchange', function () {
+    show((location.hash || '').replace('#', '').toLowerCase());
+  });
+})();
+</script>
+</body>
+</html>

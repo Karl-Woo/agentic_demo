@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chart template gallery — Clover Insights</title>
+
+<!--
+  Live gallery of every template in chart-templates.js.
+
+  This exists so the design spec is something you can LOOK at, not just read.
+  Open it, find the chart you need, copy the builder name, port it.
+
+  Runs fully offline: it uses the Highcharts copy vendored at
+  ../asset/vendor/highcharts.js and the Graphik files in ../asset/fonts/.
+  The upstream reference project loads Highcharts from its CDN and needs a
+  network connection; this does not. Every series type used across the seven
+  templates (line, area, column, bar) is in the Highcharts core, so none of
+  the CDN modules the upstream playground pulls in are actually required.
+-->
+
+<style>
+  /* Same three weights the prototype registers. Bold (700) is deliberately
+     left unmapped - the Dash 3.0 scale stops at Semibold, so anything asking
+     for 700 renders in a fallback and the mistake is visible. */
+  @font-face {
+    font-family: 'Graphik';
+    src: url('../asset/fonts/Graphik/Graphik-Regular.otf') format('opentype');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Graphik';
+    src: url('../asset/fonts/Graphik/Graphik-Medium.otf') format('opentype');
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Graphik';
+    src: url('../asset/fonts/Graphik/Graphik-Semibold.otf') format('opentype');
+    font-weight: 600; font-style: normal; font-display: swap;
+  }
+
+  :root {
+    --ink: #191919;
+    --ink-soft: #5A5A5A;
+    --ink-faint: #727272;
+    --line: #E0E0E0;
+    --bg: #F5F5F5;
+    --card: #FFFFFF;
+    --accent: #228800;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 24px 64px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Graphik, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                 Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  header { max-width: 1200px; margin: 0 auto 32px; }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+
+  header p {
+    margin: 0 0 4px;
+    color: var(--ink-soft);
+    max-width: 70ch;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: #ECECEC;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    min-width: 0;              /* let the chart shrink inside the grid track */
+  }
+
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .card-name { font-size: 16px; font-weight: 600; }
+
+  .card-key {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+    cursor: pointer;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 2px 8px;
+    background: none;
+  }
+  .card-key:hover { border-color: var(--ink-faint); color: var(--ink); }
+  .card-key.copied { border-color: var(--accent); color: var(--accent); }
+
+  .chart { width: 100%; min-height: 220px; }
+
+  .status {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #FFF;
+  }
+  .status.bad { border-color: #D76A57; color: #A33; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Chart template gallery</h1>
+  <p>
+    Every template in <code>chart-templates.js</code>, rendered live against the
+    Highcharts build this repo vendors. Full parameter notes are in
+    <code>CHART_PARAMETERS.md</code>; porting rules are in <code>README.md</code>.
+  </p>
+  <p>Click a builder name to copy it.</p>
+</header>
+
+<div id="status" class="status">Loading&hellip;</div>
+<div id="grid" class="grid"></div>
+
+<script src="../asset/vendor/highcharts.js"></script>
+<script src="chart-templates.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var statusEl = document.getElementById('status');
+  var grid = document.getElementById('grid');
+
+  function fail(msg) {
+    statusEl.className = 'status bad';
+    statusEl.textContent = msg;
+  }
+
+  if (typeof Highcharts === 'undefined') {
+    fail('Highcharts failed to load from ../asset/vendor/highcharts.js. ' +
+         'Serve the repo root over http:// rather than opening this file directly.');
+    return;
+  }
+  if (!window.ChartTemplates || !window.ChartTemplates.list) {
+    fail('chart-templates.js did not register window.ChartTemplates.');
+    return;
+  }
+
+  var charts = [];
+  var ok = 0;
+  var failed = [];
+
+  ChartTemplates.list.forEach(function (tpl) {
+    var card = document.createElement('section');
+    card.className = 'card';
+
+    var head = document.createElement('div');
+    head.className = 'card-head';
+
+    var name = document.createElement('span');
+    name.className = 'card-name';
+    name.textContent = tpl.name;
+
+    var key = document.createElement('button');
+    key.className = 'card-key';
+    key.type = 'button';
+    key.textContent = 'ChartTemplates.' + tpl.key + '()';
+    key.addEventListener('click', function () {
+      var text = 'ChartTemplates.' + tpl.key + '()';
+      var done = function () {
+        key.classList.add('copied');
+        setTimeout(function () { key.classList.remove('copied'); }, 1200);
+      };
+      // navigator.clipboard needs a secure context; fall back for plain http.
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) { /* no-op */ }
+        document.body.removeChild(ta);
+        done();
+      }
+    });
+
+    head.appendChild(name);
+    head.appendChild(key);
+    card.appendChild(head);
+
+    var host = document.createElement('div');
+    host.className = 'chart';
+    host.id = 'chart-' + tpl.key;
+    card.appendChild(host);
+    grid.appendChild(card);
+
+    // One bad template must not take the whole gallery down.
+    try {
+      charts.push(Highcharts.chart(host, tpl.build()));
+      ok++;
+    } catch (err) {
+      failed.push(tpl.key + ': ' + err.message);
+      host.textContent = 'Failed to render - ' + err.message;
+      host.style.color = '#A33';
+    }
+  });
+
+  if (failed.length) {
+    fail('Rendered ' + ok + ' of ' + ChartTemplates.list.length +
+         '. Failures - ' + failed.join(' | '));
+  } else {
+    statusEl.textContent = 'Rendered all ' + ok + ' templates against Highcharts v' +
+      (Highcharts.version || '?') + '.';
+  }
+
+  // The templates that hand-draw a label column (bar, varianceBar) recompute
+  // it in chart.events.render, so a plain reflow is enough to keep them
+  // correct as the grid reflows.
+  var t;
+  window.addEventListener('resize', function () {
+    clearTimeout(t);
+    t = setTimeout(function () {
+      charts.forEach(function (c) { try { c.reflow(); } catch (e) { /* no-op */ } });
+    }, 120);
+  });
+
+  // Expose for the headless verification pass.
+  window.__gallery = { charts: charts, ok: ok, failed: failed };
+})();
+</script>
+</body>
+</html>
