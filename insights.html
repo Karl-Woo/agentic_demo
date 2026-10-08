@@ -17,7 +17,7 @@
      Bump this token whenever styles.css changes in a way you must see.
      Better: serve with tools/serve.py, which sends `Cache-Control: no-store`
      and makes the whole problem go away. -->
-<link rel="stylesheet" href="styles.css?v=2026-10-08c" />
+<link rel="stylesheet" href="styles.css?v=2026-10-08d" />
 <!-- Highcharts v13, vendored locally so the prototype runs offline -->
 <script src="asset/vendor/highcharts.js"></script>
 </head>
@@ -470,15 +470,15 @@
                      picking a prompt) asks Vera, and the free text is
                      matched to the nearest answer (hcRoute).
 
-                     Low score: the recovery action sits inside the pill on
-                     the right, and is the first prompt once it opens. -->
+                     Low score: same component, same shape. The preset
+                     question (placeholder) becomes "Draft a targeted
+                     recovery plan", so sending the empty box drafts it. -->
                 <div class="hc-ask" id="hcAsk">
                   <div class="hc-ask-field">
                     <img src="asset/ui/ai-search.svg" alt="" />
                     <textarea class="hc-ask-input" id="hcAskInput" rows="1"
                               placeholder="Which high-margin items are selling best?"
                               aria-label="Ask Vera about this health check"></textarea>
-                    <button class="hc-ask-action" type="button" id="hcGo" data-ask="hcLowPlan" data-score-only="low">Draft a recovery plan</button>
                     <button class="hc-ask-send" type="button" id="hcAskSend" aria-label="Send to Vera">
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
                     </button>
@@ -487,7 +487,7 @@
                     <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcTuesday">Estimate lost revenue from Tuesday closures</button></li>
                     <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcRevenue">How can I improve my revenue growth?</button></li>
                     <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcRetention">How did customer retention compare to last month?</button></li>
-                    <li data-score-only="low"><button type="button" class="hc-ask-sug is-primary" data-ask="hcLowPlan">Draft a targeted recovery plan</button></li>
+                    <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowOps">Why are my weekend tables turning slower?</button></li>
                     <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowTables">View top fixes for table turnover</button></li>
                     <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowTuesday">Estimate lost revenue from Tuesday closures</button></li>
                   </ul>
@@ -5983,22 +5983,19 @@
   }
 
   (function wireHealthAsk() {
-    // Low score: approving the plan in Vera latches the card's CTA.
-    var go = document.getElementById('hcGo');
-    if (go) {
-      TURNS.hcLowPlan.promo.onDone = function () {
-        go.disabled = true;
-        go.classList.add('is-done');
-        go.textContent = 'Plan approved';
-      };
-    }
-
     var box   = document.getElementById('hcAsk');
     if (!box) return;
     var input = document.getElementById('hcAskInput');
     var send  = document.getElementById('hcAskSend');
     var field = box.querySelector('.hc-ask-field');
-    if (HC_LOW) input.placeholder = 'Why are my weekend tables turning slower?';
+    // Low score: the preset question is the recovery plan. Once the plan
+    // is approved in Vera it would be a stale offer, so the preset falls
+    // back to the next most useful question.
+    var HC_LOW_AFTER = 'Why are my weekend tables turning slower?';
+    if (HC_LOW) {
+      input.placeholder = 'Draft a targeted recovery plan';
+      TURNS.hcLowPlan.promo.onDone = function () { input.placeholder = HC_LOW_AFTER; };
+    }
 
     function open() { box.classList.add('is-open'); }
     function close() {
@@ -6010,32 +6007,33 @@
       input.style.height = input.scrollHeight + 'px';
     }
 
+    // Ask Vera a prepared answer under the exact words on screen, so the
+    // chat bubble always matches what was typed, preset or tapped.
+    function askAs(id, text) {
+      var base = TURNS[id], turn = {};
+      for (var k in base) if (Object.prototype.hasOwnProperty.call(base, k)) turn[k] = base[k];
+      turn.ask = text;
+      TURNS.hcFree = turn;
+      askVera('hcFree', field);
+    }
+
     function submit() {
       var text = input.value.trim();
-      if (!text && !HC_LOW) {
-        askVera('hcItems', field);
+      if (!text) {
+        // An empty box sends the preset question as itself.
+        if (!HC_LOW) askVera('hcItems', field);
+        else askAs(input.placeholder === HC_LOW_AFTER ? 'hcLowOps' : 'hcLowPlan', input.placeholder);
       } else {
-        // An empty box sends the placeholder question.
-        if (!text) text = input.placeholder;
-        var base = TURNS[hcRoute(text)];
-        var turn = {};
-        for (var k in base) if (Object.prototype.hasOwnProperty.call(base, k)) turn[k] = base[k];
-        turn.ask = text;
-        TURNS.hcFree = turn;
-        askVera('hcFree', field);
+        askAs(hcRoute(text), text);
       }
       input.value = '';
       close();
       input.blur();
     }
 
-    // The recovery action is a button inside the field: focusing or
-    // clicking it must not expand the box.
-    box.addEventListener('focusin', function (e) {
-      if (!e.target.closest('.hc-ask-action')) open();
-    });
+    box.addEventListener('focusin', open);
     field.addEventListener('click', function (e) {
-      if (e.target.closest('.hc-ask-send, .hc-ask-action')) return;
+      if (e.target.closest('.hc-ask-send')) return;
       open();
       input.focus();
     });
@@ -6059,7 +6057,7 @@
       var sug = e.target.closest('[data-ask]');
       if (!sug) return;
       e.stopPropagation();
-      askVera(sug.getAttribute('data-ask'), field);
+      askAs(sug.getAttribute('data-ask'), sug.textContent.trim());
       input.value = '';
       close();
       sug.blur();

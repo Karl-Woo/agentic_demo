@@ -657,31 +657,6 @@ svg .ico-fill { fill: currentColor; stroke: none; }
 }
 .hc-status.is-focus { background: #FBE7BC; color: #6B4A0E; }
 
-/* The recovery action, inside the collapsed ask pill on the right. It
-   folds away when the box opens, where it becomes the first prompt. */
-.hc-ask-action {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  height: 32px;
-  margin: -4px -8px -4px 0;
-  padding: 0 var(--sp-4);
-  border: 0;
-  border-radius: 999px;
-  background: #14450B;
-  color: #E6F6DF;
-  font: var(--caption-bold);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 140ms ease;
-}
-.hc-ask-action:hover { background: #0E3508; }
-.hc-ask-action:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
-.hc-ask-action.is-done,
-.hc-ask-action.is-done:hover { background: #D4EDCB; color: var(--green-ink); cursor: default; }
-.hc-ask.is-open .hc-ask-action { display: none; }
-.hc-ask-sug.is-primary { color: var(--green-ink); }
-
 .hc-say {
   min-width: 0;
   display: flex;

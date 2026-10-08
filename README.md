@@ -114,18 +114,17 @@ removed from the other version at load (`HC_LOW`).
   Operational Efficiency 18/30, Customer Retention 28/30 (36 + 18 + 28 = 82).
   Only Efficiency carries a status: an amber *Needs focus* tag
   (`.hc-status.is-focus`), right-aligned on the tile.
-- **Recovery action:** *"Draft a recovery plan"* is a dark-green pill
-  inside the ask field, to the left of the send button (`#hcGo`,
-  `.hc-ask-action`). Clicking it asks Vera (`hcLowPlan`) without expanding
-  the box. Vera returns an approvable plan card (weekend lunch busser +
-  Tuesdays open until 8pm, about $850 a week). Approving latches the pill
-  to *"Plan approved"*. When the box is expanded the pill hides, and the
-  same action leads the prompts as *"Draft a targeted recovery plan"*.
+- **Recovery action:** the ask box is the same component as the high
+  version, with no extra button. Its preset question (placeholder) becomes
+  *"Draft a targeted recovery plan"*, so sending the empty box asks Vera
+  (`hcLowPlan`). Vera returns an approvable plan card (weekend lunch busser +
+  Tuesdays open until 8pm, about $850 a week). Once it is approved, the
+  preset falls back to *"Why are my weekend tables turning slower?"*.
 - **Badge:** *Top 20% Locally* in the same purple badge style as the high
   version (2nd of 12, peer median 74). It opens `hcLowPeers`; there is no
-  streak badge. The ask box's placeholder switches to *"Why are my weekend
-  tables turning slower?"*. The prompts become the recovery plan, the table
-  turnover fixes (`hcLowTables`) and the Tuesday closures (`hcLowTuesday`).
+  streak badge. The prompts become the weekend tables question
+  (`hcLowOps`), the table turnover fixes (`hcLowTables`) and the Tuesday
+  closures (`hcLowTuesday`).
 - **Numbers:** $850 = $520 (weekend lunch turns 58 min vs 46 last month,
   about 26 fewer covers at $20) + $330 (2–8pm on an open Tuesday). Turns:
   `hcLowPlan`, `hcLowOps`, `hcLowTables`, `hcLowTuesday`, `hcLowPotential`,
