@@ -5945,8 +5945,10 @@
      ---------------------------------------------------------------
      Collapsed: a one-line pill. Focus or click: it opens into a box
      with a send button and three contextual prompts. Send (or Enter)
-     asks Vera; an empty box sends the placeholder question. Escape,
-     a click elsewhere, or tabbing out folds it back.
+     asks Vera; an empty box sends the placeholder question, and Tab on
+     an empty box types it in, so it can be edited or sent like any
+     other text. Escape, a click elsewhere, or tabbing out folds it
+     back.
 
      Free text is routed to the nearest prepared answer by keyword and
      sent under the merchant's own words (TURNS.hcFree).
@@ -6019,8 +6021,9 @@
 
     function submit() {
       var text = input.value.trim();
-      if (!text) {
-        // An empty box sends the preset question as itself.
+      // Empty, or the preset accepted with Tab: send the preset question
+      // as itself, straight to its prepared answer.
+      if (!text || text === input.placeholder) {
         if (!HC_LOW) askVera('hcItems', field);
         else askAs(input.placeholder === HC_LOW_AFTER ? 'hcLowOps' : 'hcLowPlan', input.placeholder);
       } else {
@@ -6039,7 +6042,16 @@
     });
     input.addEventListener('input', fit);
     input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      if (e.key === 'Tab' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
+          !input.value.trim() && input.placeholder) {
+        // Accept the preset: type it in, caret at the end, ready to send
+        // or edit. With text already in the box, Tab moves focus as usual.
+        e.preventDefault();
+        open();
+        input.value = input.placeholder;
+        input.setSelectionRange(input.value.length, input.value.length);
+        fit();
+      } else if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
         e.preventDefault();
         submit();
       } else if (e.key === 'Escape') {

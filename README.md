@@ -117,7 +117,10 @@ removed from the other version at load (`HC_LOW`).
 - **Recovery action:** the ask box is the same component as the high
   version, with no extra button. Its preset question (placeholder) becomes
   *"Draft a targeted recovery plan"*, so sending the empty box asks Vera
-  (`hcLowPlan`). Vera returns an approvable plan card (weekend lunch busser +
+  (`hcLowPlan`). Like a real input's suggestion, **Tab on the empty box
+  types the preset in** (caret at the end), ready to send with Enter or to
+  edit; with text already in the box, Tab moves focus as usual. This works
+  the same in the high version. Vera returns an approvable plan card (weekend lunch busser +
   Tuesdays open until 8pm, about $850 a week). Once it is approved, the
   preset falls back to *"Why are my weekend tables turning slower?"*.
 - **Badge:** *Top 20% Locally* in the same purple badge style as the high
