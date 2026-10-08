@@ -52,15 +52,15 @@ against its element being absent.
 
 Variants B and C open on an intro modal ("Vera helps you achieve your goals"), then
 a three-step wizard — **1. Target, 2. Focus, 3. Motivation** — of selectable
-cards that highlight and auto-advance, then ~3.2s of "Calibrating your
+cards (tap to select, then Next; Finish on step 3), then ~3.2s of "Calibrating your
 Pace-to-Goal tracker…" (C: "…your What-If simulator…") before the dashboard
 reveals. The main column shows a skeleton until then. C's intro preview shows
 a what-if curve instead of the pace line.
 
 | step | answers | B: the Pace card | C: the What-If card |
 | --- | --- | --- | --- |
-| Target | +15% · +5% · hold $21,000 · custom $ (stepper, waits for Next) | the dotted target line, the ahead/behind figure | Metric B when no motivation is set ("Closes 78% of the gap to your $23,100 monthly goal.") |
-| Focus | foot traffic · order size · high-margin items · labor & slow hours | the setup's loading line only | which three what-ifs appear (`WI_SETS`) and the handoff line's wording |
+| Target | +15% · +5% · hold $21,000 · custom $ (stepper) | the dotted target line, the ahead/behind figure | Metric B when no motivation is set ("Closes 78% of the gap to your $23,100 monthly goal.") |
+| Focus | foot traffic · order size · high-margin items · labor & slow hours | the setup's loading line only | which three what-ifs appear (`WI_SETS`) |
 | Motivation | safety net · equipment/space · staff · fewer hours | the trace line and tooltip | Metric B, the motivation hook |
 
 Skip and "Set this up later" keep the defaults (+10%). Aggressive growth puts
@@ -181,19 +181,20 @@ the drag is stated as about $430 a month.
 
    **Layout (Figma).** The card has one level of containment. There is no
    grey well and no white inner panel. Every section sits on the card's white,
-   and only three surfaces are tinted: the handoff note, the what-if cards
+   and only two surfaces are tinted: the what-if cards
    (`#F4F5F5`, selected `#D4EDCB` in 500 green-ink) and the result panel
    (`#F7F8F9`). The lede is body 16px in ink.
 
-   **The AI handoff.** A grey rounded note (`.wi-handoff`) with Vera's
-   sparkle sits between the lede and *What if…*. Its text is `#wiHandoff`,
-   14px ink-2. It turns the lede's pain point and the goal into the reason
-   for the levers: *"To win back those 2 weeks and fund your $15k safety net
-   sooner, Vera scanned your data and found 3 ways to unlock profit."* With
-   setup skipped it reads *"To close that gap to your $23,100 June goal, …"*.
-
-   **The cards finish the sentence.** *What if…* (label 16px, no icon) sits
-   directly on the cards: *I add a Tuesday happy hour?*.
+   **The lede is the handoff.** There is no separate Vera note and no
+   *What if…* header: both cost vertical space and repeated the goal the
+   title already names. The lede states the pain point and hands straight
+   to the cards: *"High-margin weekend sales are accelerating your
+   progress, but Tuesday closures are costing you ~$430/month. To close
+   this gap, what if…"* With a goal from setup the middle reads
+   *"…delaying your fall hire by an estimated one week."* Each card
+   finishes the sentence in the merchant's own voice (*I add a Tuesday
+   happy hour?*), which keeps the simulator a sandbox the merchant drives
+   rather than a list of prescriptions from Vera.
 
    New levers, all peaking inside their range so *Optimal* means something:
    later Tuesdays (2–8 PM, peak 5 PM +$105, about the $100/wk the closures
@@ -205,14 +206,14 @@ the drag is stated as about $430 a month.
    below instantly. **The y scale is fitted per curve** (`wiYScale`): the
    tightest grid of 2–5 intervals on a round step ($25, $40, $50, $75, $100…)
    that holds the curve and $0. So every lever's rise, peak and fall fills
-   the 170px panel ($0–$150 for the happy hour, $0–$400 for Sunday hours,
+   the 144px panel ($0–$150 for the happy hour, $0–$400 for Sunday hours,
    −$300–$150 for prices). The scales differ between levers on purpose: the
    hero figure carries the comparison, and the curve carries the shape. The
    peak is marked on the curve: a thin, 60% opacity
    short-dash drop from the best stop to $0 and a small 11px green
    *Optimal* caption above it. There is no dot, so the slider's knob stays the
    only circle (`wiOptimalSeries`, at `wiBest()`: 7:30 PM, 15%
-   off, +4%). Moving past it on the happy hour visibly walks down the far
+   off, +5%). Moving past it on the happy hour visibly walks down the far
    side of the curve.
 
    **The ruler labels only its two ends**, flush with the track ends and
@@ -221,32 +222,37 @@ the drag is stated as about $430 a month.
    no ticks. The dotted marker on the chart shows where the thumb is. The
    thumb is 22px (`WI_THUMB`), and the track is 12px.
 3. **Result panel.** One grey rounded panel (`.wi-out`):
-   - The top row has *Projected weekly net sales* on the left and *(?) How
-     is it calculated?* on the right. The label has a dashed underline
-     because it has a definition tooltip ("The extra sales this change brings
-     in each week, after what it costs to run…"). The right-hand button's
-     tooltip holds the basis, e.g. *"Based on your Thursday lunch orders per
-     staff hour, and $105 for each 4-hour shift with overhead."* Hover or
-     keyboard focus shows a tooltip. A click pins the basis open for touch,
-     and a click elsewhere or Esc closes it. Both tooltips anchor to their
-     own edge, so neither hangs off the card.
+   - The top row is one trigger: *Projected weekly net sales (?)*, with no
+     dashed underline. Its single tooltip gives the definition ("The extra
+     sales this change brings in each week, after what it costs to run…"),
+     then, under a hairline, a full sentence naming the figure and what it
+     rests on (`wiFrom`), e.g. *"The +$380 a week is based on about 15% more
+     foot traffic after 6 PM at your $32 average evening ticket, less the
+     cost of staffing the extra hours."* Hover or keyboard focus shows it. A click pins it
+     open for touch, and a click elsewhere or Esc closes it. It anchors to
+     the trigger's left edge, so it never hangs off the card.
    - The body has the figure (40px) with Metric B as a 14px muted caption
-     beneath it on the left. The CTA (48px dark-green pill) sits
-     bottom-right.
+     beneath it on the left. The CTA (48px dark-green pill) sits on the
+     right, top-aligned so it lines up with the 48px figure.
+   - **Narrow (main column ≤ 664px):** the panel stacks instead of
+     wrapping. Label + *(?)* on top, then the figure and caption, then the
+     CTA full width at the bottom.
    - *Metric B*, the motivation hook (`wiHook`), from setup step 3. It is in
-     **weeks**, the same unit as the weekly figure, and the lede's pain point
-     follows in brackets:
+     **weeks**, the same unit as the weekly figure, and leads with the
+     lede's pain point. One short sentence, so it stays within two lines on
+     a narrow panel:
 
      | case | hook |
      | --- | --- |
-     | makes up the Tuesday gap | **Accelerates your $15k buffer by 3 weeks** (fully recovering your Tuesday deficit). |
-     | falls short of it | **Accelerates your … by N** (recovering part of your Tuesday deficit). |
-     | loses money | **Delays your … by N** (on top of your Tuesday deficit). |
+     | makes up the Tuesday gap | Recovers your Tuesday deficit, hitting your $15k buffer 2 weeks faster. |
+     | falls short of it | Recovers part of your Tuesday deficit, hitting your … N faster. |
+     | loses money | Delays your … by N, on top of your Tuesday deficit. |
      | setup skipped | Closes 78% of the gap to your $23,100 monthly goal. |
 
-     "Fully" is judged on the displayed figures, so it is never claimed on a
-     shortfall. Safety net, equipment, fall hire and Mondays off all use this
-     form. Vera's draft quotes the same text. The hook turns red when a
+     A full recovery is judged on the displayed figures, so it is never
+     claimed on a shortfall. Each goal has its own phrase (`WI_HEAD[].hit`):
+     hitting your $15k buffer, getting your espresso machine, making your
+     fall hire, reaching Mondays off. Vera's draft quotes the same text. The hook turns red when a
      setting loses money (prices at +10%).
 4. **Soft CTA.** "Draft new hours with Vera" (or the happy hour / new prices).
    The old note under it ("You'll review it first…") is no longer drawn. It is
@@ -520,7 +526,7 @@ dashed drop, a dot on the peak and an *Optimal* label; a dotted grey
 `wiBest()` compares the **rounded** figures and keeps the **earliest** stop
 that achieves the maximum, so the marker always points at the cheapest way
 to get the best shown result. The three markers land at 1.5 hrs (7:30 PM,
-+$380), 15% off (+$135) and +4%.
++$380), 15% off (+$135) and +5% (+$140).
 
 The chart is built lazily when the card reveals, like the other two, so
 `.wi-curve` states its 132px height in CSS as well — otherwise the lever
@@ -690,7 +696,7 @@ for this card — they are verbatim option 2's three pacing drivers:
 | --- | --- | --- | ---: | ---: |
 | Summer event lifted weekend volume **+$300** | What if I extend Sunday hours? | 0–4 hrs, half-hour steps | **+$350** at +2–2.5 | +$265 |
 | Tuesday closures held back sales potential **−$100** | What if I add a Tuesday happy hour? | 0–30% off, in fives | **+$135** at 15% | +$45 |
-| High-margin items sold above forecast **+$250** | What if I raise top-item prices? | 0–10%, in ones | **+$140** at +4% | **−$250** |
+| High-margin items sold above forecast **+$250** | What if I raise top-item prices? | 0–10%, in ones | **+$140** at +5% | **−$250** |
 
 That mapping is the whole reason the evidence line exists. Without it these
 are three generic questions any restaurant could be asked, and the merchant
@@ -772,13 +778,14 @@ happy   the discount reaches the regulars as well as the newcomers
         net(d)    = earned - given - 40   promoting it
 
 price   margin per cover rises while covers fall away, faster each step
-        keep(p) = 1 - 0.004p - 0.0007p²
+        keep(p) = 1 - 0.00814p + 0.00064p² - 0.0000927p³
         net(p)  = 620 x keep x 28 x (1 + p/100) x 0.68  -  620 x 28 x 0.68
 ```
 
 **The pricing scenario can project a loss**, and that is the strongest
-argument this widget has for existing. It peaks at +4%, crosses zero between
-+7% and +8%, and reaches −$250 at +10%. The impact tile has three states for
+argument this widget has for existing. It peaks at +5% (the figure the
+prompt asks about, so the Optimal line sits mid-track), crosses zero between
++8% and +9%, and reaches −$250 at +10%. The impact tile has three states for
 exactly this: green tint for a gain, `--down-tint` red for a loss, grey for
 no change. A tile that stayed green while its number read −$250 would be the
 interface contradicting its own arithmetic.

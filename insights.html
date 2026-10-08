@@ -17,7 +17,7 @@
      Bump this token whenever styles.css changes in a way you must see.
      Better: serve with tools/serve.py, which sends `Cache-Control: no-store`
      and makes the whole problem go away. -->
-<link rel="stylesheet" href="styles.css?v=2026-10-06a" />
+<link rel="stylesheet" href="styles.css?v=2026-10-08c" />
 <!-- Highcharts v13, vendored locally so the prototype runs offline -->
 <script src="asset/vendor/highcharts.js"></script>
 </head>
@@ -163,8 +163,7 @@
                     </button>
                   </div>
 
-                  <!-- Only for "custom": the one answer that needs a number,
-                       so the one card that does not auto-advance. -->
+                  <!-- Only for "custom": the one answer that needs a number. -->
                   <div class="ftu-custom" id="ftuCustom" hidden>
                     <span class="ftu-custom-label">June target</span>
                     <div class="ftu-stepper">
@@ -649,27 +648,23 @@
                   <p class="card-note">Jun 4&ndash;Jun 10</p>
                 </div>
 
+                <!-- The lede also carries the handoff: the pain point,
+                     then "To close this gap, what if…", which each card
+                     finishes ("I add a Tuesday happy hour?"), so there is
+                     no separate Vera note or "What if…" header
+                     (renderWiHead). -->
                 <p class="wi-lede" id="wiLede">
                   <b>High-margin weekend sales</b> are accelerating your progress, but
                   <b>Tuesday closures</b> are delaying your $15k buffer by an estimated two weeks.
+                  To close this gap, what if&hellip;
                 </p>
 
                 <div class="wi">
 
-                  <!-- The AI handoff: why these three, from the goal and the
-                       pain point above (renderWiHead). A quiet grey note
-                       with Vera's sparkle, above "What if…" so the
-                       question still reads straight into the cards. -->
-                  <div class="wi-handoff">
-                    <img src="asset/ui/ai.svg" alt="" />
-                    <p id="wiHandoff"></p>
-                  </div>
-
                   <!-- ---- 1. the hypothesis ---- -->
                   <div class="wi-ask">
-                    <p class="wi-prompts-head" id="wiPromptsHead">What if&hellip;</p>
                     <!-- Built by renderWiPrompts() from setup step 2. -->
-                    <div class="wi-prompts" role="group" aria-labelledby="wiPromptsHead" id="wiPrompts"></div>
+                    <div class="wi-prompts" role="group" aria-label="What if…" id="wiPrompts"></div>
                   </div>
 
                   <div class="wi-play">
@@ -686,22 +681,24 @@
                     </div>
 
                     <!-- ---- 3 + 4. the result and the action ----
-                         One grey panel: the label (dashed, it has a
-                         definition) and "How is it calculated?" across
-                         the top; the figure and its goal translation on
-                         the left; the CTA bottom-right. -->
+                         One grey panel: the metric's name with its (?)
+                         on top; the figure and its goal translation on
+                         the left; the CTA on the right, across from the
+                         figure. -->
                     <div class="wi-out">
                       <div class="wi-out-head">
-                        <span class="pg-tip-wrap wi-tip-wrap">
-                          <button type="button" class="wi-result-label" aria-describedby="wiDefTip">Projected weekly net sales</button>
-                          <span class="pg-tip" id="wiDefTip" role="tooltip">The extra sales this change brings in each week, after what it costs to run, compared with leaving things as they are.</span>
-                        </span>
-                        <span class="pg-tip-wrap wi-tip-wrap wi-tip-wrap--end" id="wiHowWrap">
-                          <button type="button" class="wi-how" id="wiHow" aria-describedby="wiBasis" aria-expanded="false">
+                        <!-- One trigger, one tooltip: the label itself
+                             carries the (?), and the tooltip gives the
+                             definition, then the basis for this lever. -->
+                        <span class="pg-tip-wrap wi-tip-wrap" id="wiHowWrap">
+                          <button type="button" class="wi-how" id="wiHow" aria-describedby="wiTip" aria-expanded="false">
+                            Projected weekly net sales
                             <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25"/><path d="M7.9 7.6a2.2 2.2 0 1 1 3 2.05c-.55.22-.9.7-.9 1.3v.55"/><circle cx="10" cy="14.2" r="0.6" class="wi-how-dot"/></svg>
-                            How is it calculated?
                           </button>
-                          <span class="pg-tip" id="wiBasis" role="tooltip"></span>
+                          <span class="pg-tip wi-tip" id="wiTip" role="tooltip">
+                            <span class="wi-tip-def">The extra sales this change brings in each week, after what it costs to run, compared with leaving things as they are.</span>
+                            <span class="wi-tip-basis" id="wiBasis"></span>
+                          </span>
                         </span>
                       </div>
 
@@ -5253,25 +5250,27 @@
 
   /* --- C. raise top-item prices ---
      The only scenario that can lose money, and the only one whose
-     losses accelerate. Covers fall by a share that is linear at first
-     and quadratic after — the first percent is absorbed, the eighth
-     is noticed — while the margin gained is strictly linear.
+     losses accelerate. Covers fall roughly linearly through the
+     middle and sharply past it — the first few percent are absorbed,
+     the ninth is noticed — while the margin gained is strictly linear.
 
-       keep(p)  = 1 - A x p - B x p^2
+       keep(p)  = 1 - A x p + B x p^2 - C x p^3
        net(p)   = COVERS x keep x TICKET x (1 + p/100) x MARGIN
                 - COVERS x TICKET x MARGIN
 
-     Peaks near +4% at about +$140, crosses zero between +7% and +8%,
-     and reaches roughly -$250 at +10%. */
+     Peaks at +5% (the figure the prompt asks about) at about +$140,
+     with +4% and +6% visibly below it after rounding, crosses zero
+     between +8% and +9%, and reaches roughly -$250 at +10%. */
   var WI_PX_COVERS = 620;       // covers a week on the top ten items
   var WI_PX_TICKET = 28;        // average ticket
   var WI_PX_MARGIN = 0.68;      // contribution after food cost
-  var WI_PX_A      = 0.004;     // share of covers lost per % — the linear part
-  var WI_PX_B      = 0.0007;    // and the part that accelerates
+  var WI_PX_A      = 0.00814;   // share of covers lost per % — the linear part
+  var WI_PX_B      = 0.00064;   // softens the middle of the range
+  var WI_PX_C      = 0.0000927; // and the part that accelerates at the top
 
   function wiPricing(p) {
     var base  = WI_PX_COVERS * WI_PX_TICKET * WI_PX_MARGIN;
-    var keep  = 1 - WI_PX_A * p - WI_PX_B * p * p;
+    var keep  = 1 - WI_PX_A * p + WI_PX_B * p * p - WI_PX_C * p * p * p;
     var after = WI_PX_COVERS * keep * WI_PX_TICKET * (1 + p / 100) * WI_PX_MARGIN;
     return after - base;
   }
@@ -5346,6 +5345,13 @@
      discard the merchant's answer. So does `locked`. */
   function r5(x) { return Math.round(x / 5) * 5; }
 
+  /* The tooltip's second half: a full sentence that names the figure
+     on the card, so it reads as the answer to "where does +$380 come
+     from?" rather than a fragment. `m` is the figure as shown. */
+  function wiFrom(m, clause) {
+    return 'The ' + m + ' a week is based on ' + clause + '.';
+  }
+
   var WI_SCENARIOS = {
     hours: {
       min: 0, max: 3, step: 0.5, value: 1.5,
@@ -5357,10 +5363,10 @@
       note: 'You\u2019ll review it first. Approving updates your Clover Online Ordering profile and in-store hours.',
       net: function (v) { return wiModel(v).net; },
       read: function (v) { return 'Close at ' + wiCloseTime(v) + ' PM'; },
-      basis: function (v) {
+      basis: function (v, m) {
         return v === 0
           ? 'Sundays close at 6 PM today. Drag to see what staying open later is worth.'
-          : 'Based on a 15% increase in local foot traffic after 6 PM and your average evening ticket size of $32.';
+          : wiFrom(m, 'about 15% more foot traffic after 6 PM at your $32 average evening ticket, less the cost of staffing the extra hours');
       },
       draft: function (v, shown, hook) {
         var t = wiCloseTime(v), hrs = v + (v === 1 ? ' hour' : ' hours');
@@ -5393,10 +5399,10 @@
         if (v === 0) return 'No happy hour';
         return v + '% off drinks, 4 to 6 PM';
       },
-      basis: function (d) {
+      basis: function (d, m) {
         return d === 0
           ? 'Drag to see what a 4\u20136 PM drinks discount on Tuesdays is worth.'
-          : 'Based on how your Tuesday drink orders respond to a discount, and the 70 regulars who would get it anyway.';
+          : wiFrom(m, 'the extra drink orders the discount brings in on Tuesdays, less what it gives away to your 70 regulars and $40 to promote it');
       },
       draft: function (d, shown, hook) {
         return {
@@ -5427,10 +5433,10 @@
         if (v === 0) return 'No change';
         return '+' + v + '% on your top 10 items';
       },
-      basis: function (p) {
+      basis: function (p, m) {
         return p === 0
           ? 'Drag to see what a price rise on your top 10 items is worth.'
-          : 'Based on 620 weekly orders of your top 10 items at a $28 average ticket, with fewer orders as prices rise.';
+          : wiFrom(m, '620 weekly orders of your top 10 items at a $28 average ticket, less the orders you\u2019d lose as prices rise');
       },
       draft: function (p, shown, hook) {
         var after = (WI_PX_TICKET * (1 + p / 100)).toFixed(2);
@@ -5460,10 +5466,10 @@
       note: 'You\u2019ll review it first. Approving updates your Clover Online Ordering profile and in-store hours.',
       net: wiTuesday,
       read: function (h) { return 'Close at ' + (2 + h) + ' PM'; },
-      basis: function (h) {
+      basis: function (h, m) {
         return h === 0
           ? 'Tuesdays close at 2 PM today. Drag to see what staying open later is worth.'
-          : 'Based on your Tuesday afternoon foot traffic and one barista at $33 an hour, overhead included.';
+          : wiFrom(m, 'your Tuesday afternoon foot traffic, less one barista at $33 an hour with overhead');
       },
       draft: function (h, shown, hook) {
         var t = (2 + h) + ' PM', hrs = h + (h === 1 ? ' hour' : ' hours');
@@ -5493,8 +5499,8 @@
       note: 'You\u2019ll review it first. Approving adds the pairing to your Clover POS and online menu.',
       net: wiPairing,
       read: function (p) { return 'Any pastry for $' + p.toFixed(2) + ' with a weekend latte'; },
-      basis: function () {
-        return 'Based on how often your weekend latte orders already add a pastry, and $1.95 of food cost per pastry.';
+      basis: function (p, m) {
+        return wiFrom(m, 'how often your weekend latte orders already add a pastry, less $1.95 of food cost per pastry');
       },
       draft: function (p, shown, hook) {
         var price = '$' + p.toFixed(2);
@@ -5526,10 +5532,10 @@
         if (n === 0) return 'Nothing featured';
         return n <= 2 ? 'Feature ' + wiFeatureList(n) : 'Feature ' + n + ' items on Saturdays';
       },
-      basis: function (n) {
+      basis: function (n, m) {
         return n === 0
           ? 'Drag to see what featuring your best-margin items on the Saturday menu board is worth.'
-          : 'Based on how your ice latte and avocado toast sell when featured, and the orders each extra feature pulls from the others.';
+          : wiFrom(m, 'how your ice latte and avocado toast sell when featured, less the orders each extra feature pulls from the others');
       },
       draft: function (n, shown, hook) {
         var list = wiFeatureList(n);
@@ -5561,10 +5567,10 @@
         if (n === 0) return 'Thursday lunch as staffed today';
         return 'Drop ' + n + ' Thursday lunch shift' + (n === 1 ? '' : 's');
       },
-      basis: function (n) {
+      basis: function (n, m) {
         return n === 0
           ? 'Thursday lunch runs 7 people today. Drag to see what a leaner lunch is worth.'
-          : 'Based on your Thursday lunch orders per staff hour, and $105 for each 4-hour shift with overhead.';
+          : wiFrom(m, '$105 saved per 4-hour shift with overhead, less the lunch orders that walk out when the line backs up');
       },
       draft: function (n, shown, hook) {
         var s = n + (n === 1 ? ' shift' : ' shifts');
@@ -5598,7 +5604,8 @@
     labor:   ['staff', 'tuesday', 'happy'],
     none:    ['hours', 'happy', 'price']
   };
-  /* Each card finishes the sentence "What if…" above it. */
+  /* Each card finishes the lede's closing "To close this gap, what
+     if…", so they stay in the merchant's voice. */
   var WI_PROMPTS = {
     hours:   'I extend Sunday dinner hours?',
     happy:   'I add a Tuesday happy hour?',
@@ -5652,14 +5659,14 @@
   var WI_TUE_DRAG = 100;
   var WI_HEAD = {
     safety:  { title: 'Your path to a $15k safety net',      goal: '$15k buffer',
-               reach: 'fund your $15k safety net',
+               hit: 'hitting your $15k buffer',
                left: function () { return WI_BUFFER - WI_BUFFER_SAVED; } },
     upgrade: { title: 'Your path to a new espresso machine', goal: 'espresso machine',
-               reach: 'get your new espresso machine' },
+               hit: 'getting your espresso machine' },
     staff:   { title: 'Your path to a fall hire',            goal: 'fall hire',
-               reach: 'make your fall hire' },
+               hit: 'making your fall hire' },
     time:    { title: 'Your path to Mondays off',            goal: 'Mondays off',
-               reach: 'take Mondays off' }
+               hit: 'reaching Mondays off' }
   };
   var WI_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six',
                   'seven', 'eight', 'nine', 'ten'];
@@ -5667,7 +5674,7 @@
     return wiWeeks(w).replace(/^\d+/, function (n) { return WI_WORDS[+n] || n; });
   }
 
-  /* The goal's arithmetic, shared by the lede, the handoff and Metric B
+  /* The goal's arithmetic, shared by the lede and Metric B
      so the three can never disagree about the gap. */
   function wiGoalLeft() {
     var h = WI_HEAD[FTU_WHY], g = PG_GOALS[FTU_WHY];
@@ -5709,30 +5716,25 @@
   function renderWiHead() {
     var title = document.getElementById('wiTitle');
     var lede  = document.getElementById('wiLede');
-    var hand  = document.getElementById('wiHandoff');
     if (!title || !lede) return;
     var lead = '<b>High-margin weekend sales</b> are accelerating your progress, but ' +
                '<b>Tuesday closures</b> are ';
-    // The AI handoff: the goal and the pain point above become the
-    // reason for the three levers below, in the focus from step 2.
-    var found = 'Vera scanned your data and found 3 ways to unlock profit.';
+    // The handoff rides on the lede: the pain point becomes the reason
+    // for the three levers below, and "what if…" hands over to the
+    // cards, which finish the sentence. The goal is named once, in the
+    // title, not again here.
+    var found = ' To close this gap, what if\u2026';
     var h = WI_HEAD[FTU_WHY];
     if (!h) {
       title.textContent = 'Pacing toward your ' + usd(goalTarget()) + ' June goal';
-      lede.innerHTML = lead + 'costing you about ' +
-        usd(Math.round(WI_TUE_DRAG * 52 / 12 / 10) * 10) + ' a month against it.';
-      if (hand) hand.textContent = 'To close that gap to your ' + usd(goalTarget()) + ' June goal, ' + found;
+      lede.innerHTML = lead + 'costing you ~' +
+        usd(Math.round(WI_TUE_DRAG * 52 / 12 / 10) * 10) + '/month.' + found;
       return;
     }
     var delay = wiTueGap();
     title.textContent = h.title;
     lede.innerHTML = lead + 'delaying your ' + h.goal + ' by an estimated ' +
-                     wiWeeksWords(delay) + '.';
-    if (hand) {
-      hand.textContent = 'To win back ' +
-        (Math.round(delay) === 1 ? 'that week' : 'those ' + wiWeeks(delay)) +
-        ' and ' + h.reach + ' sooner, ' + found;
-    }
+                     wiWeeksWords(delay) + '.' + found;
   }
 
   function wiHook(w) {
@@ -5752,16 +5754,16 @@
       else if (base + w <= 0) t = 'Stalls ' + tl + '.';
       else {
         var diff = left / base - left / (base + w);
-        /* One line, a conclusion rather than a narrative: the figure,
-           then the pain point it answers in brackets. Compared as
-           displayed, so "fully" is never claimed on a shortfall. */
+        /* One short sentence, so it stays two lines at most on a narrow
+           panel: the pain point it answers first, then the time on the
+           goal. Compared as displayed, so a full recovery is never
+           claimed on a shortfall. */
         if (dir === 'up') {
           var dd = wiShownDays(diff), gd = wiShownDays(gap);
-          t = 'Accelerates ' + tl + ' by ' + wiWeeks(diff);
-          sub = '(' + (dd >= gd ? 'fully recovering' : 'recovering part of') + ' your Tuesday deficit).';
+          t = (dd >= gd ? 'Recovers' : 'Recovers part of') + ' your Tuesday deficit, ' +
+              hd.hit + ' ' + wiWeeks(diff) + ' faster.';
         } else {
-          t = 'Delays ' + tl + ' by ' + wiWeeks(-diff);
-          sub = '(on top of your Tuesday deficit).';
+          t = 'Delays ' + tl + ' by ' + wiWeeks(-diff) + ', on top of your Tuesday deficit.';
         }
       }
     } else {
@@ -6360,7 +6362,7 @@
     box.classList.toggle('is-down', impact < 0);
     box.classList.toggle('is-flat', impact === 0);
 
-    document.getElementById('wiBasis').textContent = sc.basis(val);
+    document.getElementById('wiBasis').textContent = sc.basis(val, impact === 0 ? '$0' : money);
 
     // Metric B: the same dollars, in the merchant's own terms.
     var hook = wiHook(impact);
@@ -6452,7 +6454,7 @@
      Comparing the ROUNDED values and keeping the EARLIEST step that
      achieves the maximum means the marker always points at the
      cheapest way to get the best shown result (7:30 PM, 15% off,
-     +4%). */
+     +5%). */
   function wiBest(sc) {
     var bestV = sc.min, bestN = -Infinity;
     var n = Math.round((sc.max - sc.min) / sc.step);
@@ -6538,7 +6540,7 @@
           // Room for the Optimal caption when the peak is the top line.
           marginTop: 22,
           marginBottom: 6,
-          height: 170,
+          height: 144,
           animation: false
         },
 
@@ -6858,9 +6860,9 @@
       if (b) wiSelect(b.getAttribute('data-wi'));
     });
 
-    /* "How is this calculated?": hover or keyboard focus shows it (the
-       shared .pg-tip rules); a click pins it open for touch, and a
-       click anywhere else or Esc closes it. */
+    /* The metric's label + (?): hover or keyboard focus shows the
+       tooltip (the shared .pg-tip rules); a click pins it open for
+       touch, and a click anywhere else or Esc closes it. */
     (function () {
       var how = document.getElementById('wiHow'), wrap = document.getElementById('wiHowWrap');
       function set(open) {
@@ -6960,9 +6962,9 @@
 
      Intro modal -> three questions -> ~2.6s calibrating -> the
      dashboard reveals, personalised. Each question is a grid of
-     selectable cards: picking one highlights it and auto-advances,
-     so the whole thing takes seconds. The one exception is the
-     custom $ target, which needs a number and waits for Next.
+     selectable cards: picking one highlights it and enables Next
+     (Finish on step 3), which is the only way forward — the answer
+     can be changed until then. The custom $ target opens a stepper.
 
        1 Target      -> GOAL_GROWTH / GOAL_CUSTOM (B's dotted line;
                         C's hook when no motivation is set)
@@ -7257,14 +7259,12 @@
           }
         );
         document.getElementById('ftuNext').disabled = false;
-        clearTimeout(ftuTimer);
-        if (key === 'target' && val === 'custom') {
-          ftuRenderCustom();
-          document.getElementById('ftuCustom').hidden = false;
-          return;                       // needs a number: waits for Next
+        // Selecting only selects: the answer can still be changed, and
+        // Next / Finish is the one way forward on every step.
+        if (key === 'target') {
+          if (val === 'custom') ftuRenderCustom();
+          document.getElementById('ftuCustom').hidden = val !== 'custom';
         }
-        if (key === 'target') document.getElementById('ftuCustom').hidden = true;
-        ftuTimer = setTimeout(ftuAdvance, 450);
       });
     });
 
