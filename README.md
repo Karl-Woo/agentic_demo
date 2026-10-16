@@ -50,22 +50,29 @@ against its element being absent.
 
 ### First-time setup (variants B and C)
 
-Variants B and C open on an intro modal ("Vera helps you achieve your goals"), then
-a three-step wizard — **1. Target, 2. Focus, 3. Motivation** — of selectable
-cards (tap to select, then Next; Finish on step 3), then ~3.2s of "Calibrating your
-Pace-to-Goal tracker…" (C: "…your What-If simulator…") before the dashboard
+Variants B and C open on an intro modal ("Let Vera help you hit your goals"), then
+a three-step wizard — **1. Goal, 2. Focus, 3. Reason** — of selectable
+cards (tap to select, then Next; Finish on step 3), then ~3.2s of "Setting up your
+goal tracker…" (C: "…your what-if planner…") before the dashboard
 reveals. The main column shows a skeleton until then. C's intro preview shows
 a what-if curve instead of the pace line.
 
 | step | answers | B: the Pace card | C: the What-If card |
 | --- | --- | --- | --- |
-| Target | +15% · +5% · hold $21,000 · custom $ (stepper) | the dotted target line, the ahead/behind figure | Metric B when no motivation is set ("Closes 78% of the gap to your $23,100 monthly goal.") |
-| Focus | foot traffic · order size · high-margin items · labor & slow hours | the setup's loading line only | which three what-ifs appear (`WI_SETS`) |
-| Motivation | safety net · equipment/space · staff · fewer hours | the trace line and tooltip | Metric B, the motivation hook |
+| Goal | grow fast +15% · grow steadily +5% · keep sales steady $21,000 · set my own (stepper) | the dotted target line, the ahead/behind figure | Metric B when no reason is set ("Closes 78% of the gap to your $23,100 monthly goal.") |
+| Focus | more customers · bigger orders · most profitable items · staff costs in slow hours | the setup's loading line only | which three what-ifs appear (`WI_SETS`) |
+| Reason | safety net · equipment/space · staff · time off | the trace line and tooltip | Metric B, the reason hook |
 
-Skip and "Set this up later" keep the defaults (+10%). Aggressive growth puts
-B's card $425 **behind** pace, which is intended. Add `?ftu=0` to open B or C
+Skip and "Set this up later" keep the defaults (+10%). "Grow fast" puts
+B's card $425 **behind** target, which is intended. Add `?ftu=0` to open B or C
 without the setup; reload to see it again.
+
+**Copy.** All on-screen wording is written in the merchant's words, not
+analyst terms: *most profitable items* (not high-margin), *closing early on
+Tuesdays* (not Tuesday closures), *repeat customers* (not retention),
+*operations* (not operational efficiency), *health score* (not Health Index),
+*typical café nearby* (not local median), *ahead of target* (not ahead of
+pace), *estimated gain* (not projected). Keep new copy to that register.
 
 **Layout and Vera's line.** The wizard uses one 640px column (`--ftu-col`) shared by the stepper, Vera's bubble, the question and the tiles.
 
@@ -75,14 +82,14 @@ without the setup; reload to see it again.
   - Step 2: "$24,150 means about $105 more a day."
   - Step 3: repeats the chosen focus's finding from `PG_FOCUS`.
 - **Entrance order.** Each step comes in as a sequence: Vera's bubble first, then her words stream in, then the question, then the four tiles in a 60ms stagger. `ftuSay` sets `--ftu-after` from the line's word count.
-- **Stepper.** A segment fills left to right when its step starts, and drains right to left when you go Back. The current step's label is green, done steps are ink, and each done step reads its answer back ("1. Target · $22,050").
+- **Stepper.** A segment fills left to right when its step starts, and drains right to left when you go Back. The current step's label is green, done steps are ink, and each done step reads its answer back ("1. Goal · $22,050").
 - **Loading.** The green ring is unchanged; under the progress bar, a four-line checklist (`#ftuLoadList`) spins and then ticks each item. Total time is ~3.2s.
 
 ### Variant A's card — everything asks Vera
 
 - **Badges.** Hover or keyboard focus shows a tooltip (same `.pg-tip` as B):
-  *Top 20% Locally*: "ranks 2nd of the 12 cafés your size within 2 miles";
-  *3-Week Action Streak*: "acted on a Vera suggestion each of the last 3
+  *Top 20% nearby*: "2nd out of 12 similar cafés within 2 miles";
+  *3-week streak*: "acted on a Vera suggestion every week for 3
   weeks; act on one by Wed Jun 17 to make it 4". Esc dismisses. Clicking asks
   Vera: rank → `peers`, streak → `hcStreak`.
 - **Mark tiles** are buttons (`HC_MARKS[].ask`). Hover/focus: darker grey
@@ -105,26 +112,26 @@ Same card, for a bad week. Elements tagged `data-score-only="high|low"` are
 removed from the other version at load (`HC_LOW`).
 
 - **Ring:** muted amber (`#C98A1B` on `#F4E2B6`), never red. Both versions
-  share one centre, **N/100 Health Index** (92 green, 82 amber). There is no
+  share one centre, **N/100 Health score** (92 green, 82 amber). There is no
   letter grade in either version.
-- **Read:** one sentence, like the high version: *"You have an estimated
-  **$850** in untapped weekly potential, held back by **slower weekend table
-  turns** and **Tuesday closures**."*
-- **Pillars:** the same tiles as the high version: Revenue Growth 36/40,
-  Operational Efficiency 18/30, Customer Retention 28/30 (36 + 18 + 28 = 82).
-  Only Efficiency carries a status: an amber *Needs focus* tag
+- **Read:** one sentence, like the high version: *"You could be making about
+  **$850** more a week. **Slower weekend tables** and **closing early on
+  Tuesdays** are holding you back."*
+- **Pillars:** the same tiles as the high version: Sales growth 36/40,
+  Operations 18/30, Repeat customers 28/30 (36 + 18 + 28 = 82).
+  Only Operations carries a status: an amber *Needs attention* tag
   (`.hc-status.is-focus`), right-aligned on the tile.
 - **Recovery action:** the ask box is the same component as the high
   version, with no extra button. Its preset question (placeholder) becomes
-  *"Draft a targeted recovery plan"*, so sending the empty box asks Vera
+  *"Make a plan to win back $850"*, so sending the empty box asks Vera
   (`hcLowPlan`). Like a real input's suggestion, **Tab on the empty box
   types the preset in** (caret at the end), ready to send with Enter or to
   edit; with text already in the box, Tab moves focus as usual. This works
   the same in the high version. Vera returns an approvable plan card (weekend lunch busser +
   Tuesdays open until 8pm, about $850 a week). Once it is approved, the
-  preset falls back to *"Why are my weekend tables turning slower?"*.
-- **Badge:** *Top 20% Locally* in the same purple badge style as the high
-  version (2nd of 12, peer median 74). It opens `hcLowPeers`; there is no
+  preset falls back to *"Why are weekend tables taking longer?"*.
+- **Badge:** *Top 20% nearby* in the same purple badge style as the high
+  version (2nd of 12, typical café 74). It opens `hcLowPeers`; there is no
   streak badge. The prompts become the weekend tables question
   (`hcLowOps`), the table turnover fixes (`hcLowTables`) and the Tuesday
   closures (`hcLowTuesday`).

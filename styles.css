@@ -572,6 +572,19 @@ svg .ico-fill { fill: currentColor; stroke: none; }
 }
 
 .gam-row-name { flex: 1 1 auto; min-width: 0; font: var(--body-bold); }
+/* Two-line rows (variant B, behind): the finding, then the fix under it. */
+.gam-row-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.gam-row-sub {
+  font: var(--caption);
+  color: var(--muted);
+  margin-top: 2px;
+}
+.gam-row-sub b { font-weight: 600; color: var(--ink-2); }
 .gam-row-val {
   font: var(--body);
   color: var(--muted);

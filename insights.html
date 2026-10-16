@@ -94,8 +94,8 @@
                   <div class="ftu-preview-row">
                     <div>
                       <p class="ftu-preview-cap">Net sales</p>
-                      <p class="ftu-preview-num">$450</p>
-                      <p class="ftu-preview-cap">ahead of pace</p>
+                      <p class="ftu-preview-num">$1,200</p>
+                      <p class="ftu-preview-cap">ahead of target</p>
                     </div>
                     <svg class="ftu-preview-chart" viewBox="0 0 150 70">
                       <path d="M2 66 L148 8" style="stroke:#9AA0A6;stroke-width:1.4;stroke-dasharray:3 3"/>
@@ -107,8 +107,8 @@
               </div>
 
               <div class="ftu-intro-body">
-                <h2 class="ftu-intro-title" id="ftuIntroTitle">Vera helps you achieve your goals</h2>
-                <p class="ftu-intro-text">Get daily updates on your business with smart AI insights. Discover top opportunities, monitor results, and pinpoint your next move.</p>
+                <h2 class="ftu-intro-title" id="ftuIntroTitle">Let Vera help you hit your goals</h2>
+                <p class="ftu-intro-text">Set a sales goal. Vera tracks it every day, spots ways to grow, and tells you what to do next.</p>
               </div>
               <div class="ftu-intro-foot">
                 <button class="ftu-btn ftu-btn--outline" type="button" id="ftuSkip">Skip</button>
@@ -126,9 +126,9 @@
             <!-- Each done step carries its answer ("1. Target · $22,050"),
                  so the wizard reads back what it has heard so far. -->
             <ol class="ftu-steps" id="ftuSteps">
-              <li class="ftu-steps-item" data-step="1"><span class="ftu-steps-name">1.&nbsp; Target</span><span class="ftu-steps-ans"></span></li>
+              <li class="ftu-steps-item" data-step="1"><span class="ftu-steps-name">1.&nbsp; Goal</span><span class="ftu-steps-ans"></span></li>
               <li class="ftu-steps-item" data-step="2"><span class="ftu-steps-name">2.&nbsp; Focus</span><span class="ftu-steps-ans"></span></li>
-              <li class="ftu-steps-item" data-step="3"><span class="ftu-steps-name">3.&nbsp; Motivation</span><span class="ftu-steps-ans"></span></li>
+              <li class="ftu-steps-item" data-step="3"><span class="ftu-steps-name">3.&nbsp; Reason</span><span class="ftu-steps-ans"></span></li>
             </ol>
 
             <div class="ftu-wiz-body">
@@ -138,38 +138,38 @@
                 <!-- Vera's line: a chat bubble above the question, streamed in
                      word by word (ftuSay); it answers the PREVIOUS step's choice. -->
                 <div class="ftu-vera"><span class="ftu-vera-av"><img src="asset/ui/ai.svg" alt="" /></span><p class="ftu-vera-say" aria-live="polite"></p></div>
-                <h2 class="ftu-q-title">What does a &ldquo;winning month&rdquo; look like for you?</h2>
+                <h2 class="ftu-q-title">What&rsquo;s your sales goal for June?</h2>
                 <div class="ftu-well">
-                  <div class="ftu-grid" role="radiogroup" aria-label="Monthly target">
+                  <div class="ftu-grid" role="radiogroup" aria-label="Monthly sales goal">
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="target" data-value="aggressive">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Aggressive growth</span><span class="ftu-card-sub">+15% &middot; $24,150</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Grow fast</span><span class="ftu-card-sub">+20% &middot; $25,200</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><path d="M12 2.5l6.5 7.5h-3.8v6.5H9.3V10H5.5z"/><path d="M9.5 19h5M10.5 21.5h3"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="target" data-value="steady">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Steady growth</span><span class="ftu-card-sub">+5% &middot; $22,050</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Grow steadily</span><span class="ftu-card-sub">+5% &middot; $22,050</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><path d="M7 14h10l-1.3 7H8.3z"/><path d="M12 14V8.5"/><path d="M12 9.5c0-3.3 2-5.5 6.5-5.5 0 3.3-2 5.5-6.5 5.5z"/><path d="M12 11c0-2.6-1.6-4.6-5.5-4.6 0 2.6 1.6 4.6 5.5 4.6z"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="target" data-value="maintain">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Maintain current volume</span><span class="ftu-card-sub">Hold at $21,000</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Keep sales steady</span><span class="ftu-card-sub">Stay at $21,000</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><path d="M12 2.5l7.5 3v5.5c0 4.8-3.2 8.4-7.5 10.5-4.3-2.1-7.5-5.7-7.5-10.5V5.5z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.4"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="target" data-value="custom">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Set a custom $ target</span><span class="ftu-card-sub">You know the number</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Set my own goal</span><span class="ftu-card-sub">Pick an amount</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M8 6.5v11M12 6.5v11M16 6.5v11"/><circle cx="8" cy="14" r="1.6" style="fill:#fff"/><circle cx="12" cy="9.5" r="1.6" style="fill:#fff"/><circle cx="16" cy="13" r="1.6" style="fill:#fff"/></svg>
                     </button>
                   </div>
 
                   <!-- Only for "custom": the one answer that needs a number. -->
                   <div class="ftu-custom" id="ftuCustom" hidden>
-                    <span class="ftu-custom-label">June target</span>
+                    <span class="ftu-custom-label">June goal</span>
                     <div class="ftu-stepper">
-                      <button class="ftu-step-btn" type="button" id="ftuCustomDown" aria-label="Lower target by $500">&minus;</button>
+                      <button class="ftu-step-btn" type="button" id="ftuCustomDown" aria-label="Lower goal by $500">&minus;</button>
                       <span class="ftu-custom-num" id="ftuCustomNum" aria-live="polite">$24,000</span>
-                      <button class="ftu-step-btn" type="button" id="ftuCustomUp" aria-label="Raise target by $500">+</button>
+                      <button class="ftu-step-btn" type="button" id="ftuCustomUp" aria-label="Raise goal by $500">+</button>
                     </div>
                     <span class="ftu-custom-note" id="ftuCustomNote">14% above your average</span>
                   </div>
@@ -179,27 +179,27 @@
               <!-- Step 2: the focus -->
               <section class="ftu-q" data-step="2" hidden>
                 <div class="ftu-vera"><span class="ftu-vera-av"><img src="asset/ui/ai.svg" alt="" /></span><p class="ftu-vera-say" aria-live="polite"></p></div>
-                <h2 class="ftu-q-title">To hit that target, where should Vera look for opportunities first?</h2>
+                <h2 class="ftu-q-title">Where should Vera look first?</h2>
                 <div class="ftu-well">
                   <div class="ftu-grid" role="radiogroup" aria-label="Focus">
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="focus" data-value="traffic">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Attracting foot traffic</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Bring in more customers</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><circle cx="13.5" cy="4.2" r="1.9"/><path d="M10 21.5l2.3-6.2-2.6-2.8 1.2-5 3.7 3.2 3.4 1.2"/><path d="M10.9 7.5L7 9.6l-1.2 4"/><path d="M12.3 15.3l3.3 6.2"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="focus" data-value="basket">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Increasing order sizes</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Get bigger orders</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><path d="M4.5 8h15l-1.2 13H5.7z"/><path d="M8.5 10.5V6.5a3.5 3.5 0 0 1 7 0v4"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="focus" data-value="margin">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Boosting high-margin items</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Sell more of my most profitable items</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><path d="M6.5 3.5h11l3.5 5.5-9 11.5L3 9z"/><path d="M3 9h18"/><path d="M9.5 3.5L8 9l4 11.5L16 9l-1.5-5.5"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="focus" data-value="labor">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Optimizing labor &amp; slow hours</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Cut staff costs in slow hours</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.5h4M12 2.5V6M18.2 7.3l1.5-1.5"/></svg>
                     </button>
                   </div>
@@ -209,27 +209,27 @@
               <!-- Step 3: the motivation -->
               <section class="ftu-q" data-step="3" hidden>
                 <div class="ftu-vera"><span class="ftu-vera-av"><img src="asset/ui/ai.svg" alt="" /></span><p class="ftu-vera-say" aria-live="polite"></p></div>
-                <h2 class="ftu-q-title">When you hit this goal, what is the biggest win for you?</h2>
+                <h2 class="ftu-q-title">What will the extra money go toward?</h2>
                 <div class="ftu-well">
-                  <div class="ftu-grid" role="radiogroup" aria-label="Motivation">
+                  <div class="ftu-grid" role="radiogroup" aria-label="Reason">
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="why" data-value="safety">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Building a cash safety net</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">A cash safety net</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><path d="M3 9l9-5.5L21 9z"/><path d="M5.5 9v8.5M9.8 9v8.5M14.2 9v8.5M18.5 9v8.5M3 20.5h18"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="why" data-value="upgrade">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Upgrading equipment or space</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">New equipment or space</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><path d="M4 9.5h12.5v4.5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16.5 10.5h1.8a2.4 2.4 0 0 1 0 4.8h-1.8"/><path d="M8 3.5c0 1.6 1 1.6 1 3.2M12 3.5c0 1.6 1 1.6 1 3.2"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="why" data-value="staff">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Rewarding staff or hiring</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">Paying or hiring staff</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.8.3 4.6 2.6 4.6 5.8"/></svg>
                     </button>
                     <button class="ftu-card" type="button" role="radio" aria-checked="false" data-key="why" data-value="time">
                       <span class="ftu-radio"></span>
-                      <span class="ftu-card-text"><span class="ftu-card-title">Stepping back to reduce hours</span></span>
+                      <span class="ftu-card-text"><span class="ftu-card-title">More time off for me</span></span>
                       <svg class="ftu-card-ico" viewBox="0 0 24 24"><path d="M3 11.5a9 7.5 0 0 1 18 0z"/><path d="M12 4v16.5M8 20.5h8"/><path d="M8 11.5c0-4 1.8-6.8 4-7.5M16 11.5c0-4-1.8-6.8-4-7.5"/></svg>
                     </button>
                   </div>
@@ -242,7 +242,7 @@
                   <span class="ftu-load-ring"></span>
                   <img src="asset/ui/ai.svg" alt="" />
                 </div>
-                <h2 class="ftu-load-title" id="ftuLoadTitle">Calibrating your Pace-to-Goal tracker&hellip;</h2>
+                <h2 class="ftu-load-title" id="ftuLoadTitle">Setting up your goal tracker&hellip;</h2>
                 <div class="ftu-load-bar"><span id="ftuLoadFill"></span></div>
                 <!-- Built by ftuCalibrate: one line per thing Vera is doing
                      with the answers, each spinning, then ticked. -->
@@ -389,15 +389,15 @@
                          Thursday was unusually slow" could not be shared,
                          and should not be. -->
                     <p class="hc-read" data-score-only="high">
-                      <b>High-margin items</b> are driving strong weekend volume, but
-                      <b>Tuesday closures</b> are slightly dragging down your potential.
+                      <b>Your most profitable items</b> sold well this weekend, but
+                      <b>closing early on Tuesdays</b> cost you some sales.
                     </p>
                     <!-- Low-score version (?score=low): the same single
                          sentence, with the dip as money still on the table
                          and its cause named. -->
                     <p class="hc-read" data-score-only="low">
-                      You have an estimated <b>$850</b> in untapped weekly potential, held back by
-                      <b>slower weekend table turns</b> and <b>Tuesday closures</b>.
+                      You could be making about <b>$850</b> more a week. <b>Slower weekend tables</b>
+                      and <b>closing early on Tuesdays</b> are holding you back.
                     </p>
 
                     <!-- The badges, and they are the reason this card is in a
@@ -417,25 +417,25 @@
                       <li class="pg-tip-wrap hc-tip-wrap" data-score-only="high">
                         <button class="hc-badge" type="button" data-ask="peers" aria-describedby="hcRankTip">
                           <img src="asset/ui/badge-rank.svg" alt="" />
-                          <span>Top 20% Locally</span>
+                          <span>Top 20% nearby</span>
                         </button>
-                        <span class="pg-tip" id="hcRankTip" role="tooltip">Your Health Index of 92 ranks 2nd of the 12 caf&eacute;s your size within 2 miles this week, which puts you in the top 20%.</span>
+                        <span class="pg-tip" id="hcRankTip" role="tooltip">Your score of 92 is 2nd out of 12 similar caf&eacute;s within 2 miles this week.</span>
                       </li>
                       <li class="pg-tip-wrap hc-tip-wrap" data-score-only="high">
                         <button class="hc-badge" type="button" data-ask="hcStreak" aria-describedby="hcStreakTip">
                           <img src="asset/ui/badge-streak.svg" alt="" />
-                          <span>3-Week Action Streak</span>
+                          <span>3-week streak</span>
                         </button>
-                        <span class="pg-tip" id="hcStreakTip" role="tooltip">You&rsquo;ve acted on at least one of Vera&rsquo;s suggestions in each of the last 3 weeks. Act on one by Wed Jun 17 to make it 4.</span>
+                        <span class="pg-tip" id="hcStreakTip" role="tooltip">You&rsquo;ve acted on a Vera suggestion every week for 3 weeks. Act on one by Wed Jun 17 to make it 4.</span>
                       </li>
                       <!-- Low score: the peer benchmark, in the same badge
                            style as the high version. -->
                       <li class="pg-tip-wrap hc-tip-wrap" data-score-only="low">
                         <button class="hc-badge" type="button" data-ask="hcLowPeers" aria-describedby="hcPeerTip">
                           <img src="asset/ui/badge-rank.svg" alt="" />
-                          <span>Top 20% Locally</span>
+                          <span>Top 20% nearby</span>
                         </button>
-                        <span class="pg-tip" id="hcPeerTip" role="tooltip">Your Health Index of 82 ranks 2nd of the 12 caf&eacute;s your size within 2 miles this week (peer median 74).</span>
+                        <span class="pg-tip" id="hcPeerTip" role="tooltip">Your score of 82 is 2nd out of 12 similar caf&eacute;s within 2 miles this week. A typical caf&eacute; scores 74.</span>
                       </li>
                     </ul>
                   </div>
@@ -446,7 +446,7 @@
 
                      This is the one place option 1 stops matching option 2's
                      shape, and the content is why. Option 2's rail holds
-                     CONTRIBUTIONS to a single total — +$300, +$250, -$100,
+                     CONTRIBUTIONS to a single total — +$700, +$600, -$100,
                      which sum to the hero and are therefore subordinate to
                      it. These three are not contributions, they are three
                      separate scores of similar size that happen to be added
@@ -477,19 +477,19 @@
                   <div class="hc-ask-field">
                     <img src="asset/ui/ai-search.svg" alt="" />
                     <textarea class="hc-ask-input" id="hcAskInput" rows="1"
-                              placeholder="Which high-margin items are selling best?"
+                              placeholder="Which items make me the most money?"
                               aria-label="Ask Vera about this health check"></textarea>
                     <button class="hc-ask-send" type="button" id="hcAskSend" aria-label="Send to Vera">
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
                     </button>
                   </div>
                   <ul class="hc-ask-sugs" aria-label="Suggested questions">
-                    <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcTuesday">Estimate lost revenue from Tuesday closures</button></li>
-                    <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcRevenue">How can I improve my revenue growth?</button></li>
-                    <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcRetention">How did customer retention compare to last month?</button></li>
-                    <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowOps">Why are my weekend tables turning slower?</button></li>
-                    <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowTables">View top fixes for table turnover</button></li>
-                    <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowTuesday">Estimate lost revenue from Tuesday closures</button></li>
+                    <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcTuesday">How much does closing early on Tuesdays cost me?</button></li>
+                    <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcRevenue">How can I grow my sales?</button></li>
+                    <li data-score-only="high"><button type="button" class="hc-ask-sug" data-ask="hcRetention">Are my regulars coming back?</button></li>
+                    <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowOps">Why are weekend tables taking longer?</button></li>
+                    <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowTables">How can I free up tables faster?</button></li>
+                    <li data-score-only="low"><button type="button" class="hc-ask-sug" data-ask="hcLowTuesday">How much does closing early on Tuesdays cost me?</button></li>
                   </ul>
                 </div>
               </section>
@@ -554,12 +554,12 @@
                     <!-- The pacing verdict, with the arithmetic behind it
                          one hover (or focus) away. -->
                     <div class="pg-tip-wrap" id="pgBadgeWrap">
-                      <button type="button" class="pg-badge" id="pgBadge" aria-describedby="pgBadgeTip">Pacing: Excellent</button>
+                      <button type="button" class="pg-badge" id="pgBadge" aria-describedby="pgBadgeTip">Well ahead</button>
                       <span class="pg-tip" id="pgBadgeTip" role="tooltip"></span>
                     </div>
                     <p class="pg-panel-label">Net sales</p>
-                    <p class="pg-hero"><span class="pg-hero-num" id="pgHeroNum">$450</span></p>
-                    <p class="pg-hero-tail" id="pgHeroTail">ahead of pace</p>
+                    <p class="pg-hero"><span class="pg-hero-num" id="pgHeroNum">$1,200</span></p>
+                    <p class="pg-hero-tail" id="pgHeroTail">ahead of target</p>
 
                     <!-- The first clause of the finding options 1 and 3
                          carry in full. This card is about being ahead, so
@@ -568,7 +568,7 @@
                          driver row below, at -$100. Same finding, split
                          along the card's own seam rather than restated. -->
                     <p class="pg-read" id="pgRead">
-                      <b>High-margin items</b> are driving strong weekend volume.
+                      <b>Your most profitable items</b> are selling well on weekends.
                     </p>
                   </div>
                 </div>
@@ -587,33 +587,40 @@
                      Each row asks Vera about itself: data-ask names the
                      turn in TURNS, and the question flies from the row
                      into the chat panel (askVera). -->
-                <p class="gam-group-head">Pace drivers</p>
+                <div id="pgDriversAhead">
+                <p class="gam-group-head">What&rsquo;s moving your sales</p>
                 <ul class="gam-rows">
                   <li>
                     <button class="gam-row" type="button" data-ask="paceEvent">
                       <img class="gam-row-ico" src="asset/ui/calendar.svg" alt="" />
-                      <span class="gam-row-name">Summer event lifted weekend volume</span>
-                      <span class="gam-row-val is-up">+$300</span>
+                      <span class="gam-row-name">Summer market brought more weekend customers</span>
+                      <span class="gam-row-val is-up">+$700</span>
                       <img class="chev" src="asset/ui/chevron-right.svg" alt="" />
                     </button>
                   </li>
                   <li>
                     <button class="gam-row" type="button" data-ask="paceMargin">
                       <img class="gam-row-ico" src="asset/ui/tag.svg" alt="" />
-                      <span class="gam-row-name">High-margin items sold above forecast</span>
-                      <span class="gam-row-val is-up">+$250</span>
+                      <span class="gam-row-name">Profitable items sold more than expected</span>
+                      <span class="gam-row-val is-up">+$600</span>
                       <img class="chev" src="asset/ui/chevron-right.svg" alt="" />
                     </button>
                   </li>
                   <li>
                     <button class="gam-row" type="button" data-ask="paceTuesday">
                       <img class="gam-row-ico" src="asset/ui/clock.svg" alt="" />
-                      <span class="gam-row-name">Tuesday closures held back sales potential</span>
+                      <span class="gam-row-name">Closing early on Tuesdays cost you sales</span>
                       <span class="gam-row-val is-down">&minus;$100</span>
                       <img class="chev" src="asset/ui/chevron-right.svg" alt="" />
                     </button>
                   </li>
                 </ul>
+                </div>
+
+                <!-- Behind: filled by renderPaceDrivers(). Still three
+                     rows: the three weekdays furthest under target,
+                     biggest gap first, each with the fix. -->
+                <div id="pgDriversBehind" hidden></div>
               </section>
 
               <!-- ------------------------ VARIANT C ------------------------
@@ -654,9 +661,9 @@
                      no separate Vera note or "What if…" header
                      (renderWiHead). -->
                 <p class="wi-lede" id="wiLede">
-                  <b>High-margin weekend sales</b> are accelerating your progress, but
-                  <b>Tuesday closures</b> are delaying your $15k buffer by an estimated two weeks.
-                  To close this gap, what if&hellip;
+                  <b>Strong weekend sales</b> are moving you closer, but
+                  <b>closing early on Tuesdays</b> is setting your $15k safety net back about two weeks.
+                  To make that up, what if&hellip;
                 </p>
 
                 <div class="wi">
@@ -672,7 +679,7 @@
                     <p class="wi-key" aria-hidden="true"><span class="wi-key-dot"></span>Net sales</p>
 
                     <div class="chart wi-curve" id="wiCurve" role="img"
-                         aria-label="Projected weekly net sales across the range of this setting."></div>
+                         aria-label="Estimated weekly gain at each setting."></div>
 
                     <div class="wi-slider">
                       <input class="wi-range" id="wiRange" type="range"
@@ -692,11 +699,11 @@
                              definition, then the basis for this lever. -->
                         <span class="pg-tip-wrap wi-tip-wrap" id="wiHowWrap">
                           <button type="button" class="wi-how" id="wiHow" aria-describedby="wiTip" aria-expanded="false">
-                            Projected weekly net sales
+                            Estimated gain per week
                             <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25"/><path d="M7.9 7.6a2.2 2.2 0 1 1 3 2.05c-.55.22-.9.7-.9 1.3v.55"/><circle cx="10" cy="14.2" r="0.6" class="wi-how-dot"/></svg>
                           </button>
                           <span class="pg-tip wi-tip" id="wiTip" role="tooltip">
-                            <span class="wi-tip-def">The extra sales this change brings in each week, after what it costs to run, compared with leaving things as they are.</span>
+                            <span class="wi-tip-def">What this change could add each week after its costs, compared with changing nothing.</span>
                             <span class="wi-tip-basis" id="wiBasis"></span>
                           </span>
                         </span>
@@ -752,7 +759,7 @@
                   <img class="focus-ico" src="asset/ui/weather-rain.svg" alt="" />
                   <div class="focus-text">
                     <p class="focus-title">Heavy rain expected</p>
-                    <p class="focus-sub">Your patio sales typically drop 22%. 2 actions needed.</p>
+                    <p class="focus-sub">Patio sales usually drop 22%. 2 things to do.</p>
                   </div>
                   <div class="focus-end">
                     <span class="focus-day">Wed</span>
@@ -764,7 +771,7 @@
                   <img class="focus-ico" src="asset/ui/game-day.svg" alt="" />
                   <div class="focus-text">
                     <p class="focus-title">Patriots home game</p>
-                    <p class="focus-sub">Expect a 12% sales bump based on past games. 1 suggestion available.</p>
+                    <p class="focus-sub">Past games brought 12% more sales. 1 idea to try.</p>
                   </div>
                   <div class="focus-end">
                     <span class="focus-day">Fri</span>
@@ -776,7 +783,7 @@
               <!-- Reviews -->
               <section class="card focus-card reveal" style="--d:70ms">
                 <h3 class="card-title card-title--sm">Reviews</h3>
-                <p class="card-sub">You have 3 reviews needs attention.</p>
+                <p class="card-sub">3 reviews need a reply.</p>
 
                 <div class="review">
                   <div class="review-head">
@@ -938,7 +945,7 @@
                 </div>
                 <div class="boost-hero-copy">
                   <h3 class="boost-hero-title">Speed up with a<br />Clover Kiosk</h3>
-                  <p class="boost-hero-text">Less waiting for your customers and more business for you when you use a Clover Kiosk.</p>
+                  <p class="boost-hero-text">Shorter lines for your customers, more sales for you.</p>
                   <span class="btn btn-primary btn-on-dark">Explore devices</span>
                 </div>
               </section>
@@ -947,13 +954,13 @@
                 <section class="card boost-card reveal" data-unlinked>
                   <img class="boost-ico" src="asset/ui/online-ordering.svg" alt="" />
                   <h3 class="boost-card-title">Grow with online ordering</h3>
-                  <p class="boost-card-text">Similar businesses bring in 32% more sales with online ordering. Start reaching more customers today.</p>
+                  <p class="boost-card-text">Similar businesses make 32% more with online ordering.</p>
                 </section>
 
                 <section class="card boost-card reveal" style="--d:70ms" data-unlinked>
                   <img class="boost-ico" src="asset/ui/handmoney.svg" alt="" />
-                  <h3 class="boost-card-title">Saturday has hit a ceiling</h3>
-                  <p class="boost-card-text">Saturday stops growing at 2pm, when the patio fills. Covering it is worth about $1,400 a year.</p>
+                  <h3 class="boost-card-title">Saturday is at capacity</h3>
+                  <p class="boost-card-text">Sales stop growing at 2pm, when the patio fills up. Serving that overflow is worth about $1,400 a year.</p>
                 </section>
 
               </div>
@@ -1007,14 +1014,14 @@
                    the turn engine runs. -->
               <div class="vera-suggestions" id="veraSuggestions">
                 <button class="chip" type="button" style="--d:0ms" data-ask="briefing">Create my daily briefing.</button>
-                <button class="chip" type="button" style="--d:90ms" data-ask="weekAvg">How’s this week trending?</button>
+                <button class="chip" type="button" style="--d:90ms" data-ask="weekAvg">How’s this week going?</button>
                 <!-- Top-selling items is hidden for now. The flow itself is
                      intact (TURNS.topItems); this chip is its only entry
                      point, because chips are wired by data-ask alone. Restore
                      by uncommenting and re-staggering the --d values below.
                 <button class="chip" type="button" style="--d:180ms" data-ask="topItems">Show me my top-selling items.</button>
                 -->
-                <button class="chip" type="button" style="--d:180ms" data-ask="peers">How am I comparing to my peers?</button>
+                <button class="chip" type="button" style="--d:180ms" data-ask="peers">How do I compare to cafés nearby?</button>
               </div>
             </div>
 
@@ -1558,13 +1565,13 @@
         thinkFor(2),
         ['plan',   'Plan the briefing…']
       ],
-      say: 'Here’s your briefing for Moe’s coffee. You are at <strong>$248</strong> so far today, about <strong>5%</strong> ahead of the same point yesterday. One thing from yesterday wants a look.',
+      say: 'Here’s your briefing for Moe’s coffee. You’re at <strong>$248</strong> so far today, about <strong>5%</strong> ahead of this time yesterday. One thing from yesterday needs a look.',
       brief: [
         ['Net sales, today so far',  '$248.40',     'up'],
-        ['Yesterday’s lunch labor',  'Over budget', 'down']
+        ['Yesterday’s lunch staff',  'Over budget', 'down']
       ],
       chips: [
-        { label: 'Break down the labor variance.', to: 'variance'   },
+        { label: 'Why was lunch over budget?',     to: 'variance'   },
         { label: 'What’s driving today’s sales?',    to: 'todaySales' }
       ]
     },
@@ -1593,7 +1600,7 @@
         ['search', 'Search today’s sales by item…'],
         thinkFor(2)
       ],
-      say: 'Drinks. You’re <strong>$11.80</strong> ahead of the same point yesterday and effectively all of it is beverages — food is within a dollar either way. Drip coffee and the ice latte are carrying it between them.',
+      say: 'Drinks. You’re <strong>$11.80</strong> ahead of this time yesterday, and almost all of it is drinks — food is about the same. Drip coffee and ice latte are doing most of the work.',
       metric: {
         label: 'Top items — today so far',
         total: '$178.50',
@@ -1605,35 +1612,35 @@
          because there are only two rows now, and the merchant is already
          standing on one of them. */
       chips: [
-        { label: 'Break down the labor variance.', to: 'variance' }
+        { label: 'Why was lunch over budget?', to: 'variance' }
       ]
     },
 
     variance: {
-      ask: 'Break down the labor variance.',
+      ask: 'Why was lunch over budget?',
       think: [
         ['notes',  'Read yesterday’s schedule…'],
         ['search', 'Search clock-in records…'],
         thinkFor(3)
       ],
-      say: 'Yesterday’s lunch was scheduled for three staff and ran with five. The overlap sat between <strong>11am and 1pm</strong> — about 5.5 hours over schedule. Every other block was within half an hour of plan.',
+      say: 'Yesterday’s lunch was scheduled for 3 staff but had 5. The extra people were on from <strong>11am to 1pm</strong> — about 5.5 extra hours. Every other shift was within half an hour of the schedule.',
       metric: {
-        label: 'Labor hours vs schedule — yesterday',
+        label: 'Staff hours vs schedule — yesterday',
         total: '+5.5 hrs',
-        delta: '<span class="stat-vs">concentrated in the lunch block</span>',
+        delta: '<span class="stat-vs">mostly at lunch</span>',
         chart: 'varianceBarNumbers'
       },
       chips: [
         { label: 'Flag it to my manager.',    to: 'email' },
-        { label: 'Calculate the cost impact.', to: 'cost' }
+        { label: 'What did that cost me?',    to: 'cost' }
       ]
     },
 
     cost: {
-      ask: 'Calculate the cost impact.',
+      ask: 'What did that cost me?',
       think: [
         thinkFor(2),
-        ['plan',  'Plan the cost breakdown…']
+        ['plan',  'Add up the cost…']
       ],
       /* No card. All four AI Chart Card variants contain a chart, so a card
          holding only a figure is not one of them — and a second chart here
@@ -1646,10 +1653,10 @@
          demo 2 runs $610 to $1,150. 148.50 / 5,240 = 2.83%, so the figure
          was always the weekly one wearing the wrong label, and $5,240 is
          the dashboard tile right behind the panel. */
-      say: 'Those 5.5 hours cost about <strong>$148.50</strong> above budget for the shift — roughly 2.8% of a week’s sales. Left to repeat every week, that is close to $7,700 a year.',
+      say: 'Those 5.5 hours cost about <strong>$148.50</strong> more than planned — about 2.8% of a week’s sales. If it happened every week, that’s close to $7,700 a year.',
       chips: [
         { label: 'Flag it to my manager.',      to: 'email'     },
-        { label: 'Is this a recurring pattern?', to: 'recurring' }
+        { label: 'Does this happen often?',      to: 'recurring' }
       ]
     },
 
@@ -1669,12 +1676,12 @@
        mean a signed-variance plot with every value on one side of zero,
        which leaves the tooltip nowhere to sit. */
     recurring: {
-      ask: 'Is this a recurring pattern?',
+      ask: 'Does this happen often?',
       think: [
         ['search', 'Search the last four lunch shifts…'],
         thinkFor(3)
       ],
-      say: 'Three of the last four. The same shift ran over by <strong>$96</strong>, then <strong>$121</strong>, then yesterday’s <strong>$148.50</strong> — one week in four came in on plan. So $7,700 was the worst case; at the four-week run rate it’s nearer <strong>$4,750</strong> a year. What’s worth flagging is that it has grown every time it happened.',
+      say: 'Yes, 3 of the last 4 weeks. The same shift ran over by <strong>$96</strong>, then <strong>$121</strong>, then <strong>$148.50</strong> yesterday. So $7,700 a year is the worst case; at the current rate it’s closer to <strong>$4,750</strong>. The bigger worry: it’s grown each time.',
       chips: [
         { label: 'Flag it to my manager.', to: 'email' }
       ]
@@ -1689,10 +1696,10 @@
     email: {
       ask: 'Flag it to my manager.',
       think: [
-        ['notes', 'Read the variance summary…'],
+        ['notes', 'Review the lunch numbers…'],
         ['edit',  'Draft the note…']
       ],
-      say: 'I’ve drafted an <strong>email</strong> to Dana covering yesterday’s overlap, the extra hours, and the cost. Send it when you’re happy with it.',
+      say: 'I’ve drafted an <strong>email</strong> to Dana about yesterday’s extra lunch staff and what it cost. Send it when you’re ready.',
       /* Structured rather than one string, so the card can lay it out as an
          email: subject as the title, recipient beneath, body in paragraphs. */
       email: {
@@ -1700,17 +1707,17 @@
         /* Short enough to hold one line at 18px in a 302px card. A subject
            that wraps costs 28px and reads like a sentence rather than a
            subject. */
-        subject: 'Yesterday’s lunch overlap',
+        subject: 'Yesterday’s lunch staffing',
         body: [
           'Hi Dana,',
-          'Yesterday’s lunch shift ran two staff over schedule between 11am and 1pm — about 5.5 extra hours, roughly $148 above budget.',
-          'Sales were on plan, so this reads as a scheduling overlap rather than a busier lunch.',
-          'Could we look at the cover before it repeats next week?'
+          'Yesterday’s lunch had two more people on than scheduled from 11am to 1pm — about 5.5 extra hours and $148 over budget.',
+          'Sales were normal, so it wasn’t a busier lunch — just too many people scheduled.',
+          'Can we fix the schedule before next week?'
         ],
         signoff: ['Thanks,', 'Julian']
       },
       chips: [
-        { label: 'Add a note about the schedule template.', to: 'emailNote' }
+        { label: 'Ask Dana to check the lunch schedule.', to: 'emailNote' }
       ]
     },
 
@@ -1724,19 +1731,19 @@
        supersedeDrafts(). It is the record of what was asked for, and
        deleting it would make the conversation lie about its own history. */
     emailNote: {
-      ask: 'Add a note about the schedule template.',
+      ask: 'Ask Dana to check the lunch schedule.',
       think: [
         ['edit', 'Update the draft…']
       ],
-      say: 'Added — and given a deadline, so it doesn’t sit. The closing line now asks Dana to review the lunch schedule template and come back by 5pm today; it’s marked below. Nothing else in the draft moved.',
+      say: 'Done. The last line now asks Dana to check the lunch schedule and reply by 5pm today. It’s marked below; nothing else changed.',
       email: {
         to: 'Dana, General Manager',
-        subject: 'Yesterday’s lunch overlap',
+        subject: 'Yesterday’s lunch staffing',
         body: [
           'Hi Dana,',
-          'Yesterday’s lunch shift ran two staff over schedule between 11am and 1pm — about 5.5 extra hours, roughly $148 above budget.',
-          'Sales were on plan, so this reads as a scheduling overlap rather than a busier lunch.',
-          ['Could you review the lunch schedule template and come back to me by 5pm today?', 'new']
+          'Yesterday’s lunch had two more people on than scheduled from 11am to 1pm — about 5.5 extra hours and $148 over budget.',
+          'Sales were normal, so it wasn’t a busier lunch — just too many people scheduled.',
+          ['Could you check the lunch schedule and get back to me by 5pm today?', 'new']
         ],
         signoff: ['Thanks,', 'Julian']
       }
@@ -1751,7 +1758,7 @@
        anyway. A closing question the merchant has to answer twice is worse
        than one they can simply leave. */
     sent: {
-      say: 'Sent to your manager. Did I solve your issue today?',
+      say: 'Sent to Dana. Anything else I can help with?',
       chips: [
         { label: 'Start a new chat.', to: '@reset' }
       ]
@@ -1763,9 +1770,9 @@
         ['search', 'Search for top items in menus…'],
         thinkFor(2)
       ],
-      say: 'Let’s look at your most popular items. Even your best sellers slowed down a bit, with sales dropping 8% from last week.',
+      say: 'Here are your best sellers. Even they slowed down a bit — sales are down 8% from last week.',
       metric: {
-        label: 'Top 5 items sales this week',
+        label: 'Top 5 items this week',
         total: '$6,426.25',
         delta: '<span class="trend trend-down"><img src="asset/ui/trend-down.svg" alt="" /><b>8%</b></span>' +
                '<span class="stat-vs">vs. last week</span>',
@@ -1804,22 +1811,22 @@
 
     weekAvg: {
       // Must match the opening chip verbatim — see the note on the rail.
-      ask: 'How’s this week trending?',
+      ask: 'How’s this week going?',
       think: [
         ['search', 'Search the last eight weeks of sales…'],
         thinkFor(3),
         ['plan',   'Plan the comparison…']
       ],
-      say: 'Your eight-week average is <strong>$5,040</strong> a week. This week is tracking <strong>$5,240</strong> — about <strong>4% above</strong> that baseline. The lift isn’t spread evenly: almost all of it sits in weekend afternoon trade.',
+      say: 'You usually make about <strong>$5,040</strong> a week. This week you’re on track for <strong>$5,240</strong> — about <strong>4% more</strong>. Almost all of the extra came from weekend afternoons.',
       metric: {
-        label: 'Net sales vs eight-week average',
+        label: 'Net sales vs your 8-week average',
         total: '$5,240',
         delta: '<span class="trend trend-up"><img src="asset/ui/trend-up.svg" alt="" /><b>4%</b></span>' +
-               '<span class="stat-vs">vs. $5,040 baseline</span>',
+               '<span class="stat-vs">vs. $5,040 average</span>',
         chart: 'baseline'
       },
       chips: [
-        { label: 'Which items drove the lift?',   to: 'surgeItems' },
+        { label: 'Which items sold more?',   to: 'surgeItems' },
         { label: 'Compare to the same week last year.', to: 'lastYear' }
       ]
     },
@@ -1830,9 +1837,9 @@
       ask: 'Compare to the same week last year.',
       think: [
         ['search', 'Search the same week last year…'],
-        ['notes',  'Align the trading days…']
+        ['notes',  'Match up the days…']
       ],
-      say: 'Same week last year came in at <strong>$4,680</strong> — you’re up <strong>12%</strong>. Orders are up 12% as well, while your average order size is flat at <strong>$24.50</strong>. This is more visits, not bigger baskets.',
+      say: 'The same week last year made <strong>$4,680</strong> — you’re up <strong>12%</strong>. You had 12% more orders, and the average order stayed at <strong>$24.50</strong>. So more customers came in; they didn’t spend more each.',
       metric: {
         label: 'This week vs same week last year',
         total: '+12%',
@@ -1840,18 +1847,18 @@
         chart: 'yoy'
       },
       chips: [
-        { label: 'Show visits against average order size.', to: 'drivers' },
-        { label: 'Which items drove the lift?',         to: 'surgeItems' }
+        { label: 'Are customers spending more per order?', to: 'drivers' },
+        { label: 'Which items sold more?',         to: 'surgeItems' }
       ]
     },
 
     drivers: {
-      ask: 'Show visits against average order size.',
+      ask: 'Are customers spending more per order?',
       think: [
         thinkFor(2),
-        ['plan', 'Separate volume from order size…']
+        ['plan', 'Compare orders and order size…']
       ],
-      say: 'Volume, not spend — you’re serving more people for about the same each. And the order size has started to soften: it’s <strong>down 1.5%</strong> on the previous period. Holding it steady is where the next gain is.',
+      say: 'No — you’re serving more people, but each spends about the same. Your average order is actually <strong>down 1.5%</strong> from last week. Getting that back up is your next big win.',
       /* The 12% is against last year, carried in from the turn before;
          the 1.5% in the copy is against the previous week. Two baselines
          in one delta line read as one, so only the year-on-year figure
@@ -1865,17 +1872,17 @@
         chart: 'drivers'
       },
       chips: [
-        { label: 'Which items drove the lift?', to: 'surgeItems' }
+        { label: 'Which items sold more?', to: 'surgeItems' }
       ]
     },
 
     surgeItems: {
-      ask: 'Which items drove the lift?',
+      ask: 'Which items sold more?',
       think: [
-        ['search', 'Search item sales by daypart…'],
+        ['search', 'Search item sales by time of day…'],
         thinkFor(2)
       ],
-      say: 'Weekend afternoons are carrying it. <strong>Ice latte</strong> and <strong>Avocado toast</strong> together added about <strong>$180</strong> of this week’s <strong>$200</strong> above baseline — the rest of the menu held flat.',
+      say: 'Weekend afternoons. <strong>Ice latte</strong> and <strong>avocado toast</strong> brought in about <strong>$180</strong> of this week’s extra <strong>$200</strong> — everything else sold about the same.',
       metric: {
         label: 'Top 5 items — weekend afternoons',
         total: '$1,486.50',
@@ -1895,90 +1902,90 @@
        "yesterday" is Tue Jun 9.
        --------------------------------------------------------------- */
     hcRevenue: {
-      ask: 'How can I improve my revenue growth?',
+      ask: 'How can I grow my sales?',
       think: [
-        ['search', 'Break the revenue mark down by day…'],
+        ['search', 'Check sales by day…'],
         thinkFor(2)
       ],
-      say: 'Revenue growth is your lowest mark at <strong>35 of 40</strong>, even though sales were up: <strong>$5,240</strong> this week, about <strong>4% above</strong> your eight-week average. The five points you dropped are Tuesday. Closing at 2pm on Jun 9 left the afternoon’s sales on the table, and growth is scored on every day of the week. Keeping Tuesday open through the afternoon is the quickest way back to full marks.',
+      say: 'Sales growth is your lowest score at <strong>35 of 40</strong>, even though sales were up: <strong>$5,240</strong> this week, about <strong>4% above</strong> your usual. You lost the 5 points on Tuesday — closing at 2pm on Jun 9 missed the afternoon’s sales. Staying open Tuesday afternoons is the quickest fix.',
       metric: {
-        label: 'Net sales vs eight-week average',
+        label: 'Net sales vs your 8-week average',
         total: '$5,240',
         delta: '<span class="trend trend-up"><img src="asset/ui/trend-up.svg" alt="" /><b>4%</b></span>' +
-               '<span class="stat-vs">vs. eight-week average</span>',
+               '<span class="stat-vs">vs. 8-week average</span>',
         chart: 'baseline'
       },
       chips: [
-        { label: 'Estimate lost revenue from Tuesday closures', to: 'hcTuesday' },
-        { label: 'Which high-margin items are selling best?',   to: 'hcItems'   }
+        { label: 'How much does closing early on Tuesdays cost me?', to: 'hcTuesday' },
+        { label: 'Which items make me the most money?',             to: 'hcItems'   }
       ]
     },
 
     hcOps: {
-      ask: 'What’s behind my operational efficiency score?',
+      ask: 'What’s behind my operations score?',
       think: [
-        ['search', 'Compare labor hours with the schedule…'],
+        ['search', 'Compare staff hours with the schedule…'],
         thinkFor(2)
       ],
-      say: 'Operational efficiency is <strong>28 of 30</strong>, and both missing points come from one shift. Lunch on <strong>Tue Jun 9</strong> was scheduled for three staff and ran with five, about <strong>5.5 hours</strong> over plan and roughly <strong>$148.50</strong> above budget. Every other shift this week ran within half an hour of the schedule.',
+      say: 'Operations is <strong>28 of 30</strong>, and both lost points come from one shift. Lunch on <strong>Tue Jun 9</strong> was scheduled for 3 staff but had 5 — about <strong>5.5 extra hours</strong> and <strong>$148.50</strong> over budget. Every other shift this week was on schedule.',
       metric: {
-        label: 'Labor hours vs schedule, Jun 9',
+        label: 'Staff hours vs schedule, Jun 9',
         total: '+5.5 hrs',
         delta: '<span class="trend trend-down"><img src="asset/ui/trend-down.svg" alt="" /><b>$148.50</b></span>' +
-               '<span class="stat-vs">over budget, lunch block</span>',
+               '<span class="stat-vs">over budget at lunch</span>',
         chart: 'varianceBarNumbers'
       },
       chips: [
         { label: 'Flag it to my manager.',      to: 'email'     },
-        { label: 'Is this a recurring pattern?', to: 'recurring' }
+        { label: 'Does this happen often?',      to: 'recurring' }
       ]
     },
 
     hcRetention: {
-      ask: 'How did customer retention compare to last month?',
+      ask: 'Are my regulars coming back?',
       think: [
-        ['search', 'Match this week’s cards to last month’s…'],
+        ['search', 'Compare repeat customers with last month…'],
         thinkFor(2)
       ],
-      say: 'Retention is your strongest mark, <strong>29 of 30</strong>. <strong>64%</strong> of this week’s orders came from returning customers, up from <strong>61%</strong> last month, and regulars are visiting about as often as before. The one point you dropped is <strong>six regulars</strong> who haven’t been back in three weeks.',
+      say: 'Yes — it’s your best score, <strong>29 of 30</strong>. <strong>64%</strong> of this week’s orders came from repeat customers, up from <strong>61%</strong> last month. You lost 1 point because <strong>6 regulars</strong> haven’t been back in 3 weeks.',
       brief: [
-        ['Returning customers, this week', '64%', 'up'],
-        ['Returning customers, May',       '61%'],
-        ['Visits per regular',             '2.3 a week'],
-        ['Regulars not seen in 3 weeks',   '6', 'down']
+        ['Repeat customers, this week', '64%', 'up'],
+        ['Repeat customers, May',       '61%'],
+        ['Visits per regular',          '2.3 a week'],
+        ['Regulars not seen in 3 weeks', '6', 'down']
       ],
       chips: [
-        { label: 'How can I improve my revenue growth?', to: 'hcRevenue' },
-        { label: 'Start a new chat.',                     to: '@reset'    }
+        { label: 'How can I grow my sales?', to: 'hcRevenue' },
+        { label: 'Start a new chat.',        to: '@reset'    }
       ]
     },
 
     hcTuesday: {
-      ask: 'Estimate lost revenue from Tuesday closures',
+      ask: 'How much does closing early on Tuesdays cost me?',
       think: [
         ['search', 'Pull Tuesday sales by hour…'],
         thinkFor(2)
       ],
-      say: 'About <strong>$50</strong> each time. That’s what 2–5pm brings in on a Tuesday you stay open. It has happened twice in June so far, and it comes to roughly <strong>$2,600 a year</strong> if 2pm closes become the habit. Tuesday is already your quietest day, so it’s a small gap, but it’s the only one in an otherwise strong week.',
+      say: 'About <strong>$50</strong> each time — that’s what 2–5pm usually brings in on a Tuesday. You’ve closed early twice in June. If it becomes a habit, that’s about <strong>$2,600 a year</strong>. It’s small, but it’s the only weak spot in a strong week.',
       brief: [
         ['Tue Jun 2 · closed at 2pm',      '$440', 'down'],
         ['Tue Jun 9 · closed at 2pm',      '$460', 'down'],
         ['May Tuesdays · open all day',    '$510 avg'],
-        ['2–5pm on a full Tuesday',        '~$50']
+        ['2–5pm when open',                '~$50']
       ],
       chips: [
-        { label: 'How can I improve my revenue growth?', to: 'hcRevenue' },
-        { label: 'Start a new chat.',                     to: '@reset'    }
+        { label: 'How can I grow my sales?', to: 'hcRevenue' },
+        { label: 'Start a new chat.',        to: '@reset'    }
       ]
     },
 
     hcItems: {
-      ask: 'Which high-margin items are selling best?',
+      ask: 'Which items make me the most money?',
       think: [
-        ['search', 'Rank items by margin and sales…'],
+        ['search', 'Rank items by profit and sales…'],
         thinkFor(2)
       ],
-      say: '<strong>Ice latte</strong> and <strong>Avocado toast</strong>, your two best-margin items, are leading. On weekend afternoons they brought in about <strong>$830</strong> of the <strong>$1,486.50</strong> your top five items made, and those afternoons ran <strong>14% above</strong> a usual weekend.',
+      say: '<strong>Ice latte</strong> and <strong>avocado toast</strong> — your two most profitable items — are leading. On weekend afternoons they made about <strong>$830</strong> of the <strong>$1,486.50</strong> your top 5 items brought in, and those afternoons sold <strong>14% more</strong> than a usual weekend.',
       metric: {
         label: 'Top 5 items, weekend afternoons',
         total: '$1,486.50',
@@ -1987,25 +1994,25 @@
         chart: 'surgeBar'
       },
       chips: [
-        { label: 'Forecast next week.',                         to: 'forecast'  },
-        { label: 'Estimate lost revenue from Tuesday closures', to: 'hcTuesday' }
+        { label: 'Forecast next week.',                              to: 'forecast'  },
+        { label: 'How much does closing early on Tuesdays cost me?', to: 'hcTuesday' }
       ]
     },
 
     hcStreak: {
-      ask: 'How do I keep my action streak going?',
+      ask: 'How do I keep my streak going?',
       think: [
         ['search', 'Look back at the suggestions you acted on…'],
         thinkFor(1)
       ],
-      say: 'You’ve acted on at least one of my suggestions in each of the last <strong>three weeks</strong>. Act on one more by <strong>Wed Jun 17</strong> to make it four. The one worth the most right now is keeping Tuesday open past 2pm.',
+      say: 'You’ve acted on one of my suggestions every week for <strong>3 weeks</strong>. Act on one more by <strong>Wed Jun 17</strong> to make it 4. The best one right now: stay open past 2pm on Tuesdays.',
       brief: [
         ['May 21–27',    'Added a Saturday barista'],
         ['May 28–Jun 3', 'Featured ice latte on the board'],
         ['Jun 4–10',     'Reordered oat milk early']
       ],
       chips: [
-        { label: 'Estimate lost revenue from Tuesday closures', to: 'hcTuesday' }
+        { label: 'How much does closing early on Tuesdays cost me?', to: 'hcTuesday' }
       ]
     },
 
@@ -2018,11 +2025,11 @@
         ['search', 'Read this week’s health check…'],
         thinkFor(1)
       ],
-      say: 'I can answer that best through one of this week’s three marks. Your score is <strong>92 of 100</strong>: revenue growth <strong>35/40</strong>, operational efficiency <strong>28/30</strong> and customer retention <strong>29/30</strong>. Which one should we start with?',
+      say: 'Your score this week is <strong>92 of 100</strong>: sales growth <strong>35/40</strong>, operations <strong>28/30</strong> and repeat customers <strong>29/30</strong>. Which one do you want to look at?',
       chips: [
-        { label: 'How can I improve my revenue growth?',              to: 'hcRevenue'   },
-        { label: 'What’s behind my operational efficiency score?',    to: 'hcOps'       },
-        { label: 'How did customer retention compare to last month?', to: 'hcRetention' }
+        { label: 'How can I grow my sales?',            to: 'hcRevenue'   },
+        { label: 'What’s behind my operations score?', to: 'hcOps'       },
+        { label: 'Are my regulars coming back?',        to: 'hcRetention' }
       ]
     },
 
@@ -2035,18 +2042,18 @@
        focus; revenue growth is on track; retention is strong.
        --------------------------------------------------------------- */
     hcLowPlan: {
-      ask: 'Draft a targeted recovery plan',
+      ask: 'Make a plan to win back $850',
       think: [
-        ['search', 'Rank fixes by how much they recover…'],
+        ['search', 'Rank fixes by how much they add…'],
         ['edit',   'Draft the plan…']
       ],
-      say: 'Here’s a plan for the <strong>$850</strong>. Two fixes, in the order they pay back. A weekend lunch busser and pre-set tables speed up your turns, worth about <strong>$520</strong> a week. Staying open until 8pm on Tuesdays recovers about <strong>$330</strong>. Nothing changes until you approve it.',
+      say: 'Here’s a plan to win back the <strong>$850</strong>, biggest fix first. Adding a busser at weekend lunch and setting tables ahead of time frees up tables faster — about <strong>$520</strong> a week. Staying open until 8pm on Tuesdays adds about <strong>$330</strong>. Nothing changes until you approve it.',
       promo: {
-        name: 'Recovery plan', when: 'Starts Sat Jun 13',
+        name: 'Win-back plan', when: 'Starts Sat Jun 13',
         rows: [
           ['Weekend lunch', '+1 busser, 11am–2pm'],
           ['Tuesdays',      'Open until 8pm', 'was 2pm'],
-          ['Recovers',      'About $850 a week']
+          ['Adds back',     'About $850 a week']
         ],
         action: 'Approve plan', working: 'Applying', latched: 'Plan approved',
         done: 'hcLowPlanDone'
@@ -2054,116 +2061,116 @@
     },
 
     hcLowPlanDone: {
-      say: 'Approved. The busser shift is on Saturday’s schedule, and Tuesday hours run until 8pm from <strong>Jun 16</strong>. I’ll check both against the <strong>$850</strong> next Monday and tell you either way.',
+      say: 'Done. The busser is on Saturday’s schedule, and you’re open until 8pm on Tuesdays from <strong>Jun 16</strong>. Next Monday I’ll tell you how close you got to the <strong>$850</strong>.',
       chips: [
         { label: 'Start a new chat.', to: '@reset' }
       ]
     },
 
     hcLowOps: {
-      ask: 'Why does operational efficiency need focus?',
+      ask: 'Why is my operations score low?',
       think: [
-        ['search', 'Compare table turns with last month…'],
+        ['search', 'Compare table times with last month…'],
         thinkFor(2)
       ],
-      say: 'It’s the one pillar holding your week back: <strong>18 of 30</strong> points, 12 short. Weekend lunch tables are turning in <strong>58 minutes</strong>, up from <strong>46</strong> last month, so you seat about <strong>26 fewer covers</strong> each weekend. Closing at <strong>2pm on Tuesdays</strong> leaves the afternoon and evening unserved. Together that’s about <strong>$850</strong> a week.',
+      say: 'It’s the one area holding you back: <strong>18 of 30</strong>. Weekend lunch guests now take <strong>58 minutes</strong> per table, up from <strong>46</strong> last month, so you seat about <strong>26 fewer guests</strong> each weekend. And closing at <strong>2pm on Tuesdays</strong> misses the afternoon and evening. Together that’s about <strong>$850</strong> a week.',
       brief: [
-        ['Weekend table turn, 11am–2pm', '58 min', 'down'],
-        ['Same window, last month',      '46 min'],
-        ['Covers lost per weekend',      '~26', 'down'],
-        ['Tuesday hours',                'Closed from 2pm', 'down']
+        ['Weekend lunch, time per table', '58 min', 'down'],
+        ['Last month',                    '46 min'],
+        ['Guests missed per weekend',     '~26', 'down'],
+        ['Tuesday hours',                 'Closed from 2pm', 'down']
       ],
       chips: [
-        { label: 'View top fixes for table turnover', to: 'hcLowTables' },
-        { label: 'Draft a targeted recovery plan',    to: 'hcLowPlan'   }
+        { label: 'How can I free up tables faster?', to: 'hcLowTables' },
+        { label: 'Make a plan to win back $850',     to: 'hcLowPlan'   }
       ]
     },
 
     hcLowTables: {
-      ask: 'View top fixes for table turnover',
+      ask: 'How can I free up tables faster?',
       think: [
         ['search', 'Time each step from seating to payment…'],
         thinkFor(2)
       ],
-      say: 'Most of the extra 12 minutes is between courses and at the bill. These three fixes recover about <strong>$520</strong> a week, biggest first.',
+      say: 'Most of the extra 12 minutes is waiting between courses and for the bill. These 3 fixes win back about <strong>$520</strong> a week, biggest first.',
       brief: [
         ['Add a busser, 11am–2pm Sat & Sun', '+$320', 'up'],
-        ['Pre-set tables between seatings',  '+$120', 'up'],
-        ['Card payment at the table',        '+$80',  'up']
+        ['Set tables ahead of time',          '+$120', 'up'],
+        ['Take payment at the table',         '+$80',  'up']
       ],
       chips: [
-        { label: 'Draft a targeted recovery plan',              to: 'hcLowPlan'    },
-        { label: 'Estimate lost revenue from Tuesday closures', to: 'hcLowTuesday' }
+        { label: 'Make a plan to win back $850',                     to: 'hcLowPlan'    },
+        { label: 'How much does closing early on Tuesdays cost me?', to: 'hcLowTuesday' }
       ]
     },
 
     hcLowTuesday: {
-      ask: 'Estimate lost revenue from Tuesday closures',
+      ask: 'How much does closing early on Tuesdays cost me?',
       think: [
         ['search', 'Pull Tuesday sales by hour…'],
         thinkFor(2)
       ],
-      say: 'About <strong>$330</strong> a week. That’s what 2–8pm brought in on your last fully open Tuesday. You’ve closed at 2pm for the last two.',
+      say: 'About <strong>$330</strong> a week — that’s what 2–8pm brought in on your last full Tuesday. You’ve closed at 2pm the last two.',
       brief: [
         ['Tue Jun 2 · closed at 2pm',   '$410', 'down'],
         ['Tue Jun 9 · closed at 2pm',   '$395', 'down'],
         ['Tue May 19 · open until 8pm', '$735'],
-        ['2–8pm on an open Tuesday',    '~$330']
+        ['2–8pm when open',             '~$330']
       ],
       chips: [
-        { label: 'Draft a targeted recovery plan', to: 'hcLowPlan' },
-        { label: 'Start a new chat.',              to: '@reset'    }
+        { label: 'Make a plan to win back $850', to: 'hcLowPlan' },
+        { label: 'Start a new chat.',            to: '@reset'    }
       ]
     },
 
     hcLowPotential: {
       ask: 'Where does the $850 come from?',
       think: [
-        ['search', 'Add up what this week left on the table…'],
+        ['search', 'Add up missed sales this week…'],
         thinkFor(1)
       ],
-      say: 'Two sources, both in operational efficiency. Neither is a demand problem: the customers are there, and the week isn’t serving all of them.',
+      say: 'Two things, both in operations. Customers want to come in — you just aren’t able to serve all of them.',
       brief: [
-        ['Slower weekend table turns', '$520', 'down'],
-        ['Tuesday closures',           '$330', 'down'],
-        ['Untapped weekly potential',  '$850']
+        ['Slower weekend tables',      '$520', 'down'],
+        ['Closing early on Tuesdays',  '$330', 'down'],
+        ['Missed each week',           '$850']
       ],
       chips: [
-        { label: 'Draft a targeted recovery plan',    to: 'hcLowPlan'   },
-        { label: 'View top fixes for table turnover', to: 'hcLowTables' }
+        { label: 'Make a plan to win back $850',     to: 'hcLowPlan'   },
+        { label: 'How can I free up tables faster?', to: 'hcLowTables' }
       ]
     },
 
     hcLowRevenue: {
-      ask: 'How is revenue growth tracking?',
+      ask: 'How are my sales doing?',
       think: [
         ['search', 'Compare this week with your average…'],
         thinkFor(1)
       ],
-      say: 'On track at <strong>36 of 40</strong>. Sales were <strong>$4,980</strong> this week, in line with your eight-week average of <strong>$4,950</strong>. Recovering the <strong>$850</strong> would put the week near <strong>$5,830</strong>.',
+      say: 'On track, <strong>36 of 40</strong>. You made <strong>$4,980</strong> this week, about the same as your usual <strong>$4,950</strong>. Winning back the <strong>$850</strong> would put you near <strong>$5,830</strong>.',
       brief: [
-        ['Net sales, this week',     '$4,980'],
-        ['Eight-week average',       '$4,950'],
-        ['With the $850 recovered',  '~$5,830', 'up']
+        ['Net sales, this week',  '$4,980'],
+        ['8-week average',        '$4,950'],
+        ['With the $850 back',    '~$5,830', 'up']
       ],
       chips: [
-        { label: 'Why does operational efficiency need focus?', to: 'hcLowOps' }
+        { label: 'Why is my operations score low?', to: 'hcLowOps' }
       ]
     },
 
     hcLowRetention: {
-      ask: 'How is customer retention holding up?',
+      ask: 'Are my regulars still coming?',
       think: [
-        ['search', 'Match this week’s cards to last month’s…'],
+        ['search', 'Compare repeat customers with last month…'],
         thinkFor(1)
       ],
-      say: 'Strong at <strong>28 of 30</strong>. <strong>63%</strong> of this week’s orders came from returning customers, up from <strong>61%</strong> last month. Your regulars are still coming. The slower turns are costing you new covers, not loyal ones.',
+      say: 'Yes — <strong>28 of 30</strong>. <strong>63%</strong> of this week’s orders came from repeat customers, up from <strong>61%</strong> last month. Slower tables are costing you new guests, not regulars.',
       brief: [
-        ['Returning customers, this week', '63%', 'up'],
-        ['Returning customers, May',       '61%']
+        ['Repeat customers, this week', '63%', 'up'],
+        ['Repeat customers, May',       '61%']
       ],
       chips: [
-        { label: 'Why does operational efficiency need focus?', to: 'hcLowOps' }
+        { label: 'Why is my operations score low?', to: 'hcLowOps' }
       ]
     },
 
@@ -2173,30 +2180,30 @@
         ['search', 'Read this week’s health check…'],
         thinkFor(1)
       ],
-      say: 'Your Health Index is <strong>82 of 100</strong>. Revenue growth is on track at <strong>36/40</strong> and customer retention is strong at <strong>28/30</strong>. Operational efficiency is at <strong>18/30</strong>, and those 12 missing points are where the <strong>$850</strong> a week is. Where should we start?',
+      say: 'Your health score is <strong>82 of 100</strong>. Sales growth is on track (<strong>36/40</strong>) and repeat customers are strong (<strong>28/30</strong>). Operations is <strong>18/30</strong> — that’s where the <strong>$850</strong> a week is. Where do you want to start?',
       chips: [
-        { label: 'Why does operational efficiency need focus?', to: 'hcLowOps'       },
-        { label: 'Where does the $850 come from?',              to: 'hcLowPotential' },
-        { label: 'Draft a targeted recovery plan',              to: 'hcLowPlan'      }
+        { label: 'Why is my operations score low?', to: 'hcLowOps'       },
+        { label: 'Where does the $850 come from?',  to: 'hcLowPotential' },
+        { label: 'Make a plan to win back $850',    to: 'hcLowPlan'      }
       ]
     },
 
     hcLowPeers: {
-      ask: 'How does my Health Index compare locally?',
+      ask: 'How does my score compare to cafés nearby?',
       think: [
-        ['search', 'Find comparable merchants nearby…'],
+        ['search', 'Find similar cafés nearby…'],
         thinkFor(2)
       ],
-      say: 'You’re <strong>2nd of 12</strong> cafés your size within 2 miles, which puts you in the top 20%, even this week. You lead on revenue growth and retention. Efficiency is the one pillar where the local median is ahead of you, so it’s the fastest way to widen the lead.',
+      say: 'You’re <strong>2nd of 12</strong> similar cafés within 2 miles — top 20%, even this week. You’re ahead on sales growth and repeat customers. Operations is the one area where a typical café nearby beats you, so it’s the fastest way to pull further ahead.',
       brief: [
-        ['Your Health Index',           '82'],
-        ['Local median',                '74'],
-        ['Efficiency, you vs median',   '18 vs 24', 'down'],
-        ['Retention, you vs median',    '28 vs 25', 'up']
+        ['Your score',                    '82'],
+        ['Typical café nearby',           '74'],
+        ['Operations, you vs typical',  '18 vs 24', 'down'],
+        ['Regulars, you vs typical',    '28 vs 25', 'up']
       ],
       chips: [
-        { label: 'View top fixes for table turnover', to: 'hcLowTables' },
-        { label: 'Draft a targeted recovery plan',    to: 'hcLowPlan'   }
+        { label: 'How can I free up tables faster?', to: 'hcLowTables' },
+        { label: 'Make a plan to win back $850',     to: 'hcLowPlan'   }
       ]
     },
 
@@ -2205,15 +2212,15 @@
       think: [
         thinkFor(3),
         ['web',  'Check the weather outlook…'],
-        ['plan', 'Project the week…']
+        ['plan', 'Estimate next week…']
       ],
       /* The range is stated in copy rather than drawn as a band: an
          arearange series lives in highcharts-more, and the whole point of
          the reference package is that every template runs on core alone.
          One shaded band is not worth breaking that. */
-      say: 'If weekend afternoons hold, next week lands near <strong>$5,360</strong> — call it <strong>$5,180 to $5,540</strong>. The swing is weather: <strong>Thursday and Friday</strong> look wet, and a wet day costs about <strong>22%</strong> of patio trade. Every other day is projected ahead of this week.',
+      say: 'If weekend afternoons stay strong, next week should land around <strong>$5,360</strong> (between <strong>$5,180 and $5,540</strong>). The big unknown is weather: rain is expected <strong>Thursday and Friday</strong>, and rain usually cuts patio sales by about <strong>22%</strong>. Every other day looks better than this week.',
       metric: {
-        label: 'Projected net sales — next week',
+        label: 'Expected net sales — next week',
         total: '$5,360',
         delta: '<span class="trend trend-up"><img src="asset/ui/trend-up.svg" alt="" /><b>2.3%</b></span>' +
                '<span class="stat-vs">vs. this week</span>',
@@ -2261,7 +2268,7 @@
     promo: {
       ask: 'Make up for those two days.',
       think: [
-        ['notes', 'Read the item margins…'],
+        ['notes', 'Read the item profits…'],
         ['edit',  'Draft the offer…']
       ],
       /* The answer closes BOTH open threads: the items come from the surge
@@ -2277,7 +2284,7 @@
          the hours the patio is unusable is what moves it. Without that
          sentence the offer looks like a discount that happens to be
          scheduled on a rainy day. */
-      say: 'That <strong>$62</strong> is patio trade. Rain doesn’t stop people wanting coffee — it stops them sitting outside for it, so the trade is there to be moved indoors rather than written off. The bundle is the reason to come in: <strong>Ice latte</strong> and <strong>Avocado toast</strong>, the pair already carrying your weekend lift, at one price across the same <strong>2–5pm</strong> hours the weather takes away. The <strong>$2.25</strong> off holds your margin and wins back most of the $62. Review it and launch when you’re happy.',
+      say: 'Rain will likely cost you about <strong>$62</strong> in patio sales. People still want coffee — they just won’t sit outside — so give them a reason to come in. Here’s a bundle: <strong>ice latte</strong> and <strong>avocado toast</strong>, your weekend best sellers, at one price from <strong>2–5pm</strong> on the rainy days. <strong>$2.25</strong> off still keeps a good profit and should win back most of the $62. Review it and launch when you’re ready.',
       promo: {
         /* "Wet" was the weather word, carried straight down from the
            forecast turn above. It is the wrong word on a menu: a wet
@@ -2302,7 +2309,7 @@
 
     /* Reached from the Launch button, not a chip — hence no `ask`. */
     promoLive: {
-      say: 'Scheduled — it goes live Thursday at 2pm. I’ll track it against your <strong>$5,040</strong> baseline and flag it if it underperforms. Did I solve your issue today?',
+      say: 'Scheduled — it starts Thursday at 2pm. I’ll compare it with your usual <strong>$5,040</strong> week and let you know if it falls short. Anything else?',
       chips: [
         { label: 'Start a new chat.', to: '@reset' }
       ]
@@ -2344,15 +2351,15 @@
        asked to take on trust, and "eleven cafes your size within two
        miles" is one you can argue with. */
     peers: {
-      ask: 'How am I comparing to my peers?',
+      ask: 'How do I compare to cafés nearby?',
       think: [
-        ['search', 'Find comparable merchants nearby…'],
+        ['search', 'Find similar cafés nearby…'],
         thinkFor(3),
-        ['plan',   'Line your week up against theirs…']
+        ['plan',   'Compare your week with theirs…']
       ],
-      say: 'Good news and bad news. You’re selling more than they are — <strong>$5,240</strong> this week against a local median of <strong>$4,720</strong>, so you’re about <strong>11% ahead</strong> of the eleven cafés your size within two miles. But each order is smaller. Yours average <strong>$24.50</strong>; theirs average <strong>$29.80</strong>. So you’re getting more people through the door, and each one is spending less while they’re here.',
+      say: 'Good news and bad news. You’re selling more: <strong>$5,240</strong> this week vs <strong>$4,720</strong> for a typical café your size within 2 miles — about <strong>11% ahead</strong>. But your orders are smaller: <strong>$24.50</strong> on average vs their <strong>$29.80</strong>. More people come in, but each one spends less.',
       metric: {
-        label: 'Average order size vs local median',
+        label: 'Average order vs cafés nearby',
         total: '−$5.30',
         delta: '<span class="trend trend-down"><img src="asset/ui/trend-down.svg" alt="" /><b>17.8%</b></span>' +
                '<span class="stat-vs">$24.50 vs $29.80, 11 cafés within 2 miles</span>',
@@ -2379,7 +2386,7 @@
         ['search', 'Compare what’s in each order…'],
         thinkFor(2)
       ],
-      say: 'Nothing you don’t already sell, which is the good news. The whole <strong>$5.30</strong> is add-ons — what goes in the bag alongside the drink. The biggest piece by far is <strong>food with the drink</strong>, worth <strong>$2.05</strong> an order: they sell a pastry with about two orders in five, and you sell one with about one in ten. The other three are smaller versions of the same thing.',
+      say: 'Nothing you don’t already sell — that’s the good news. The whole <strong>$5.30</strong> gap is add-ons. The biggest is <strong>food with a drink</strong>, worth <strong>$2.05</strong> an order: they sell a pastry with about 2 in 5 orders; you sell one with about 1 in 10. The other three are smaller add-ons.',
       metric: {
         label: 'What makes up the $5.30 gap',
         /* No `total`. Every other metric card in the panel states its
@@ -2388,7 +2395,7 @@
            has it in the middle of the ring. The ring's is the one that
            earns its place, because it is what makes the four slices read
            as parts of a whole rather than four unrelated bars. */
-        delta: '<span class="stat-vs">per order, and every bit of it an add-on</span>',
+        delta: '<span class="stat-vs">per order, all from add-ons</span>',
         chart: 'peerAttach'
       },
       chips: [
@@ -2412,10 +2419,10 @@
     bundle: {
       ask: 'Build me a bundle to close the gap.',
       think: [
-        ['notes', 'Read your item margins…'],
+        ['notes', 'Read your item profits…'],
         ['edit',  'Draft the offer…']
       ],
-      say: 'Here’s the <strong>Morning Pair</strong>: drip coffee and a blueberry muffin for <strong>$7.95</strong>, against <strong>$9.00</strong> if you buy them separately. It goes after the food gap, because that’s the biggest of the four and the only one you can fix at the till. Most of your morning orders are a drink on its own, so that’s exactly who it’s aimed at. I’d expect it to add about <strong>$1.10</strong> to your average order, taking you from $24.50 to <strong>$25.60</strong>. That’s a fifth of the gap, not all of it — the bigger sizes and the second drink need a different fix.',
+      say: 'Here’s the <strong>Morning Pair</strong>: drip coffee and a blueberry muffin for <strong>$7.95</strong> (usually <strong>$9.00</strong>). It goes after food, the biggest part of the gap. Most of your morning orders are just a drink, so it’s aimed at them. It should add about <strong>$1.10</strong> to your average order, from $24.50 to <strong>$25.60</strong>. That’s about a fifth of the gap — larger sizes and second drinks need a different fix.',
       promo: {
         name: 'Morning Pair',
         /* "open until 11am" reads as "we are open until 11am", which is a
@@ -2446,10 +2453,10 @@
        have not been in this week. That distinction is what makes the
        next two turns something other than "also, marketing". */
     bundleLive: {
-      say: 'It’s live on the till. From now on it’ll come up as a suggestion whenever someone orders a drink on its own. That takes care of everyone who walks in — it’s worth telling the ones who haven’t been in lately too.',
+      say: 'It’s live on your register. It’ll pop up as a suggestion whenever someone orders just a drink. That covers walk-ins — it’s worth telling customers who haven’t been in lately, too.',
       chips: [
-        { label: 'Text the regulars who only ever buy a drink.', to: 'bundleSms'    },
-        { label: 'Post it on Instagram, TikTok and Google.',     to: 'bundleSocial' }
+        { label: 'Text regulars who only buy a drink.',       to: 'bundleSms'    },
+        { label: 'Post it on Instagram, TikTok and Google.',  to: 'bundleSocial' }
       ]
     },
 
@@ -2461,12 +2468,12 @@
        would reach people who already buy food, which is a discount
        handed to trade the shop already had. */
     bundleSms: {
-      ask: 'Text the regulars who only ever buy a drink.',
+      ask: 'Text regulars who only buy a drink.',
       think: [
         ['search', 'Search your loyalty list…'],
         ['edit',   'Draft the message…']
       ],
-      say: 'There are <strong>142</strong> people on your loyalty list who bought a drink and nothing else on every single visit for the last 60 days. They’re exactly who this bundle is for. I’ve left out anyone who already buys food — there’s no sense discounting an order you’re getting anyway. Have a read before it goes.',
+      say: '<strong>142</strong> people on your loyalty list bought only a drink on every visit in the last 60 days — exactly who this is for. I left out anyone who already buys food, so you’re not discounting sales you’d get anyway. Have a read before it goes.',
       campaign: {
         channel: 'SMS',
         icon:    'message',
@@ -2475,7 +2482,7 @@
         preview: 'Moe’s: your usual coffee now comes with a warm blueberry muffin for $3.70 more. The Morning Pair, $7.95, every day until 11am. Reply STOP to opt out.',
         rows: [
           ['Sending to', '142 guests'],
-          ['Chosen by',  'Drink-only, last 60 days'],
+          ['Who',        'Drink-only buyers, last 60 days'],
           ['Cost',       '$4.26, at 3¢ a message']
         ],
         action:  'Send to 142 guests',
@@ -2486,7 +2493,7 @@
     },
 
     smsSent: {
-      say: 'Sent. That’s your regulars covered. A post would reach the people who aren’t on your list at all.',
+      say: 'Sent. That covers your regulars. A post would reach people who aren’t on your list.',
       chips: [
         { label: 'Post it on Instagram, TikTok and Google.', to: 'bundleSocial' },
         { label: 'Start a new chat.',                       to: '@reset'       }
@@ -2506,7 +2513,7 @@
         ['edit', 'Draft the post…'],
         ['plan', 'Pick the best time…']
       ],
-      say: 'Drafted for all three, going out <strong>Sunday at 6pm</strong>. Two reasons for that slot: it’s a morning offer, so people want to see it the evening before they’d use it — and Sunday evening is when your posts get the most engagement, by a clear margin on every one of them.',
+      say: 'Drafted for all three, posting <strong>Sunday at 6pm</strong>. It’s a morning offer, so the night before works best — and Sunday evening is when your posts get the most likes and views.',
       social: {
         hero:    'asset/brand/hero-morning-pair.jpg',
         heroAlt: 'A blueberry muffin, one half of it broken open, on a plate beside a mug of black coffee',
@@ -2519,8 +2526,8 @@
         ],
         channels: [
           { icon: 'instagram',  name: 'Instagram',  status: 'Caption drafted'          },
-          { icon: 'tiktok',     name: 'TikTok',     status: 'Short-form hook drafted'  },
-          { icon: 'google-ads', name: 'Google Ads', status: 'Smart local ads prepared' }
+          { icon: 'tiktok',     name: 'TikTok',     status: 'Video caption drafted'  },
+          { icon: 'google-ads', name: 'Google Ads', status: 'Local ads ready'        }
         ],
         edit:    'Edit',
         action:  'Schedule post',
@@ -2535,7 +2542,7 @@
        dashboard behind the panel, so the merchant can hold the panel to
        it without taking anyone's word for where it started. */
     socialScheduled: {
-      say: 'All set. I’ll keep an eye on your average order size — it starts at <strong>$24.50</strong> — and let you know in two weeks whether the bundle is actually moving it. I’ll tell you either way, including if it isn’t. Did I solve your issue today?',
+      say: 'All set. I’ll watch your average order (now <strong>$24.50</strong>) and tell you in two weeks whether the bundle is raising it — even if it isn’t. Anything else?',
       chips: [
         { label: 'Start a new chat.', to: '@reset' }
       ]
@@ -2545,57 +2552,57 @@
        Asked from the card, not from a chip: each driver row carries
        data-ask, and askVera() opens the panel and sends the question.
        The three amounts are the rows' own, and they sum to the card's
-       $450 lead (300 + 250 − 100). Daily figures are PG_DAILY's:
-         • Saturdays Jun 6/13/20 took $1,125 / $1,215 / $1,300; last
-           June's were $1,040 / $1,110 / $1,190 -> +85 +105 +110 = $300
-         • PACE_ITEMS sums to the $250
+       $1,200 lead (700 + 600 − 100). Daily figures are PG_DAILY's:
+         • Saturdays Jun 6/13/20 took $1,250 / $1,345 / $1,445; last
+           June's were $1,040 / $1,110 / $1,190 -> +210 +235 +255 = $700
+         • PACE_ITEMS sums to the $600
          • Tuesdays Jun 2/9 (closed 2pm) took $440 / $460, Jun 16/23
            (open all day) $520 / $530; 2–5pm on the full days was ~$50
        The chips walk between the three, so any row is a way in.      */
     paceEvent: {
-      ask: 'How did the summer event lift my weekends?',
+      ask: 'How did the summer market help my weekends?',
       think: [
         ['search', 'Search your June Saturdays…'],
-        ['notes',  'Line them up against last June…']
+        ['notes',  'Compare them with last June…']
       ],
-      say: 'The <strong>Riverside Summer Market</strong> has run every Saturday since Jun 6, and your Saturdays are up on every one of them — <strong>+$300</strong> against the same Saturdays last June. It’s foot traffic: the gain sits between 9am and 1pm, while the market is open, and order size held steady.',
+      say: 'The <strong>Riverside Summer Market</strong> has run every Saturday since Jun 6, and each of those Saturdays beat last June — <strong>+$700</strong> in total. It’s more customers, not bigger orders: the extra sales come between 9am and 1pm, while the market is open.',
       brief: [
-        ['Sat Jun 6 · $1,125 vs $1,040',  '+$85',  'up'],
-        ['Sat Jun 13 · $1,215 vs $1,110', '+$105', 'up'],
-        ['Sat Jun 20 · $1,300 vs $1,190', '+$110', 'up']
+        ['Sat Jun 6 · $1,250 vs $1,040',  '+$210', 'up'],
+        ['Sat Jun 13 · $1,345 vs $1,110', '+$235', 'up'],
+        ['Sat Jun 20 · $1,445 vs $1,190', '+$255', 'up']
       ],
       chips: [
-        { label: 'Which high-margin items beat forecast?',   to: 'paceMargin'  },
-        { label: 'How much are Tuesday closures costing me?', to: 'paceTuesday' }
+        { label: 'Which profitable items sold more than expected?',  to: 'paceMargin'  },
+        { label: 'How much is closing early on Tuesdays costing me?', to: 'paceTuesday' }
       ]
     },
 
     paceMargin: {
-      ask: 'Which high-margin items beat forecast?',
+      ask: 'Which profitable items sold more than expected?',
       think: [
-        ['search', 'Search item sales against forecast…'],
+        ['search', 'Compare item sales with what I expected…'],
         thinkFor(2)
       ],
-      say: 'Two items carry most of it. <strong>Ice latte</strong> is <strong>$140</strong> over forecast and <strong>Avocado toast</strong> <strong>$80</strong>, with cold brew adding the last $30. All three are among your best margins, so this <strong>$250</strong> is worth more to you than the same amount of drip coffee would be.',
+      say: 'Mostly two items. <strong>Ice latte</strong> sold <strong>$340</strong> more than expected and <strong>avocado toast</strong> <strong>$190</strong>, with cold brew adding $70. All three are among your most profitable, so this <strong>$600</strong> is worth more to you than the same amount of drip coffee.',
       metric: {
-        label: 'Above forecast — Jun 1 to Jun 25',
-        total: '+$250',
-        delta: '<span class="stat-vs">three high-margin items</span>',
+        label: 'More than expected — Jun 1 to 25',
+        total: '+$600',
+        delta: '<span class="stat-vs">three of your most profitable items</span>',
         chart: 'paceItems'
       },
       chips: [
-        { label: 'How much are Tuesday closures costing me?', to: 'paceTuesday' },
-        { label: 'How did the summer event lift my weekends?', to: 'paceEvent'   }
+        { label: 'How much is closing early on Tuesdays costing me?', to: 'paceTuesday' },
+        { label: 'How did the summer market help my weekends?',       to: 'paceEvent'   }
       ]
     },
 
     paceTuesday: {
-      ask: 'How much are Tuesday closures costing me?',
+      ask: 'How much is closing early on Tuesdays costing me?',
       think: [
         ['search', 'Search your June Tuesdays…'],
         thinkFor(2)
       ],
-      say: 'About <strong>$100</strong> so far. You closed at 2pm on <strong>Jun 2</strong> and <strong>Jun 9</strong>. On the two Tuesdays you stayed open, 2–5pm brought in around <strong>$50</strong>, so each early close left that on the table. Tuesday is already your quietest day, so the afternoon is worth keeping open — or giving a reason to come in.',
+      say: 'About <strong>$100</strong> so far. You closed at 2pm on <strong>Jun 2</strong> and <strong>Jun 9</strong>. On the Tuesdays you stayed open, 2–5pm brought in about <strong>$50</strong>, so each early close missed that. Tuesday is already your quietest day — it’s worth staying open, or giving people a reason to come in.',
       brief: [
         ['Tue Jun 2 · closed at 2pm',  '$440', 'down'],
         ['Tue Jun 9 · closed at 2pm',  '$460', 'down'],
@@ -2603,8 +2610,8 @@
         ['Tue Jun 23 · open all day',  '$530']
       ],
       chips: [
-        { label: 'How did the summer event lift my weekends?', to: 'paceEvent' },
-        { label: 'Start a new chat.',                         to: '@reset'    }
+        { label: 'How did the summer market help my weekends?', to: 'paceEvent' },
+        { label: 'Start a new chat.',                           to: '@reset'    }
       ]
     }
   };
@@ -3555,11 +3562,11 @@
   function drawSurgeItems(el) { return drawItemBars(el, SURGE_ITEMS); }
 
   /* Variant B's "High-margin items sold above forecast" row, taken
-     apart. Dollars over forecast, Jun 1-25; sums to the row's $250. */
+     apart. Dollars over forecast, Jun 1-25; sums to the row's $600. */
   var PACE_ITEMS = [
-    { name: 'Ice latte',     y: 140 },
-    { name: 'Avocado toast', y:  80 },
-    { name: 'Cold brew',     y:  30 }
+    { name: 'Ice latte',     y: 340 },
+    { name: 'Avocado toast', y: 190 },
+    { name: 'Cold brew',     y:  70 }
   ];
 
   /* The $5.30 ticket gap, taken apart. Fourth cut of the bar template,
@@ -4749,7 +4756,7 @@
           // under a dashed reference reads as "this is you, that is them".
           { name: 'You', type: 'area', color: LINE_GREEN, zIndex: 1, data: MY_TICKET.slice() },
           {
-            name: 'Local median', type: 'line', color: LINE_GREY,
+            name: 'Cafés nearby', type: 'line', color: LINE_GREY,
             dashStyle: 'ShortDash', zIndex: 2, data: PEER_TICKET.slice()
           }
         ]
@@ -5010,7 +5017,7 @@
      nothing:
 
        option 1   35 + 28 + 29        = 92 / 100   -> "A-"
-       option 2   +300 +250 -100      = +$450 ahead of pace
+       option 2   +700 +600 -100      = +$1,200 ahead of pace
        option 3   the slider is a curve, not a ramp — see WI_CURVE
 
      Only option 3 has any arithmetic worth the name, and only because
@@ -5056,16 +5063,16 @@
        Health Index. Only the pillar causing the drag is tagged (12 of
        the 18 missing points are in efficiency, and it carries the $850);
        the other two show their fraction alone. */
-    { name: 'Revenue Growth',         got: 36, outOf: 40, ask: 'hcLowRevenue'                     },
-    { name: 'Operational Efficiency', got: 18, outOf: 30, ask: 'hcLowOps',       status: 'focus' },
-    { name: 'Customer Retention',     got: 28, outOf: 30, ask: 'hcLowRetention'                   }
+    { name: 'Sales growth',     got: 36, outOf: 40, ask: 'hcLowRevenue'                     },
+    { name: 'Operations',       got: 18, outOf: 30, ask: 'hcLowOps',       status: 'focus' },
+    { name: 'Repeat customers', got: 28, outOf: 30, ask: 'hcLowRetention'                   }
   ] : [
-    { name: 'Revenue Growth',         got: 35, outOf: 40, ask: 'hcRevenue'   },
-    { name: 'Operational Efficiency', got: 28, outOf: 30, ask: 'hcOps'       },
-    { name: 'Customer Retention',     got: 29, outOf: 30, ask: 'hcRetention' }
+    { name: 'Sales growth',     got: 35, outOf: 40, ask: 'hcRevenue'   },
+    { name: 'Operations',       got: 28, outOf: 30, ask: 'hcOps'       },
+    { name: 'Repeat customers', got: 29, outOf: 30, ask: 'hcRetention' }
   ];
   var HC_STATUS = {
-    focus:  'Needs focus'
+    focus:  'Needs attention'
   };
   function hcSum(key) {
     return HC_MARKS.reduce(function (a, m) { return a + m[key]; }, 0);
@@ -5076,7 +5083,7 @@
 
   /* ---- option 2: the pacing tracker ----
      Twenty-five days of a thirty-day June against a straight-line
-     target, finishing $450 clear — the figure in the panel.
+     target, finishing $1,200 clear — the figure in the panel.
 
      Twenty-five, not ten. A ten-day window put both lines' last point
      at the same x, which made the chart a record of what happened and
@@ -5097,27 +5104,33 @@
      the four weeks line up in columns:
 
               W1    W2    W3    W4
-       Mon   520   565   605   605
+       Mon   500   560   610   640
        Tue   440   460   520   530   <- the floor of every week
-       Wed   605   650   690   700
-       Thu   720   780   835   815   <- Jun 25, today
-       Fri  1030  1115  1160
-       Sat  1125  1215  1300   <- the peak of every week
-       Sun   840   900   975
+       Wed   580   650   720   760
+       Thu   690   790   860   940   <- Jun 25, today
+       Fri   980  1110  1210
+       Sat  1250  1345  1445   <- the peak of every week
+       Sun   860   960  1040
        ---- ----- ----- ----- -----
-             5280  5685  6085  2650   = 19,700
+             5300  5875  6405  2870   = 20,450
 
-     Saturday takes about 2.5x Tuesday every week, and the weekend
-     total climbs 1965 -> 2115 -> 2275, which is the summer event in
+     Saturday takes about 2.8x Tuesday every week, and the weekend
+     total climbs 2110 -> 2305 -> 2485, which is the summer event in
      the first driver row actually happening rather than being
      asserted beside a smooth line.
 
+     The swing is deliberately wide. With a lead of only $450 the
+     two cumulative lines sat ~4px apart on a $23k axis and read as
+     one line; at these figures the slow start sits visibly under
+     the target and the lead visibly over it.
+
      Against $770/day the running total reads:
 
-       behind all through weeks 1 and 2, worst at -$795 on Thu Jun 4
-       first crosses ahead on Sat Jun 13   +$55
-       peaks after the third weekend        +$880 on Sun Jun 21
-       four slow weekdays give half back -> +$450 on Thu Jun 25
+       slow start, worst at -$870 on Thu Jun 4
+       still -$730 on Wed Jun 10, before the market weekends land
+       first crosses ahead on Sat Jun 13   +$205
+       peaks after the third weekend        +$1,410 on Sun Jun 21
+       four weekdays give a little back  -> +$1,200 on Thu Jun 25
 
      So the line crosses its target more than once, which is what a
      real one does, and all three driver rows are visible in it: the
@@ -5126,15 +5139,19 @@
 
      The target is a 10% growth goal on the 90-day average: $21,000 x
      1.10 = $23,100 over 30 days = $770 a day, so day 25 wants $19,250
-     and $19,700 taken is $450 ahead — arrived at rather than typed. */
+     and $20,450 taken is $1,200 ahead — arrived at rather than typed.
+
+     Grow fast (+20%, $25,200) wants $21,000 by day 25, so the same
+     month reads $550 BEHIND there — the behind state is real data,
+     not a separate script. */
   var BASELINE  = 21000;        // trailing 90-day average month
   var PG_DAYS   = 25;           // today is Jun 25
   var PG_MONTH  = 30;
   var PG_DAILY  = [
-    520, 440, 605, 720, 1030, 1125, 840,   // Jun 1-7
-    565, 460, 650, 780, 1115, 1215, 900,   // Jun 8-14
-    605, 520, 690, 835, 1160, 1300, 975,   // Jun 15-21
-    605, 530, 700, 815                     // Jun 22-25
+    500, 440, 580, 690,  980, 1250,  860,  // Jun 1-7
+    560, 460, 650, 790, 1110, 1345,  960,  // Jun 8-14
+    610, 520, 720, 860, 1210, 1445, 1040,  // Jun 15-21
+    640, 530, 760, 940                     // Jun 22-25
   ];
   /* Derived, not typed out 30 times. Jun 1 2026 is a Monday, so the
      index maps straight onto the week — and the two days that carry
@@ -5145,7 +5162,7 @@
   var PG_ACTUAL = (function () {
     var out = [], run = 0;
     for (var i = 0; i < PG_DAILY.length; i++) { run += PG_DAILY[i]; out.push(run); }
-    return out;                 // 520, 960, 1565, ... 19700
+    return out;                 // 500, 940, 1520, ... 20450
   })();
 
   var GOAL_GROWTH = 10;         // percent over BASELINE
@@ -5349,7 +5366,7 @@
      on the card, so it reads as the answer to "where does +$380 come
      from?" rather than a fragment. `m` is the figure as shown. */
   function wiFrom(m, clause) {
-    return 'The ' + m + ' a week is based on ' + clause + '.';
+    return 'Based on ' + clause + '.';
   }
 
   var WI_SCENARIOS = {
@@ -5360,29 +5377,29 @@
       aria: 'Sunday closing time',
       applied: 'Applied from Sun Jun 15',
       cta: 'Draft new hours with Vera',
-      note: 'You\u2019ll review it first. Approving updates your Clover Online Ordering profile and in-store hours.',
+      note: 'You\u2019ll review it first. Approving updates your in-store and online hours.',
       net: function (v) { return wiModel(v).net; },
       read: function (v) { return 'Close at ' + wiCloseTime(v) + ' PM'; },
       basis: function (v, m) {
         return v === 0
           ? 'Sundays close at 6 PM today. Drag to see what staying open later is worth.'
-          : wiFrom(m, 'about 15% more foot traffic after 6 PM at your $32 average evening ticket, less the cost of staffing the extra hours');
+          : wiFrom(m, 'about 15% more customers after 6 PM spending $32 on average, minus the cost of staff for the extra hours');
       },
       draft: function (v, shown, hook) {
         var t = wiCloseTime(v), hrs = v + (v === 1 ? ' hour' : ' hours');
         return {
           ask: 'Draft new Sunday hours, closing at ' + t + ' PM.',
           reading: 'Read your Sunday schedule\u2026',
-          say: 'Here\u2019s the draft. Closing at <strong>' + t + ' PM</strong> on Sundays projects <strong>' +
-               signedMoney(shown) + '</strong> a week, which ' + hook + ' It needs one more person on the close for ' +
+          say: 'Here\u2019s the draft. Closing at <strong>' + t + ' PM</strong> on Sundays could add <strong>' +
+               usd(shown) + '</strong> a week, which ' + hook + ' It needs one more person on the close for ' +
                hrs + '. Nothing changes until you approve it.',
           promo: {
             name: 'Sunday hours', when: 'Starts Sun Jun 15',
             rows: [['Closes', t + ' PM', 'was 6 PM'], ['Staffing', '+1 on the close, ' + hrs],
-                   ['Projected', signedMoney(shown) + ' a week']],
+                   ['Estimated gain', signedMoney(shown) + ' a week']],
             action: 'Update my hours', working: 'Updating', latched: 'Hours updated'
           },
-          done: 'Done. From Sun Jun 15 you close at <strong>' + t + ' PM</strong> on Sundays, in store and on Clover Online Ordering. I\u2019ll compare the first Sunday against the projected <strong>' + signedMoney(shown) + '</strong> and tell you either way.'
+          done: 'Done. From Sun Jun 15 you close at <strong>' + t + ' PM</strong> on Sundays, in store and online. After the first Sunday I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
         };
       }
     },
@@ -5402,21 +5419,21 @@
       basis: function (d, m) {
         return d === 0
           ? 'Drag to see what a 4\u20136 PM drinks discount on Tuesdays is worth.'
-          : wiFrom(m, 'the extra drink orders the discount brings in on Tuesdays, less what it gives away to your 70 regulars and $40 to promote it');
+          : wiFrom(m, 'the extra drinks it sells on Tuesdays, minus the discount your 70 regulars would get anyway and $40 to promote it');
       },
       draft: function (d, shown, hook) {
         return {
           ask: 'Draft a Tuesday happy hour at ' + d + '% off drinks.',
           reading: 'Read your Tuesday drink sales\u2026',
-          say: 'Here\u2019s the draft. <strong>' + d + '% off drinks</strong>, Tuesdays 4\u20136 PM, projects <strong>' +
-               signedMoney(shown) + '</strong> a week, which ' + hook + ' Promoting it costs about $40 a week. Nothing changes until you approve it.',
+          say: 'Here\u2019s the draft. <strong>' + d + '% off drinks</strong>, Tuesdays 4\u20136 PM, could add <strong>' +
+               usd(shown) + '</strong> a week, which ' + hook + ' Promoting it costs about $40 a week. Nothing changes until you approve it.',
           promo: {
             name: 'Tuesday happy hour', when: 'Tuesdays 4\u20136 PM, from Jun 17',
             rows: [['Offer', d + '% off all drinks'], ['Promotion', '$40 a week'],
-                   ['Projected', signedMoney(shown) + ' a week']],
+                   ['Estimated gain', signedMoney(shown) + ' a week']],
             action: 'Schedule happy hour', working: 'Scheduling', latched: 'Scheduled'
           },
-          done: 'Scheduled. The discount turns on at 4 PM on Tue Jun 17 and off at 6. I\u2019ll compare the first Tuesday against the projected <strong>' + signedMoney(shown) + '</strong> and tell you either way.'
+          done: 'Scheduled. The discount runs 4\u20136 PM starting Tue Jun 17. After the first Tuesday I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
         };
       }
     },
@@ -5427,7 +5444,7 @@
       aria: 'Price rise on top items, percent',
       applied: 'Applied from Mon Jun 16',
       cta: 'Draft new prices with Vera',
-      note: 'You\u2019ll review it first. Approving updates prices on your POS and Clover Online Ordering profile.',
+      note: 'You\u2019ll review it first. Approving updates prices in store and online.',
       net: wiPricing,
       read: function (v) {
         if (v === 0) return 'No change';
@@ -5436,23 +5453,23 @@
       basis: function (p, m) {
         return p === 0
           ? 'Drag to see what a price rise on your top 10 items is worth.'
-          : wiFrom(m, '620 weekly orders of your top 10 items at a $28 average ticket, less the orders you\u2019d lose as prices rise');
+          : wiFrom(m, '620 weekly orders of your top 10 items at $28 on average, minus the customers you\u2019d lose as prices go up');
       },
       draft: function (p, shown, hook) {
         var after = (WI_PX_TICKET * (1 + p / 100)).toFixed(2);
         return {
           ask: 'Draft a ' + p + '% price rise on my top 10 items.',
           reading: 'Read your top-item prices\u2026',
-          say: 'Here\u2019s the draft. <strong>+' + p + '%</strong> on your top 10 items projects <strong>' +
-               signedMoney(shown) + '</strong> a week, which ' + hook + ' Your average ticket on those items goes from $28.00 to $' +
+          say: 'Here\u2019s the draft. <strong>+' + p + '%</strong> on your top 10 items could add <strong>' +
+               usd(shown) + '</strong> a week, which ' + hook + ' The average order on those items goes from $28.00 to $' +
                after + '. Nothing changes until you approve it.',
           promo: {
             name: 'Top-item prices', when: 'From Mon Jun 16',
-            rows: [['Change', '+' + p + '% on your top 10 items'], ['Average ticket', '$' + after, 'was $28.00'],
-                   ['Projected', signedMoney(shown) + ' a week']],
+            rows: [['Change', '+' + p + '% on your top 10 items'], ['Average order', '$' + after, 'was $28.00'],
+                   ['Estimated gain', signedMoney(shown) + ' a week']],
             action: 'Update prices', working: 'Updating', latched: 'Prices updated'
           },
-          done: 'Updated. The new prices go live on your POS and Clover Online Ordering on Mon Jun 16. I\u2019ll watch whether orders on those items hold up and tell you either way.'
+          done: 'Updated. The new prices go live in store and online on Mon Jun 16. I\u2019ll watch whether orders on those items hold up and let you know.'
         };
       }
     },
@@ -5463,59 +5480,59 @@
       aria: 'Tuesday closing time',
       applied: 'Applied from Tue Jun 17',
       cta: 'Draft Tuesday hours with Vera',
-      note: 'You\u2019ll review it first. Approving updates your Clover Online Ordering profile and in-store hours.',
+      note: 'You\u2019ll review it first. Approving updates your in-store and online hours.',
       net: wiTuesday,
       read: function (h) { return 'Close at ' + (2 + h) + ' PM'; },
       basis: function (h, m) {
         return h === 0
           ? 'Tuesdays close at 2 PM today. Drag to see what staying open later is worth.'
-          : wiFrom(m, 'your Tuesday afternoon foot traffic, less one barista at $33 an hour with overhead');
+          : wiFrom(m, 'your usual Tuesday afternoon customers, minus one barista at $33 an hour');
       },
       draft: function (h, shown, hook) {
         var t = (2 + h) + ' PM', hrs = h + (h === 1 ? ' hour' : ' hours');
         return {
           ask: 'Draft new Tuesday hours, closing at ' + t + '.',
           reading: 'Read your Tuesday schedule\u2026',
-          say: 'Here\u2019s the draft. Closing at <strong>' + t + '</strong> on Tuesdays projects <strong>' +
-               signedMoney(shown) + '</strong> a week, which ' + hook + ' It needs one barista for ' + hrs +
+          say: 'Here\u2019s the draft. Closing at <strong>' + t + '</strong> on Tuesdays could add <strong>' +
+               usd(shown) + '</strong> a week, which ' + hook + ' It needs one barista for ' + hrs +
                ' more. Nothing changes until you approve it.',
           promo: {
             name: 'Tuesday hours', when: 'Starts Tue Jun 17',
             rows: [['Closes', t, 'was 2 PM'], ['Staffing', '1 barista, +' + hrs],
-                   ['Projected', signedMoney(shown) + ' a week']],
+                   ['Estimated gain', signedMoney(shown) + ' a week']],
             action: 'Update my hours', working: 'Updating', latched: 'Hours updated'
           },
-          done: 'Done. From Tue Jun 17 you close at <strong>' + t + '</strong> on Tuesdays, in store and on Clover Online Ordering. I\u2019ll compare the first Tuesday against the projected <strong>' + signedMoney(shown) + '</strong> and tell you either way.'
+          done: 'Done. From Tue Jun 17 you close at <strong>' + t + '</strong> on Tuesdays, in store and online. After the first Tuesday I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
         };
       }
     },
     pairing: {
       min: 2, max: 5, step: 0.5, value: 3,
       notches: [[2, '$2'], [3, '$3'], [4, '$4'], [5, '$5']],
-      ends: ['$2 pairing', '$5 pairing'],
-      aria: 'Pastry pairing price, dollars',
+      ends: ['$2 pastry', '$5 pastry'],
+      aria: 'Price of a pastry with a weekend latte, dollars',
       applied: 'Applied from Sat Jun 21',
-      cta: 'Draft the pairing with Vera',
-      note: 'You\u2019ll review it first. Approving adds the pairing to your Clover POS and online menu.',
+      cta: 'Draft the offer with Vera',
+      note: 'You\u2019ll review it first. Approving adds the offer to your Clover POS and online menu.',
       net: wiPairing,
       read: function (p) { return 'Any pastry for $' + p.toFixed(2) + ' with a weekend latte'; },
       basis: function (p, m) {
-        return wiFrom(m, 'how often your weekend latte orders already add a pastry, less $1.95 of food cost per pastry');
+        return wiFrom(m, 'how often weekend latte buyers already add a pastry, minus $1.95 food cost per pastry');
       },
       draft: function (p, shown, hook) {
         var price = '$' + p.toFixed(2);
         return {
-          ask: 'Draft a ' + price + ' pastry pairing with weekend lattes.',
+          ask: 'Draft a ' + price + ' pastry offer with weekend lattes.',
           reading: 'Read your weekend latte orders\u2026',
-          say: 'Here\u2019s the draft. <strong>Any pastry for ' + price + '</strong> with a weekend latte projects <strong>' +
-               signedMoney(shown) + '</strong> a week, which ' + hook + ' The register suggests it on every latte. Nothing changes until you approve it.',
+          say: 'Here\u2019s the draft. <strong>Any pastry for ' + price + '</strong> with a weekend latte could add <strong>' +
+               usd(shown) + '</strong> a week, which ' + hook + ' Your register will suggest it with every latte. Nothing changes until you approve it.',
           promo: {
-            name: 'Weekend latte pairing', when: 'Weekends, from Sat Jun 21',
+            name: 'Weekend latte + pastry', when: 'Weekends, from Sat Jun 21',
             rows: [['Offer', 'Any pastry for ' + price + ' with a latte'], ['Food cost', '$1.95 a pastry'],
-                   ['Projected', signedMoney(shown) + ' a week']],
-            action: 'Add the pairing', working: 'Adding', latched: 'Pairing added'
+                   ['Estimated gain', signedMoney(shown) + ' a week']],
+            action: 'Add the offer', working: 'Adding', latched: 'Offer added'
           },
-          done: 'Added. The pairing shows on your POS and online menu from Sat Jun 21. I\u2019ll compare the first weekend against the projected <strong>' + signedMoney(shown) + '</strong> and tell you either way.'
+          done: 'Added. The offer shows in store and online from Sat Jun 21. After the first weekend I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
         };
       }
     },
@@ -5526,7 +5543,7 @@
       aria: 'Items featured on the Saturday menu board',
       applied: 'Applied from Sat Jun 21',
       cta: 'Draft the menu board with Vera',
-      note: 'You\u2019ll review it first. Approving updates your Saturday menu board and Clover Online Ordering.',
+      note: 'You\u2019ll review it first. Approving updates your Saturday menu board and online menu.',
       net: wiFeature,
       read: function (n) {
         if (n === 0) return 'Nothing featured';
@@ -5534,58 +5551,58 @@
       },
       basis: function (n, m) {
         return n === 0
-          ? 'Drag to see what featuring your best-margin items on the Saturday menu board is worth.'
-          : wiFrom(m, 'how your ice latte and avocado toast sell when featured, less the orders each extra feature pulls from the others');
+          ? 'Drag to see what featuring your most profitable items on the Saturday menu board is worth.'
+          : wiFrom(m, 'how ice latte and avocado toast sell when featured, minus sales each extra item takes from the others');
       },
       draft: function (n, shown, hook) {
         var list = wiFeatureList(n);
         return {
           ask: 'Draft a Saturday menu board featuring ' + list + '.',
-          reading: 'Read your Saturday item margins\u2026',
-          say: 'Here\u2019s the draft. Featuring <strong>' + list + '</strong> at the top of the Saturday board projects <strong>' +
-               signedMoney(shown) + '</strong> a week, which ' + hook + ' Nothing changes until you approve it.',
+          reading: 'Read your Saturday item profits\u2026',
+          say: 'Here\u2019s the draft. Featuring <strong>' + list + '</strong> at the top of the Saturday board could add <strong>' +
+               usd(shown) + '</strong> a week, which ' + hook + ' Nothing changes until you approve it.',
           promo: {
             name: 'Saturday features', when: 'From Sat Jun 21',
             rows: [['Featured', list.charAt(0).toUpperCase() + list.slice(1)], ['Placement', 'Top of the board and online'],
-                   ['Projected', signedMoney(shown) + ' a week']],
+                   ['Estimated gain', signedMoney(shown) + ' a week']],
             action: 'Update the menu', working: 'Updating', latched: 'Menu updated'
           },
-          done: 'Updated. ' + list.charAt(0).toUpperCase() + list.slice(1) + ' lead the board from Sat Jun 21, in store and online. I\u2019ll compare the first Saturday against the projected <strong>' + signedMoney(shown) + '</strong> and tell you either way.'
+          done: 'Updated. ' + list.charAt(0).toUpperCase() + list.slice(1) + ' lead the board from Sat Jun 21, in store and online. After the first Saturday I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
         };
       }
     },
     staff: {
       min: 0, max: 5, step: 1, value: 3,
       notches: [[0, 'None'], [1, '1 shift'], [2, '2 shifts'], [3, '3 shifts'], [4, '4 shifts'], [5, '5 shifts']],
-      ends: ['As staffed today', '5 fewer shifts'],
+      ends: ['No change', '5 fewer shifts'],
       aria: 'Thursday lunch shifts dropped',
       applied: 'Applied from Thu Jun 19',
       cta: 'Draft the schedule with Vera',
-      note: 'You\u2019ll review it first. Approving updates next week\u2019s schedule and notifies the team.',
+      note: 'You\u2019ll review it first. Approving updates next week\u2019s schedule and lets the team know.',
       net: wiStaff,
       read: function (n) {
-        if (n === 0) return 'Thursday lunch as staffed today';
+        if (n === 0) return 'Thursday lunch, no change';
         return 'Drop ' + n + ' Thursday lunch shift' + (n === 1 ? '' : 's');
       },
       basis: function (n, m) {
         return n === 0
-          ? 'Thursday lunch runs 7 people today. Drag to see what a leaner lunch is worth.'
-          : wiFrom(m, '$105 saved per 4-hour shift with overhead, less the lunch orders that walk out when the line backs up');
+          ? 'Thursday lunch has 7 people on today. Drag to see what fewer shifts could save.'
+          : wiFrom(m, '$105 saved per 4-hour shift, minus lunch customers who leave when the line gets long');
       },
       draft: function (n, shown, hook) {
         var s = n + (n === 1 ? ' shift' : ' shifts');
         return {
           ask: 'Draft a Thursday lunch schedule with ' + s + ' fewer.',
           reading: 'Read your Thursday schedule\u2026',
-          say: 'Here\u2019s the draft. Dropping <strong>' + s + '</strong> from Thursday lunch projects <strong>' +
-               signedMoney(shown) + '</strong> a week, which ' + hook + ' Two people stay on the register through the 12\u20131 rush. Nothing changes until you approve it.',
+          say: 'Here\u2019s the draft. Dropping <strong>' + s + '</strong> from Thursday lunch could save <strong>' +
+               usd(shown) + '</strong> a week, which ' + hook + ' Two people stay on the register through the 12\u20131 rush. Nothing changes until you approve it.',
           promo: {
             name: 'Thursday lunch schedule', when: 'From Thu Jun 19',
             rows: [['Shifts', s + ' fewer, 11 AM\u20133 PM'], ['On the floor', (7 - n) + ' people', 'was 7'],
-                   ['Projected', signedMoney(shown) + ' a week']],
+                   ['Estimated gain', signedMoney(shown) + ' a week']],
             action: 'Update the schedule', working: 'Updating', latched: 'Schedule updated'
           },
-          done: 'Updated. From Thu Jun 19 lunch runs with ' + (7 - n) + ' people, and the team has been notified. I\u2019ll watch ticket times and tell you if the line backs up.'
+          done: 'Updated. From Thu Jun 19 lunch runs with ' + (7 - n) + ' people, and the team has been told. I\u2019ll watch wait times and let you know if the line gets too long.'
         };
       }
     }
@@ -5607,13 +5624,13 @@
   /* Each card finishes the lede's closing "To close this gap, what
      if…", so they stay in the merchant's voice. */
   var WI_PROMPTS = {
-    hours:   'I extend Sunday dinner hours?',
+    hours:   'I stay open later on Sundays?',
     happy:   'I add a Tuesday happy hour?',
-    price:   'I raise top-item prices by 5%?',
+    price:   'I raise prices on my top items by 5%?',
     tuesday: 'I stay open later on Tuesdays?',
-    pairing: 'I offer a pastry pairing with weekend lattes?',
-    feature: 'I feature my best-margin items on Saturdays?',
-    staff:   'I trim Thursday lunch staffing?'
+    pairing: 'I offer a pastry deal with weekend lattes?',
+    feature: 'I feature my most profitable items on Saturdays?',
+    staff:   'I schedule fewer people for Thursday lunch?'
   };
   function wiSet() { return WI_SETS[FTU_FOCUS] || WI_SETS.none; }
 
@@ -5658,15 +5675,15 @@
      goal) states the drag against June's target instead. */
   var WI_TUE_DRAG = 100;
   var WI_HEAD = {
-    safety:  { title: 'Your path to a $15k safety net',      goal: '$15k buffer',
-               hit: 'hitting your $15k buffer',
+    safety:  { title: 'Your path to a $15k safety net',      goal: '$15k safety net',
+               to: 'your $15k safety net',
                left: function () { return WI_BUFFER - WI_BUFFER_SAVED; } },
     upgrade: { title: 'Your path to a new espresso machine', goal: 'espresso machine',
-               hit: 'getting your espresso machine' },
+               to: 'your new espresso machine' },
     staff:   { title: 'Your path to a fall hire',            goal: 'fall hire',
-               hit: 'making your fall hire' },
+               to: 'your fall hire' },
     time:    { title: 'Your path to Mondays off',            goal: 'Mondays off',
-               hit: 'reaching Mondays off' }
+               to: 'Mondays off' }
   };
   var WI_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six',
                   'seven', 'eight', 'nine', 'ten'];
@@ -5717,23 +5734,23 @@
     var title = document.getElementById('wiTitle');
     var lede  = document.getElementById('wiLede');
     if (!title || !lede) return;
-    var lead = '<b>High-margin weekend sales</b> are accelerating your progress, but ' +
-               '<b>Tuesday closures</b> are ';
+    var lead = '<b>Strong weekend sales</b> are moving you closer, but ' +
+               '<b>closing early on Tuesdays</b> is ';
     // The handoff rides on the lede: the pain point becomes the reason
     // for the three levers below, and "what if…" hands over to the
     // cards, which finish the sentence. The goal is named once, in the
     // title, not again here.
-    var found = ' To close this gap, what if\u2026';
+    var found = ' To make that up, what if\u2026';
     var h = WI_HEAD[FTU_WHY];
     if (!h) {
-      title.textContent = 'Pacing toward your ' + usd(goalTarget()) + ' June goal';
-      lede.innerHTML = lead + 'costing you ~' +
-        usd(Math.round(WI_TUE_DRAG * 52 / 12 / 10) * 10) + '/month.' + found;
+      title.textContent = 'Your path to ' + usd(goalTarget()) + ' in June';
+      lede.innerHTML = lead + 'costing you about ' +
+        usd(Math.round(WI_TUE_DRAG * 52 / 12 / 10) * 10) + ' a month.' + found;
       return;
     }
     var delay = wiTueGap();
     title.textContent = h.title;
-    lede.innerHTML = lead + 'delaying your ' + h.goal + ' by an estimated ' +
+    lede.innerHTML = lead + 'setting your ' + h.goal + ' back about ' +
                      wiWeeksWords(delay) + '.' + found;
   }
 
@@ -5760,10 +5777,10 @@
            claimed on a shortfall. */
         if (dir === 'up') {
           var dd = wiShownDays(diff), gd = wiShownDays(gap);
-          t = (dd >= gd ? 'Recovers' : 'Recovers part of') + ' your Tuesday deficit, ' +
-              hd.hit + ' ' + wiWeeks(diff) + ' faster.';
+          t = (dd >= gd ? 'Covers' : 'Covers part of') + ' the Tuesday loss and gets you to ' +
+              hd.to + ' ' + wiWeeks(diff) + ' sooner.';
         } else {
-          t = 'Delays ' + tl + ' by ' + wiWeeks(-diff) + ', on top of your Tuesday deficit.';
+          t = 'Sets ' + tl + ' back another ' + wiWeeks(-diff) + '.';
         }
       }
     } else {
@@ -5842,13 +5859,13 @@
     // Health Index rather than paired with a letter grade.
     var dark  = HC_LOW ? '#C98A1B' : G.dark;
     var light = HC_LOW ? '#F4E2B6' : G.light;
-    var label = 'Health Index ' + HC_SCORE + ' out of ' + HC_TOTAL;
+    var label = 'Health score ' + HC_SCORE + ' out of ' + HC_TOTAL;
     // Same centre for both scores: the number and "Health Index", no grade.
     var centre =
       '<text class="hc-dial-index" x="' + G.cx + '" y="' + (G.cy + 8) + '" text-anchor="middle">' + HC_SCORE +
         '<tspan class="hc-dial-of">/' + HC_TOTAL + '</tspan></text>' +
       '<text class="hc-dial-label' + (HC_LOW ? ' is-low' : '') + '" x="' + G.cx + '" y="' + (G.cy + 40) +
-        '" text-anchor="middle">Health Index</text>';
+        '" text-anchor="middle">Health score</text>';
 
     el.innerHTML =
       '<svg viewBox="0 0 ' + G.w + ' ' + G.h + '" role="img" aria-label="' + label + '">' +
@@ -5955,9 +5972,9 @@
      =============================================================== */
   var HC_ROUTES = [
     [/tuesday|clos/i,                         'hcTuesday'],
-    [/retention|retain|regular|return|loyal/i, 'hcRetention'],
-    [/efficien|labou?r|staff|shift|schedul/i, 'hcOps'],
-    [/margin|item|selling|menu|product/i,     'hcItems'],
+    [/retention|retain|regular|return|repeat|loyal/i, 'hcRetention'],
+    [/efficien|operation|labou?r|staff|shift|schedul/i, 'hcOps'],
+    [/margin|profit|money|item|selling|menu|product/i, 'hcItems'],
     [/peer|local|nearby|compet|rank/i,        'peers'],
     [/streak|badge/i,                          'hcStreak'],
     [/revenue|growth|sales|grow/i,            'hcRevenue'],
@@ -5966,11 +5983,11 @@
   // Low-score version: the same idea, pointed at the recovery answers.
   var HC_ROUTES_LOW = [
     [/tuesday|clos/i,                                   'hcLowTuesday'],
-    [/fix|turnover/i,                                   'hcLowTables'],
+    [/fix|turnover|faster|free up/i,                    'hcLowTables'],
     [/plan|recover|draft/i,                             'hcLowPlan'],
-    [/potential|untapped|850|come from/i,               'hcLowPotential'],
-    [/table|turn|efficien|labou?r|staff|shift|slow|weekend|dip/i, 'hcLowOps'],
-    [/retention|retain|regular|return|loyal|customer/i, 'hcLowRetention'],
+    [/potential|untapped|850|come from|missed/i,        'hcLowPotential'],
+    [/table|turn|efficien|operation|labou?r|staff|shift|slow|weekend|dip/i, 'hcLowOps'],
+    [/retention|retain|regular|return|repeat|loyal|customer/i, 'hcLowRetention'],
     [/revenue|growth|sales|grow/i,                      'hcLowRevenue'],
     [/peer|local|nearby|compet|rank|index|score/i,      'hcLowPeers'],
     [/streak|badge/i,                                   'hcStreak']
@@ -5993,9 +6010,9 @@
     // Low score: the preset question is the recovery plan. Once the plan
     // is approved in Vera it would be a stale offer, so the preset falls
     // back to the next most useful question.
-    var HC_LOW_AFTER = 'Why are my weekend tables turning slower?';
+    var HC_LOW_AFTER = 'Why are weekend tables taking longer?';
     if (HC_LOW) {
-      input.placeholder = 'Draft a targeted recovery plan';
+      input.placeholder = 'Make a plan to win back $850';
       TURNS.hcLowPlan.promo.onDone = function () { input.placeholder = HC_LOW_AFTER; };
     }
 
@@ -6094,7 +6111,7 @@
      metric would have nothing on the chart to point at.
 
      Only the last point carries a marker. The eye should land on the
-     end of the green line, because that is where the $450 is.
+     end of the green line, because that is where the $1,200 is.
      =============================================================== */
 
   var pgChart = null;
@@ -6230,8 +6247,10 @@
           /* $7k steps put gridlines at 0/7/14/21k and the month's $23,100
              target just above the top one, so the last dotted point sits
              clear of a gridline instead of on it. endOnTick would round
-             the axis up to $28k and leave a quarter of the plot empty. */
-          max: 23100,
+             the axis up to $28k and leave a quarter of the plot empty.
+             Never below the goal, though: a higher goal (Grow fast,
+             $25,200) would otherwise run the target off the top. */
+          max: Math.max(23100, goalTarget()),
           endOnTick: false,
           tickInterval: 7000
         },
@@ -6501,6 +6520,7 @@
       lineWidth: 1,
       dashStyle: 'ShortDash',
       marker: { enabled: false, states: { hover: { enabled: false } } },
+      enableMouseTracking: false,
       zIndex: 5
     };
   }
@@ -6559,8 +6579,31 @@
         exporting: { enabled: false },
         accessibility: { enabled: false },
         legend: { enabled: false },
-        tooltip: { enabled: false },
-
+        /* Hover reads any stop on the curve: the setting in the
+           merchant's words (sc.read) and what it adds a week, so the
+           shape can be explored without dragging. The same card shows
+           at the thumb while the slider is in use (wiTipAt). */
+        tooltip: {
+          useHTML: true,
+          backgroundColor: 'rgba(255, 255, 255, 0.96)',
+          borderWidth: 0,
+          borderRadius: 10,
+          padding: 10,
+          shadow: { color: 'rgba(0, 0, 0, 0.12)', offsetX: 0, offsetY: 2, width: 6 },
+          style: { color: '#5a5a5a' },
+          hideDelay: 150,
+          formatter: function () {
+            var y = this.y;
+            return '<div style="display:flex;flex-direction:column;gap:4px;white-space:nowrap;">' +
+              '<div style="font-size:14px;font-weight:600;color:#5a5a5a;">' + sc.read(this.x) + '</div>' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;gap:20px;">' +
+                '<span style="display:inline-flex;align-items:center;">' + dot(y < 0 ? '#D93025' : LINE_GREEN) +
+                  '<span style="font-size:14px;color:#5a5a5a;">Gain per week</span></span>' +
+                '<span style="font-size:14px;font-weight:600;color:#333333;">' + signedMoney(y) + '</span>' +
+              '</div>' +
+            '</div>';
+          }
+        },
         xAxis: {
           min: sc.min,
           max: sc.max,
@@ -6570,6 +6613,7 @@
           labels: { enabled: false },   // .wi-notches label the stops
           startOnTick: false,
           endOnTick: false,
+          crosshair: { width: 1, color: '#727272', dashStyle: 'Dot' },
           plotLines: [wiPosLine(sc.value)]
         },
 
@@ -6596,7 +6640,16 @@
         },
 
         plotOptions: {
-          series: { animation: false, enableMouseTracking: false, states: { hover: { enabled: false } } }
+          series: {
+            animation: false,
+            stickyTracking: true,
+            marker: {
+              enabled: false,
+              symbol: 'circle',
+              states: { hover: { enabled: true, radius: 5, lineWidth: 2, lineColor: '#FFFFFF' } }
+            },
+            states: { hover: { lineWidthPlus: 0, halo: { size: 8, opacity: 0.12 } } }
+          }
         },
 
         series: [{
@@ -6608,7 +6661,7 @@
           linejoin: 'round',
           color: LINE_GREEN,
           fillColor: AREA_GRADIENT,
-          marker: { enabled: false },
+          name: 'Gain per week',
           zoneAxis: 'y',
           zones: [
             { value: 0, color: '#D93025', fillColor: AREA_GRADIENT_DOWN },
@@ -6619,10 +6672,28 @@
     } catch (e) { wiChart = null; }
 
     el.setAttribute('aria-label',
-      'Projected weekly net sales across the range of this setting. Best result at ' +
+      'Estimated weekly gain at each setting. Best result at ' +
       sc.read(best) + '.');
 
     return wiChart;
+  }
+
+  /* Point the curve's tooltip at the slider's value, so dragging or
+     hovering the lever shows which point on the curve it is on. */
+  function wiTipAt(v) {
+    if (!wiChart || !wiChart.series[0]) return;
+    var s = wiChart.series[0], hit = null;
+    s.points.forEach(function (p) { if (Math.abs(p.x - v) < 1e-6) hit = p; });
+    if (!hit) return;
+    hit.onMouseOver();
+    wiChart.tooltip.refresh(hit);
+    wiChart.xAxis[0].drawCrosshair(null, hit);
+  }
+  function wiTipHide() {
+    if (!wiChart) return;
+    wiChart.tooltip.hide(0);
+    wiChart.xAxis[0].hideCrosshair();
+    if (wiChart.hoverPoint) wiChart.hoverPoint.onMouseOut();
   }
 
   /* The turn the CTA sends to Vera, built from the lever as it stands:
@@ -6715,7 +6786,7 @@
 
     var ahead = Math.round(pgAhead());
     num.textContent  = usd(Math.abs(ahead));
-    tail.textContent = ahead < 0 ? 'behind pace' : 'ahead of pace';
+    tail.textContent = ahead < 0 ? 'behind target' : 'ahead of target';
     hero.classList.toggle('is-behind', ahead < 0);
 
     var level = pgPaceLevel();
@@ -6726,13 +6797,13 @@
       title.textContent =
         level === 'behind'      ? 'Five days left to catch up'
         : level === 'excellent' ? 'You are having a strong week!'
-        :                         'You\u2019re ahead of pace';
+        :                         'You\u2019re ahead of your goal';
     }
 
     // Pacing badge in the panel, and the tooltip that explains it.
     var badge = document.getElementById('pgBadge');
     if (badge) {
-      badge.textContent = 'Pacing: ' + PG_LEVEL_NAMES[level];
+      badge.textContent = PG_LEVEL_NAMES[level];
       badge.className = 'pg-badge is-' + level;
       document.getElementById('pgBadgeTip').textContent = pgPaceTip(level, ahead);
     }
@@ -6743,31 +6814,209 @@
       var g = PG_GOALS[FTU_WHY];
       if (g) {
         var left = Math.max(0, g.total - g.saved);
-        trace.textContent = 'At this pace, you will ' + g.trace + ' by ' +
+        trace.textContent = 'At this rate, you\u2019ll ' + g.trace + ' by ' +
                             pgDateLong(pgDateIn(left / pgSurplusPerDay())) + '.';
       } else {
         var proj = pgProjected(), gap = proj - goalTarget();
-        trace.textContent = 'At this pace, you will finish June at ' + usd(proj) + ' \u2014 ' +
+        trace.textContent = 'At this rate, you\u2019ll finish June at ' + usd(proj) + ' \u2014 ' +
           (gap >= 0 ? usd(gap) + ' over' : usd(-gap) + ' short of') +
           ' your ' + usd(goalTarget()) + ' goal.';
       }
     }
+
+    renderPaceDrivers();
+  }
+
+  /* ---- the drivers, when behind ----
+     Ahead keeps the three static rows. Behind swaps them for three
+     rows built from June's own days: the three weekdays furthest under
+     the daily target, biggest gap first, each with a fix the merchant
+     can act on. Each row opens Vera, which can draft a catch-up plan. */
+  var PG_DOW_PLURAL = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays',
+                       'Fridays', 'Saturdays', 'Sundays'];
+  var PG_DOW_ICON = ['calendar', 'clock', 'tag', 'tag', 'calendar', 'calendar', 'calendar'];
+  var PG_FIX = [
+    { fix: 'Send regulars a Monday-only offer', weekly: 90,
+      plan: ['Mon Jun 29', 'Text regulars a Monday pastry deal'],
+      why: 'Mondays are slow after the weekend. A text to your regulars with a Monday-only pastry deal could bring in about <strong>$90</strong> each Monday.' },
+    { fix: 'Stay open past 2pm and add a 4\u20136pm drinks deal', weekly: 170,
+      plan: ['Tue Jun 30', 'Stay open until 5pm + 4\u20136pm drinks deal'],
+      why: 'You closed at 2pm on <strong>Jun 2</strong> and <strong>Jun 9</strong>. On the Tuesdays you stayed open, 2\u20135pm brought in about <strong>$50</strong>. A 4\u20136pm drinks deal could add about <strong>$120</strong> more each Tuesday.' },
+    { fix: 'Suggest a pastry with morning drinks', weekly: 70,
+      plan: ['Wednesdays', 'Suggest a pastry with morning drinks'],
+      why: 'Wednesday orders are smaller than other days. If 1 in 10 morning drinks came with a pastry, that\u2019s about <strong>$70</strong> more each Wednesday.' },
+    { fix: 'Add a lunch combo', weekly: 40,
+      plan: ['Thursdays', 'Add a sandwich + drink lunch combo'],
+      why: 'Thursdays are only a little under target. A sandwich + drink lunch combo could add about <strong>$40</strong> each Thursday.' },
+    { fix: 'Promote evening pickup orders', weekly: 60,
+      plan: ['Fri Jun 26', 'Promote evening pickup orders'],
+      why: 'Friday evenings are quiet in store. Promoting pickup orders after 5pm could add about <strong>$60</strong> each Friday.' },
+    { fix: 'Add a grab-and-go table for market crowds', weekly: 80,
+      plan: ['Sat Jun 27', 'Grab-and-go table for market crowds'],
+      why: 'The summer market brings people past your door. A grab-and-go table from 9am to 1pm could add about <strong>$80</strong> each Saturday.' },
+    { fix: 'Post Sunday brunch specials online', weekly: 60,
+      plan: ['Sun Jun 28', 'Post Sunday brunch specials online'],
+      why: 'Sunday mornings fill up late. Posting brunch specials on Saturday night could add about <strong>$60</strong> each Sunday.' }
+  ];
+
+  // Per weekday, Jun 1-25: total sales, number of days, gap to target.
+  function pgWeekdays() {
+    var perDay = pgTargetDay(), out = [];
+    for (var d = 0; d < 7; d++) out.push({ dow: d, sum: 0, n: 0 });
+    for (var i = 0; i < PG_DAYS; i++) {
+      out[i % 7].sum += PG_DAILY[i];
+      out[i % 7].n += 1;
+    }
+    out.forEach(function (w) {
+      w.avg = w.sum / w.n;
+      w.gap = w.sum - w.n * perDay;
+    });
+    return out;
+  }
+
+  function pgJoinDays(list) {
+    if (list.length < 2) return list.join('');
+    return list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1];
+  }
+
+  var pgReadAhead = null;
+
+  function renderPaceDrivers() {
+    var aheadBox = document.getElementById('pgDriversAhead');
+    var behindBox = document.getElementById('pgDriversBehind');
+    var read = document.getElementById('pgRead');
+    if (!aheadBox || !behindBox) return;
+    if (read && pgReadAhead === null) pgReadAhead = read.innerHTML;
+
+    var total = Math.round(pgAhead());
+    var behind = total < 0;
+    aheadBox.hidden = behind;
+    behindBox.hidden = !behind;
+    if (!behind) {
+      if (read) read.innerHTML = pgReadAhead;
+      behindBox.innerHTML = '';
+      return;
+    }
+
+    var perDay = pgTargetDay();
+    var days = pgWeekdays();
+    var neg = days.filter(function (w) { return w.gap < 0; })
+                  .sort(function (a, b) { return a.gap - b.gap; });
+
+    neg.forEach(function (w) { w.shown = Math.round(w.gap / 10) * 10; });
+
+    if (read) {
+      var worst = neg.slice(0, 2).map(function (w) { return '<b>' + PG_DOW_PLURAL[w.dow] + '</b>'; });
+      read.innerHTML = pgJoinDays(worst) + (worst.length > 1 ? ' are' : ' is') +
+                       ' where you\u2019re falling short.';
+    }
+
+    // The last 5 days, for the catch-up plan Vera can draft from a row.
+    var left = PG_MONTH - PG_DAYS;
+    var need = goalTarget() - PG_ACTUAL[PG_DAYS - 1];
+    var usual = 0, restDows = [];
+    for (var i = PG_DAYS; i < PG_MONTH; i++) {
+      usual += days[i % 7].avg;
+      restDows.push(i % 7);
+    }
+    usual = Math.round(usual / 10) * 10;
+    var short = Math.max(0, Math.round((need - usual) / 10) * 10);
+    var span = PG_DOW_NAMES[restDows[0]] + '\u2013' + PG_DOW_NAMES[restDows[restDows.length - 1]];
+
+    // The plan: fixes for the weak days still left this month.
+    var negDows = neg.map(function (w) { return w.dow; });
+    var planDows = restDows.filter(function (d) { return negDows.indexOf(d) !== -1; })
+                           .sort(function (a, b) { return days[a].gap - days[b].gap; });
+    if (!planDows.length) planDows = [neg[0].dow];
+    var planAdd = planDows.reduce(function (s, d) { return s + PG_FIX[d].weekly; }, 0);
+
+    // Vera turns for each row, built from the same numbers.
+    neg.forEach(function (w) {
+      var f = PG_FIX[w.dow], name = PG_DOW_PLURAL[w.dow];
+      TURNS['paceDay' + w.dow] = {
+        ask: 'How do I fix my ' + name + '?',
+        think: [['search', 'Search your June ' + name + '\u2026'], thinkFor(2)],
+        say: name + ' are <strong>' + usd(-w.shown) + '</strong> under target so far. You average <strong>' +
+             usd(Math.round(w.avg / 10) * 10) + '</strong> on a ' + PG_DOW_NAMES[w.dow] +
+             ', and your goal needs <strong>' + usd(Math.round(perDay)) + '</strong> a day. ' + f.why,
+        brief: [
+          [name + ' average', usd(Math.round(w.avg / 10) * 10), 'down'],
+          ['Needed per day', usd(Math.round(perDay))],
+          ['Fix: ' + f.fix, '+' + usd(f.weekly) + ' each ' + PG_DOW_NAMES[w.dow]]
+        ],
+        chips: [
+          { label: 'Make a catch-up plan.', to: 'pacePlan' },
+          { label: 'Start a new chat.',     to: '@reset'   }
+        ]
+      };
+    });
+
+    TURNS.pacePlanDone = {
+      say: 'Done. I\u2019ll check in after each day and tell you how far you are from your <strong>' +
+           usd(goalTarget()) + '</strong> goal.',
+      chips: [{ label: 'Start a new chat.', to: '@reset' }]
+    };
+    TURNS.pacePlan = {
+      ask: 'Make a catch-up plan.',
+      think: [['notes', 'Look at your last 5 days of June\u2026'], ['edit', 'Draft the plan\u2026']],
+      say: 'You need <strong>' + usd(need) + '</strong> in the last 5 days to hit your <strong>' +
+           usd(goalTarget()) + '</strong> goal. A usual ' + span + ' brings about <strong>' + usd(usual) +
+           '</strong>' + (short > 0 ? ', so you\u2019re <strong>' + usd(short) + '</strong> short.' : ' \u2014 enough if you keep it up.') +
+           ' This plan fixes your weakest days still left this month and could add about <strong>' + usd(planAdd) +
+           '</strong>' + (short > 0
+             ? (planAdd >= short ? ' \u2014 enough to catch up.' : ', closing most of the gap.')
+             : ' as a cushion.') +
+           ' Nothing changes until you approve it.',
+      promo: {
+        name: 'June catch-up plan',
+        when: 'Jun 26\u201330',
+        rows: planDows.map(function (d) { return PG_FIX[d].plan; })
+                      .concat([['Could add', 'About ' + usd(planAdd)]]),
+        action: 'Start the plan', working: 'Starting', latched: 'Started',
+        done: 'pacePlanDone'
+      },
+      chips: []
+    };
+
+    function row(ask, icon, name, sub, val) {
+      return '<li><button class="gam-row" type="button" data-ask="' + ask + '">' +
+        '<img class="gam-row-ico" src="asset/ui/' + icon + '.svg" alt="" />' +
+        '<span class="gam-row-text"><span class="gam-row-name">' + name + '</span>' +
+        (sub ? '<span class="gam-row-sub">' + sub + '</span>' : '') + '</span>' +
+        '<span class="gam-row-val ' + (val < 0 ? 'is-down' : 'is-up') + '">' +
+          (val < 0 ? '\u2212' : '+') + usd(Math.abs(val)) + '</span>' +
+        '<img class="chev" src="asset/ui/chevron-right.svg" alt="" />' +
+      '</button></li>';
+    }
+
+    // Same three-row list as the ahead state: the three biggest shortfalls.
+    var html = '<p class="gam-group-head">What\u2019s pulling you behind</p><ul class="gam-rows">';
+    neg.slice(0, 3).forEach(function (w) {
+      html += row('paceDay' + w.dow, PG_DOW_ICON[w.dow],
+        PG_DOW_PLURAL[w.dow] + ' are under target',
+        'You make about ' + usd(Math.round(w.avg / 10) * 10) + ' a day, and need ' +
+          usd(Math.round(perDay)) + '. <b>Try:</b> ' + PG_FIX[w.dow].fix.charAt(0).toLowerCase() +
+          PG_FIX[w.dow].fix.slice(1) + '.',
+        w.shown);
+    });
+    html += '</ul>';
+    behindBox.innerHTML = html;
   }
 
   /* ---- the bigger goal behind the month ----
      Setup step 3. Each motivation is a pot the month's surplus over the
      usual $21,000 pays into. The date is "at this pace": projected June
-     minus the usual month is $2,640 of surplus a month, so the safety
-     net's last $9,700 lands on Oct 15. Skipped setup traces to June's
+     minus the usual month is $3,540 of surplus a month, so the safety
+     net's last $9,700 lands on Sep 17. Skipped setup traces to June's
      goal instead. */
   var PG_GOALS = {
-    safety:  { trace: 'fully fund your 3-month cash safety net', short: 'safety net',
+    safety:  { trace: 'have your 3-month cash safety net', short: 'safety net',
                total: 18000, saved: 8300 },
     upgrade: { trace: 'pay off your new espresso machine', short: 'espresso machine',
                total: 12000, saved: 6500 },
-    staff:   { trace: 'fully fund a part-time hire for the fall', short: 'fall hire',
+    staff:   { trace: 'afford a part-time hire for the fall', short: 'fall hire',
                total: 9000, saved: 3000 },
-    time:    { trace: 'cover a shift manager so you can take Mondays off', short: 'Mondays-off',
+    time:    { trace: 'afford a shift manager so you can take Mondays off', short: 'Mondays-off',
                total: 7800, saved: 2400 }
   };
 
@@ -6794,9 +7043,9 @@
                 above the daily target, so the lead is still growing
      On track   ahead, but the last 7 days ran under target
      Behind     under the dotted line
-     At the default +10%: $450 ahead, Jun 19-25 averaged $869 against
-     $770 a day, so Excellent, about $100 a day above. */
-  var PG_LEVEL_NAMES = { excellent: 'Excellent', ontrack: 'On track', behind: 'Behind' };
+     At the default +10%: $1,200 ahead, Jun 19-25 averaged $938 against
+     $770 a day, so Excellent, about $170 a day above. */
+  var PG_LEVEL_NAMES = { excellent: 'Well ahead', ontrack: 'On track', behind: 'Behind' };
   function pgWeekAvg() {
     return (PG_ACTUAL[PG_DAYS - 1] - PG_ACTUAL[PG_DAYS - 8]) / 7;
   }
@@ -6815,18 +7064,18 @@
     var diff = Math.round(Math.abs(pgWeekAvg() - pgTargetDay()) / 10) * 10;
     var need = Math.ceil((goalTarget() - PG_ACTUAL[PG_DAYS - 1]) / (PG_MONTH - PG_DAYS) / 10) * 10;
     if (level === 'excellent') {
-      return 'You are currently averaging ' + usd(diff) + ' above your daily sales target. ' +
-             'This ' + usd(ahead) + ' surplus creates a healthy buffer, keeping ' +
-             pgGoalPhrase() + ' on track even if you experience a slow day.';
+      return 'You\u2019re making about ' + usd(diff) + ' a day more than you need. ' +
+             'That ' + usd(ahead) + ' cushion keeps ' + pgGoalPhrase() +
+             ' on track, even after a slow day.';
     }
     if (level === 'ontrack') {
-      return 'You are ' + usd(ahead) + ' ahead of pace, but the last 7 days averaged ' +
-             usd(diff) + ' below your daily sales target. Averaging ' + usd(need) +
-             ' a day through June 30th keeps ' + pgGoalPhrase() + ' on track.';
+      return 'You\u2019re ' + usd(ahead) + ' ahead, but the last 7 days were ' +
+             usd(diff) + ' a day under target. Make ' + usd(need) +
+             ' a day through June 30 to keep ' + pgGoalPhrase() + ' on track.';
     }
-    return 'You are ' + usd(-ahead) + ' behind pace for your ' + usd(goalTarget()) +
-           ' June goal. Averaging ' + usd(need) + ' a day through June 30th closes the gap' +
-           (PG_GOALS[FTU_WHY] ? ' and keeps ' + pgGoalPhrase() + ' on track.' : '.');
+    return 'You\u2019re ' + usd(-ahead) + ' behind your ' + usd(goalTarget()) +
+           ' June goal. Make ' + usd(need) + ' a day through June 30 to catch up' +
+           (PG_GOALS[FTU_WHY] ? ' and keep ' + pgGoalPhrase() + ' on track.' : '.');
   }
 
   // Esc dismisses a hover tooltip until the pointer or focus leaves.
@@ -6840,13 +7089,13 @@
   });
 
   var PG_FOCUS = {
-    traffic: ['Attracting foot traffic',
+    traffic: ['Bring in more customers',
               'Tuesdays are your quietest day. A Tuesday happy hour could bring in about $120 a week.'],
-    basket:  ['Increasing order sizes',
-              'Offer a pastry pairing with weekend lattes. A $3 add-on on a third of orders adds about $150 a week.'],
-    margin:  ['Boosting high-margin items',
-              'Ice latte and avocado toast carry your best margins. Feature them on the Saturday menu board.'],
-    labor:   ['Optimizing labor & slow hours',
+    basket:  ['Get bigger orders',
+              'Offer a pastry with weekend lattes. A $3 add-on on a third of orders adds about $150 a week.'],
+    margin:  ['Sell more of your most profitable items',
+              'Ice latte and avocado toast make you the most per sale. Feature them on the Saturday menu board.'],
+    labor:   ['Cut staff costs in slow hours',
               'Thursday lunch is overstaffed. Dropping 3 shifts saves about $210 a week.']
   };
 
@@ -6863,6 +7112,19 @@
 
   if (wiRange) {
     wiRange.addEventListener('input', renderWhatIf);
+
+    // Show where the thumb sits on the curve while the lever is in use.
+    // pointermove re-shows it if Highcharts' own mouse-out reset hid it
+    // on the way from the chart down to the slider.
+    function wiLeverTip() { wiTipAt(Number(wiRange.value)); }
+    wiRange.addEventListener('input', wiLeverTip);
+    wiRange.addEventListener('pointerenter', wiLeverTip);
+    wiRange.addEventListener('pointermove', function () {
+      if (wiChart && wiChart.tooltip && wiChart.tooltip.isHidden) wiLeverTip();
+    });
+    wiRange.addEventListener('pointerleave', wiTipHide);
+    wiRange.addEventListener('keyup', wiLeverTip);
+    wiRange.addEventListener('blur', wiTipHide);
 
     // Delegated: the buttons are rebuilt whenever the focus changes.
     document.getElementById('wiPrompts').addEventListener('click', function (e) {
@@ -7001,22 +7263,24 @@
   // Variant C sets up the simulator, not the pace tracker: its own
   // loading line and a miniature of a what-if curve in the intro.
   if (ftu && VARIANT === 'c') {
-    document.getElementById('ftuLoadTitle').textContent = 'Calibrating your What-If simulator\u2026';
+    document.getElementById('ftuLoadTitle').textContent = 'Setting up your what-if planner\u2026';
     var pv = ftu.querySelector('.ftu-preview');
     pv.querySelector('.ftu-preview-title').textContent = 'What if\u2026';
     pv.querySelector('.ftu-preview-num').textContent = '+$380';
     var caps = pv.querySelectorAll('.ftu-preview-cap');
-    caps[0].textContent = 'Projected';
+    caps[0].textContent = 'Could add';
     caps[1].textContent = 'a week';
     var paths = pv.querySelectorAll('.ftu-preview-chart path');
     paths[0].parentNode.removeChild(paths[0]);       // no target line
     paths[1].setAttribute('d', 'M2 66 C26 40 46 18 70 16 S118 26 148 36');
-    var dot = pv.querySelector('.ftu-preview-chart circle');
-    dot.setAttribute('cx', '70');
-    dot.setAttribute('cy', '16');
+    // Not `dot`: a var here would overwrite the shared dot() swatch
+    // helper for the whole page and break every chart tooltip on C.
+    var pvDot = pv.querySelector('.ftu-preview-chart circle');
+    pvDot.setAttribute('cx', '70');
+    pvDot.setAttribute('cy', '16');
   }
 
-  var FTU_TARGETS = { aggressive: 15, steady: 5, maintain: 0 };
+  var FTU_TARGETS = { aggressive: 20, steady: 5, maintain: 0 };
   var ftuAns = {}, ftuStep = 1, ftuTimer = null, ftuDone = null, ftuEditing = false;
   var ftuCustom = 24000;
 
@@ -7032,7 +7296,7 @@
 
   /* ---- Vera's line, one per step --------------------------------
      Each line answers the step BEFORE it, so the wizard reads as a
-     conversation rather than a form: pick +15% and step 2 opens on
+     conversation rather than a form: pick +20% and step 2 opens on
      what that means a day. The figures are the page's own —
        90-day average     BASELINE $21,000
        eight-week climb   BASELINE_WEEKS 4,820 -> 5,230 = +8.5%
@@ -7041,18 +7305,18 @@
      `**x**` is bold; ftuSay() streams the line in word by word. */
   var FTU_FOCUS_SAY = {
     traffic: 'Good call. **Tuesdays** are your quietest day, so I\u2019ll start there.',
-    basket:  'Good call. **Weekend lattes** are your best pairing chance, so I\u2019ll start there.',
-    margin:  'Good call. **Ice latte** and **avocado toast** carry your best margins, so I\u2019ll build around them.',
-    labor:   'Good call. I already see one: **Thursday lunch** looks overstaffed.'
+    basket:  'Good call. **Weekend lattes** are your best chance to add a pastry, so I\u2019ll start there.',
+    margin:  'Good call. **Ice latte** and **avocado toast** make you the most per sale, so I\u2019ll start there.',
+    labor:   'Good call. **Thursday lunch** already looks overstaffed, so I\u2019ll start there.'
   };
   var FTU_STEP_ANS = {
-    focus: { traffic: 'Foot traffic', basket: 'Order size', margin: 'High-margin items', labor: 'Labor & slow hours' },
-    why:   { safety: 'Safety net', upgrade: 'Equipment', staff: 'Staff', time: 'Fewer hours' }
+    focus: { traffic: 'More customers', basket: 'Bigger orders', margin: 'Profitable items', labor: 'Staff costs' },
+    why:   { safety: 'Safety net', upgrade: 'Equipment', staff: 'Staff', time: 'Time off' }
   };
 
   function ftuLine(step) {
     if (step === 1) {
-      return 'I\u2019ve read your last 90 days: about **' + usd(BASELINE) + '** a month, with weekly sales up **8%** over the past eight weeks.';
+      return 'You usually make about **' + usd(BASELINE) + '** a month, and sales are up **8%** over the last 8 weeks.';
     }
     if (step === 2) {
       var t = ftuTargetValue(), perDay = Math.round((t - BASELINE) / PG_MONTH / 5) * 5;
@@ -7061,7 +7325,7 @@
         : '**' + usd(t) + '** it is. I\u2019ll flag anything that starts to slip.';
       return lead;
     }
-    return (FTU_FOCUS_SAY[ftuAns.focus] || 'Noted.') + ' Last question, and it\u2019s about you.';
+    return (FTU_FOCUS_SAY[ftuAns.focus] || 'Got it.') + ' Last question, and it\u2019s about you.';
   }
 
   function ftuSay(step) {
@@ -7204,9 +7468,9 @@
        the answers being used rather than a generic spinner. */
     var lines = [
       'Reading 90 days of sales',
-      'Setting your ' + usd(ftuTargetValue()) + ' June target',
-      'Prioritizing ' + (PG_FOCUS[ftuAns.focus] ? PG_FOCUS[ftuAns.focus][0].toLowerCase() : 'your opportunities'),
-      VARIANT === 'c' ? 'Translating results into your goal' : 'Tailoring your insights'
+      'Setting your ' + usd(ftuTargetValue()) + ' June goal',
+      PG_FOCUS[ftuAns.focus] ? 'Looking for ways to ' + PG_FOCUS[ftuAns.focus][0].toLowerCase() : 'Looking for ways to grow',
+      VARIANT === 'c' ? 'Linking results to your goal' : 'Personalizing your dashboard'
     ];
     list.innerHTML = lines.map(function (t) {
       return '<li class="ftu-load-item"><span class="ftu-load-tick" aria-hidden="true">' +
