@@ -20,7 +20,7 @@ tools/         serve.py (no-cache dev server), retint-loader.py
 
 ```bash
 python3 tools/serve.py
-# → http://localhost:5184          wrapper, opens on variant A
+# → http://localhost:5184          wrapper, opens on a random variant (A, B or C)
 # → http://localhost:5184/#b       open straight on B (or #c)
 # → http://localhost:5184/insights.html?variant=c   one variant, no wrapper
 ```

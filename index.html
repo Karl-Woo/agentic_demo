@@ -241,9 +241,16 @@
     } catch (e) { /* cross-origin: keys and hover only work over the pill */ }
   }
 
-  /* ---- boot ---- */
+  /* ---- boot ----
+     A hash opens that variant. With no hash, a first landing picks A, B or
+     C at random so sessions don't all start on the same one. A low is left
+     out of the draw: it is A's alternate state, not a fourth option.
+     show() writes the pick into the hash, so a reload stays put. */
+  var RANDOM_POOL = ['a', 'b', 'c'];
   var start = (location.hash || '').replace('#', '').toLowerCase();
-  if (VARIANTS.indexOf(start) < 0) start = 'a';
+  if (VARIANTS.indexOf(start) < 0) {
+    start = RANDOM_POOL[Math.floor(Math.random() * RANDOM_POOL.length)];
+  }
   show(start);
 
   frames[start].addEventListener('load', function () {
