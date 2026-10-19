@@ -266,8 +266,8 @@
         <!-- ============================ TOP NAV ============================ -->
         <header class="topnav">
           <div class="topnav-left">
-            <button class="navbtn" type="button" aria-label="Menu">
-              <img src="asset/ui/menu.svg" alt="" />
+            <button class="navbtn" type="button" aria-label="Expand navigation">
+              <img src="asset/ui/menu-expand.svg" alt="" />
             </button>
             <img class="topnav-logo" src="asset/brand/clover-mark.svg" alt="Clover" />
             <span class="topnav-divider" aria-hidden="true"></span>
@@ -278,9 +278,13 @@
           </div>
 
           <div class="topnav-right">
-            <button class="navbtn is-active" type="button" id="veraToggle"
+            <button class="navbtn navbtn--pill is-active" type="button" id="veraToggle"
                     aria-label="Hide Vera" aria-controls="vera" aria-expanded="true">
               <img src="asset/ui/ai-search.svg" alt="" />
+              <span>Ask me</span>
+            </button>
+            <button class="navbtn" type="button" aria-label="Register">
+              <img src="asset/ui/cart.svg" alt="" />
             </button>
             <button class="navbtn" type="button" aria-label="Notifications">
               <img src="asset/ui/notification.svg" alt="" />
@@ -296,6 +300,44 @@
 
         <!-- ============================ LAYOUT ============================ -->
         <div class="layout">
+
+          <!-- ------------------------- SIDE RAIL --------------------------- -->
+          <nav class="rail" aria-label="Primary">
+            <button class="rail-new" type="button" aria-label="New sale" data-unlinked>
+              <img src="asset/ui/plus.svg" alt="" />
+            </button>
+            <button class="railbtn" type="button" aria-label="Home" data-unlinked>
+              <img src="asset/ui/home.svg" alt="" />
+            </button>
+            <button class="railbtn is-active" type="button" aria-label="Insights" aria-current="page">
+              <img src="asset/ui/sparkle.svg" alt="" />
+            </button>
+            <button class="railbtn" type="button" aria-label="Sales activity" data-unlinked>
+              <img src="asset/ui/receipt.svg" alt="" />
+            </button>
+            <button class="railbtn" type="button" aria-label="Reports" data-unlinked>
+              <img src="asset/ui/reports.svg" alt="" />
+            </button>
+            <button class="railbtn" type="button" aria-label="Finances" data-unlinked>
+              <img src="asset/ui/bank.svg" alt="" />
+            </button>
+            <button class="railbtn" type="button" aria-label="Items" data-unlinked>
+              <img src="asset/ui/tag.svg" alt="" />
+            </button>
+            <button class="railbtn" type="button" aria-label="Employees" data-unlinked>
+              <img src="asset/ui/employee.svg" alt="" />
+            </button>
+            <button class="railbtn" type="button" aria-label="Customers" data-unlinked>
+              <img src="asset/ui/customers.svg" alt="" />
+            </button>
+            <span class="rail-divider" aria-hidden="true"></span>
+            <button class="railbtn" type="button" aria-label="Ordering tools" data-unlinked>
+              <img src="asset/ui/utensils.svg" alt="" />
+            </button>
+            <button class="railbtn" type="button" aria-label="Apps" data-unlinked>
+              <img src="asset/ui/apps.svg" alt="" />
+            </button>
+          </nav>
 
           <!-- ------------------------- MAIN COLUMN ------------------------- -->
           <main class="main">
@@ -1399,9 +1441,9 @@
      Collapse / expand the chat panel.
 
      The AI button in the top nav toggles; the panel's own X only
-     closes. Collapsing sets flex-basis to 0 and cancels .layout's
-     24px gap, so the main column reclaims the full width instead of
-     stopping a gutter short.
+     closes. Collapsing sets flex-basis to 0 and drops the panel's
+     12px margin-left, so the main column reclaims the full width
+     instead of stopping a gutter short.
      =============================================================== */
 
   // Must match the flex-basis transition on .vera in styles.css.
@@ -5141,17 +5183,53 @@
      1.10 = $23,100 over 30 days = $770 a day, so day 25 wants $19,250
      and $20,450 taken is $1,200 ahead — arrived at rather than typed.
 
-     Grow fast (+20%, $25,200) wants $21,000 by day 25, so the same
-     month reads $550 BEHIND there — the behind state is real data,
-     not a separate script. */
+     The behind state (Grow fast, or any goal this month cannot reach)
+     runs on its own month, PG_DAILY_MISS below. Reusing these dailies
+     against a higher target read only $550 behind while the three
+     "pulling you behind" rows summed to -$3,110: the market Saturdays
+     sat $2,640 OVER the higher target and quietly paid most of it
+     back, so the card's top and bottom told two different stories. */
   var BASELINE  = 21000;        // trailing 90-day average month
   var PG_DAYS   = 25;           // today is Jun 25
   var PG_MONTH  = 30;
-  var PG_DAILY  = [
+  var PG_DAILY_USUAL = [
     500, 440, 580, 690,  980, 1250,  860,  // Jun 1-7
     560, 460, 650, 790, 1110, 1345,  960,  // Jun 8-14
     610, 520, 720, 860, 1210, 1445, 1040,  // Jun 15-21
     640, 530, 760, 940                     // Jun 22-25
+  ];
+  /* ---- the miss-target month ----
+     Built so the card reconciles: the hero gap is EXACTLY the sum of
+     the three driver rows, because every other weekday lands on the
+     $840/day Grow-fast target in total. Against $840 a day:
+
+              W1    W2    W3    W4    sum    need    gap
+       Mon   800   600   680   680   2760    3360   -600
+       Tue   720   560   640   640   2560    3360   -800  <- worst
+       Wed   820   640   760   740   2960    3360   -400
+       Thu   860   720   880   900   3360    3360      0
+       Fri   900   720   900         2520    2520      0
+       Sat   960   600   960         2520    2520      0
+       Sun   880   700   940         2520    2520      0
+                                    -----   -----  -----
+                                    19200   21000  -1800
+
+     -$800 - $600 - $400 = -$1,800 on the rows, -$1,800 on the hero.
+
+     The shape is a story rather than a straight line. Running gap to
+     the dotted target:
+       week 1  on pace, a good first weekend nudges it AHEAD   +$60
+       week 2  a wet week, rained-out Saturday              -> -$1,280
+       week 3  weekdays slip again, the weekend claws back  -> -$1,400
+       week 4  Mon-Wed slip once more                       -> -$1,800
+     So the green line crosses the target once, falls away in the
+     middle of the month, and never quite recovers — the gap the card
+     reports is visibly the gap the chart draws. */
+  var PG_DAILY_MISS = [
+    800, 720, 820, 860, 900, 960, 880,     // Jun 1-7
+    600, 560, 640, 720, 720, 600, 700,     // Jun 8-14
+    680, 640, 760, 880, 900, 960, 940,     // Jun 15-21
+    680, 640, 740, 900                     // Jun 22-25
   ];
   /* Derived, not typed out 30 times. Jun 1 2026 is a Monday, so the
      index maps straight onto the week — and the two days that carry
@@ -5159,11 +5237,24 @@
      the numbers above the way a hand-written list would. */
   var PG_DOW_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   function pgDay(i) { return PG_DOW_NAMES[i % 7] + ' Jun ' + (i + 1); }
-  var PG_ACTUAL = (function () {
+  function pgCumulate(daily) {
     var out = [], run = 0;
-    for (var i = 0; i < PG_DAILY.length; i++) { run += PG_DAILY[i]; out.push(run); }
-    return out;                 // 500, 940, 1520, ... 20450
-  })();
+    for (var i = 0; i < daily.length; i++) { run += daily[i]; out.push(run); }
+    return out;
+  }
+  var PG_DAILY  = PG_DAILY_USUAL;
+  var PG_ACTUAL = pgCumulate(PG_DAILY);   // 500, 940, 1520, ... 20450
+
+  /* Picks the month for the current goal. Any goal the usual month
+     already meets keeps it, so the ahead states are untouched; a goal
+     it falls short of swaps in the miss month. Called before every
+     render, since the goal can change from the setup wizard. */
+  function pgSelectMonth() {
+    var usualEnd = pgCumulate(PG_DAILY_USUAL)[PG_DAYS - 1];
+    var miss = usualEnd < pgTargetDay() * PG_DAYS;
+    PG_DAILY  = miss ? PG_DAILY_MISS : PG_DAILY_USUAL;
+    PG_ACTUAL = pgCumulate(PG_DAILY);
+  }
 
   var GOAL_GROWTH = 10;         // percent over BASELINE
   /* Set by the first-time setup (variant B). A dollar figure overrides
@@ -5180,6 +5271,10 @@
   }
 
   function pgTargetDay() { return goalTarget() / PG_MONTH; }
+  // The pace chart's y step: a third of the target + 2%, up to a whole $1k.
+  function pgYStep() {
+    return Math.ceil(goalTarget() * 1.02 / 3 / 1000) * 1000;
+  }
   function pgAhead() {
     return PG_ACTUAL[PG_DAYS - 1] - pgTargetDay() * PG_DAYS;
   }
@@ -5942,16 +6037,16 @@
 
       val.appendChild(got);
       val.appendChild(out);
-      // Low score: a small status on the same line as the fraction, so
-      // the tile keeps the high version's shape.
+      // Low score: the status gets its own line under the score, so the
+      // score line stays identical to its neighbours and never wraps.
+      btn.appendChild(name);
+      btn.appendChild(val);
       if (m.status) {
         var st = document.createElement('span');
         st.className = 'hc-status is-' + m.status;
         st.textContent = HC_STATUS[m.status];
-        val.appendChild(st);
+        btn.appendChild(st);
       }
-      btn.appendChild(name);
-      btn.appendChild(val);
       li.appendChild(btn);
       ul.appendChild(li);
     });
@@ -6120,6 +6215,7 @@
     var el = document.getElementById('pgChart');
     if (!el || !window.Highcharts) return null;
     if (pgChart) { pgChart.destroy(); pgChart = null; }
+    pgSelectMonth();
 
     var cats = [], target = [], actual = [];
     var perDay = pgTargetDay();
@@ -6244,15 +6340,15 @@
           gridLineDashStyle: 'ShortDash',
           minorGridLineWidth: 0,
           min: 0,
-          /* $7k steps put gridlines at 0/7/14/21k and the month's $23,100
-             target just above the top one, so the last dotted point sits
-             clear of a gridline instead of on it. endOnTick would round
-             the axis up to $28k and leave a quarter of the plot empty.
-             Never below the goal, though: a higher goal (Grow fast,
-             $25,200) would otherwise run the target off the top. */
-          max: Math.max(23100, goalTarget()),
+          /* Three even steps, rounded up to a whole $1k, with the top
+             gridline always ABOVE the month's target (plus 2% headroom so
+             the last dotted point never lands on a gridline). A fixed $7k
+             step let a higher goal (Grow fast, $25,200) run the target
+             line past the top label. Defaults: +10% $23,100 -> 8k/16k/24k,
+             Grow fast $25,200 -> 9k/18k/27k. */
+          max: pgYStep() * 3,
           endOnTick: false,
-          tickInterval: 7000
+          tickInterval: pgYStep()
         },
 
         tooltip: {
@@ -6274,7 +6370,7 @@
               '</div>';
             }).join('');
             return '<div style="display:flex;flex-direction:column;gap:4px;min-width:176px;">' +
-              '<div style="font-size:14px;line-height:20px;font-weight:500;color:#5a5a5a;">' + this.x + '</div>' +
+              '<div style="font-size:14px;line-height:20px;font-weight:500;color:#5a5a5a;">' + pgDay(this.points[0].point.index) + '</div>' +
               rows +
             '</div>';
           }
@@ -7101,6 +7197,7 @@
 
   function renderAll() {
     renderHealthMarks();
+    pgSelectMonth();
     renderPaceHero();
     renderWiHead();
     renderWhatIf();

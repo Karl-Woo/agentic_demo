@@ -33,6 +33,16 @@
   --line:       #E3E6E8;
   --line-soft:  #EDEFF1;
   --soft:       #F7F8F9;
+  /* New nav pattern: the page column sits on a tonal surface so the white
+     cards lift off it, while the chrome (top nav, side rail, Vera) stays
+     white. --nav-active is the rail's selected-item fill. */
+  --tonal:      #F7F7F7;
+  --nav-active: #E1F3DA;
+  /* Asymmetric on purpose: the bezel visually eats into the left edge, so an
+     even 16/16 split reads heavier on the right. 16 + 40 hit box + 8. */
+  --rail-pad-l: 16px;
+  --rail-pad-r: 8px;
+  --rail-w:     calc(var(--rail-pad-l) + var(--hit) + var(--rail-pad-r));
   --green:      #0F7A3D;
   --green-dk:   #0B6431;
   --green-tx:   #137B3B;
@@ -271,11 +281,11 @@ strong, b { font-weight: 500; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* 24 + the navbtn's own 8px optical inset puts the first and last glyph on
-     the same 32px page margin the content column uses. */
-  padding: 0 var(--sp-6);
+  /* Left: the rail's own inset, so the menu button stacks directly over the
+     rail column and every left-edge glyph shares one centre line.
+     Right: 24 + the navbtn's 8px optical inset. */
+  padding: 0 var(--sp-6) 0 var(--rail-pad-l);
   background: #fff;
-  border-bottom: 1px solid var(--line);
 }
 
 .topnav-left,
@@ -313,6 +323,79 @@ strong, b { font-weight: 500; }
 .navbtn--sm { margin-left: var(--sp-1); color: var(--muted); }
 
 .navbtn img { width: var(--icon); height: var(--icon); display: block; }
+
+/* The Vera toggle carries a label in the new nav pattern: a pill, same
+   height as every other nav button, glyph + "Ask me". */
+.navbtn--pill {
+  width: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-4) 0 var(--sp-3);
+  border-radius: 999px;
+  font: var(--label);
+  color: var(--ink);
+  margin-right: var(--sp-2);
+}
+
+/* ===========================================================================
+   Side rail — the collapsed, icon-only primary nav
+   ---------------------------------------------------------------------------
+   Sticky under the top nav for the whole scroll, on the white chrome. Every
+   item is the same --hit box as the top nav's buttons; the selected page
+   takes the green tonal fill.
+   =========================================================================== */
+
+.rail {
+  position: sticky;
+  top: var(--sp-14);
+  flex: 0 0 var(--rail-w);
+  height: calc(834px - 24px - var(--sp-14));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-4) var(--rail-pad-r) 0 var(--rail-pad-l);
+  background: #fff;
+  z-index: 10;
+}
+
+.rail-new {
+  width: var(--hit);
+  height: var(--hit);
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--sp-3);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--green);
+  background: #fff;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.rail-new:hover { background: var(--green-tint); }
+
+.railbtn {
+  width: var(--hit);
+  height: var(--hit);
+  display: grid;
+  place-items: center;
+  border-radius: var(--sp-2);
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.railbtn:hover { background: #F1F3F4; }
+.railbtn.is-active,
+.railbtn.is-active:hover { background: var(--nav-active); }
+
+.rail-new img,
+.railbtn img { width: var(--icon); height: var(--icon); display: block; }
+
+.rail-divider {
+  width: var(--hit);
+  height: 1px;
+  margin: var(--sp-3) 0;
+  background: var(--line);
+}
 
 /* Inline SVGs (illustrations only — all real UI icons are <img> assets
    from the design file, see asset/ui/).
@@ -352,11 +435,14 @@ svg .ico-fill { fill: currentColor; stroke: none; }
    the panel and the canvas edge, which reads as flush at this canvas's 0.75
    scale — 8px lands at ~6 device px against the screen bezel, so the panel
    looks clipped rather than inset. 24 restores a visible margin. */
+/* New nav pattern: [rail | tonal main | Vera], all three flush under the top
+   nav. The rail carries its own width, so .layout has no gap — the only
+   gutter is Vera's own margin-left, which the collapsed state zeroes. The
+   12px right padding matches that gutter so the panel sits evenly inset. */
 .layout {
   display: flex;
   align-items: flex-start;
-  gap: var(--sp-8);
-  padding: 0 var(--sp-6) 0 var(--sp-8);
+  padding: 0 var(--sp-3) 0 0;
 }
 
 /* The trailing space lives on .main, not on .page or .layout's padding: a
@@ -369,8 +455,42 @@ svg .ico-fill { fill: currentColor; stroke: none; }
      containment stops content from contributing to the used width. */
   flex: 1 1 0;
   min-width: 0;
-  padding-bottom: var(--sp-10);
+  /* Always at least Vera's height, so the tonal surface lines up with the
+     panel on a short view. The 12px bottom margin mirrors Vera's bottom gap
+     so the rounded bottom corners land the same way at the end of scroll. */
+  min-height: calc(834px - 24px - var(--sp-14) - var(--sp-3));
+  margin-bottom: var(--sp-3);
+  padding: 0 var(--sp-8) var(--sp-10);
+  background: var(--tonal);
+  /* Same radius as the Vera panel, all four corners. */
+  border-radius: var(--radius);
   container: main / inline-size;
+}
+
+/* Keeps the top corners rounded while the page scrolls. The column's own
+   radius scrolls away with it, so this is a 24px strip pinned just under
+   the nav that paints the white chrome back into the two corners (an
+   inverse quarter-circle each side) and is transparent between them.
+   Content scrolling up slides under it, so the corners read as a frame
+   rather than something attached to the first card.
+
+   The negative side margins stretch it across .main's 32px padding to the
+   column's real edges; the negative bottom margin gives back its height so
+   nothing below moves. Below the nav (20) and above the cards. */
+.main::before {
+  content: '';
+  position: sticky;
+  top: var(--sp-14);
+  z-index: 15;
+  display: block;
+  height: var(--radius);
+  margin: 0 calc(var(--sp-8) * -1) calc(var(--radius) * -1);
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 100% 100%, transparent calc(var(--radius) - 0.5px), #fff var(--radius))
+      left top / var(--radius) var(--radius) no-repeat,
+    radial-gradient(circle at 0 100%, transparent calc(var(--radius) - 0.5px), #fff var(--radius))
+      right top / var(--radius) var(--radius) no-repeat;
 }
 
 .page-title {
@@ -658,11 +778,11 @@ svg .ico-fill { fill: currentColor; stroke: none; }
 .hc-dial-label.is-low { fill: #6B4A0E; }
 
 /* ---- low-score version (?score=low) ----
-   Kept to the high version's shape. The one flagged pillar gets a tag;
-   the recovery action lives inside the ask box. */
+   Kept to the high version's shape. The one flagged pillar gets a tag on
+   its own line under the score; the recovery action lives in the ask box. */
 .hc-status {
-  margin-left: auto;
-  align-self: center;
+  align-self: flex-start;
+  margin-top: var(--sp-2);
   padding: 2px var(--sp-2);
   border-radius: 6px;
   font: var(--caption-bold);
@@ -756,6 +876,11 @@ svg .ico-fill { fill: currentColor; stroke: none; }
 .hc-mark {
   flex: 1 1 auto;
   width: 100%;
+  /* Column, top-aligned: a <button> centres its content vertically by
+     default, so a taller neighbour would push the others' text down. */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   border: 1px solid transparent;
   background: var(--soft);
   border-radius: var(--sp-3);
@@ -800,6 +925,7 @@ svg .ico-fill { fill: currentColor; stroke: none; }
 .hc-mark-val span {
   font: var(--body);
   color: var(--muted);
+  white-space: nowrap;
 }
 
 /* ---- the ask bar ----
@@ -1207,13 +1333,16 @@ svg .ico-fill { fill: currentColor; stroke: none; }
   position: absolute;
   inset: 0 0 auto 0;
   z-index: 5;
-  background: #fff;
+  padding: 0 var(--sp-8);
+  background: var(--tonal);
+  border-radius: inherit;
 }
 .ftu-skel-card {
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
   padding: var(--sp-6);
+  background: #fff;
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
@@ -1239,7 +1368,13 @@ svg .ico-fill { fill: currentColor; stroke: none; }
 }
 .ftu-scrim {
   position: absolute;
-  inset: 0;
+  /* Bleeds well past the canvas on every side. The canvas is letterboxed
+     inside the bezel's screen, so a scrim sized to it left undimmed bands
+     above the status bar and below the page, with a seam where the two
+     met. Overshooting puts one continuous wash over the whole screen;
+     .screen's overflow:hidden and radius clip it to the glass. It also
+     reaches up over the status bar, which .ftu itself starts below. */
+  inset: -1024px;
   background: rgba(32, 33, 36, 0.42);
   animation: ftu-fade 280ms ease both;
 }
@@ -2488,7 +2623,7 @@ svg .ico-fill { fill: currentColor; stroke: none; }
    column gives back, and .layout's 24px gap is untouched either way. */
 .vera {
   position: sticky;
-  top: calc(var(--sp-14) + var(--sp-2));   /* nav height + top gap */
+  top: var(--sp-14);   /* flush under the nav, level with the tonal main */
   flex: 0 0 var(--vera-w);
   /* Without this the panel can widen but never narrow once the chart is
      inside it. A flex item's automatic minimum size is its min-content
@@ -2497,11 +2632,11 @@ svg .ico-fill { fill: currentColor; stroke: none; }
      drag outwards raises it. flex-basis is then quietly overridden and the
      handle looks dead in one direction. */
   min-width: 0;
-  /* The Figma host (109:15598) wraps the panel in `py-8`, so the top and
-     bottom gaps match each other at 8 rather than the old 16/24 pair.
-     834 canvas - 24 status bar - 56 nav - 8 top gap - 8 bottom gap */
-  height: calc(834px - 24px - var(--sp-14) - var(--sp-2) - var(--sp-2));
-  margin-top: var(--sp-2);
+  /* New nav pattern: top edge flush with the tonal main, 12px off the
+     bottom to match the 12px gutter either side.
+     834 canvas - 24 status bar - 56 nav - 12 bottom gap */
+  height: calc(834px - 24px - var(--sp-14) - var(--sp-3));
+  margin-left: var(--sp-3);
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -2523,12 +2658,11 @@ svg .ico-fill { fill: currentColor; stroke: none; }
 /* ---- collapsed state ----
    Driven by the AI button in the top nav and the panel's own X.
    flex-basis alone is not enough — see min-width above, which is the same
-   automatic-minimum-size rule. The negative margin cancels .layout's 32px
-   gap, which otherwise survives the collapse and leaves the main column a
-   gutter short — so it has to stay in step with that gap. */
+   automatic-minimum-size rule. Zeroing margin-left drops Vera's 12px
+   gutter with it, so the main column runs to .layout's right padding. */
 .vera.is-collapsed {
   flex-basis: 0;
-  margin-left: calc(var(--sp-8) * -1);
+  margin-left: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -2565,19 +2699,19 @@ body.is-resizing .vera { transition: none; }
 body.is-resizing .vera::after { opacity: 1; }
 
 /* ---- drag handle ----
-   The hit area is the left border line plus 12px of slop on each side, so it
-   straddles the edge rather than sitting inside it: 12 + 1 + 12 = 25px, offset
-   left by 12 to centre it on the line. The outer 12px reaches into .layout's
-   24px gutter — exactly half — so it never covers main-column content. */
+   Lives in the gutter between the tonal main and the panel, not on the
+   panel's border: the hit area is exactly Vera's 12px margin-left, offset
+   fully outside the panel, so the grip sits centred in the gap and never
+   covers main-column or panel content. */
 .vera-resizer {
   position: absolute;
   top: 0;
   bottom: 0;
   left: calc(var(--sp-3) * -1);
-  width: calc(var(--sp-3) * 2 + 1px);
+  width: var(--sp-3);
   z-index: 6;
   display: grid;
-  place-items: center;          /* centres the grip ON the 1px line */
+  place-items: center;          /* centres the grip in the gutter */
   cursor: col-resize;
   touch-action: none;           /* let pointermove through on touch */
 }
