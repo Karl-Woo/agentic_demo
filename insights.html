@@ -721,7 +721,7 @@
                     <p class="wi-key" aria-hidden="true"><span class="wi-key-dot"></span>Net sales</p>
 
                     <div class="chart wi-curve" id="wiCurve" role="img"
-                         aria-label="Estimated weekly gain at each setting."></div>
+                         aria-label="Extra money each week at each setting."></div>
 
                     <div class="wi-slider">
                       <input class="wi-range" id="wiRange" type="range"
@@ -741,7 +741,7 @@
                              definition, then the basis for this lever. -->
                         <span class="pg-tip-wrap wi-tip-wrap" id="wiHowWrap">
                           <button type="button" class="wi-how" id="wiHow" aria-describedby="wiTip" aria-expanded="false">
-                            Estimated gain per week
+                            Extra money each week
                             <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25"/><path d="M7.9 7.6a2.2 2.2 0 1 1 3 2.05c-.55.22-.9.7-.9 1.3v.55"/><circle cx="10" cy="14.2" r="0.6" class="wi-how-dot"/></svg>
                           </button>
                           <span class="pg-tip wi-tip" id="wiTip" role="tooltip">
@@ -5077,6 +5077,15 @@
     return (v < 0 ? '\u2212' : '+') + usd(Math.abs(v));
   }
 
+  /* The money line on a drafted plan, in the merchant's words rather
+     than a forecast's. A change that loses money says so plainly
+     instead of "adding" a negative number. */
+  function gainRow(v) {
+    return v < 0
+      ? ['Could cost you', usd(Math.abs(v)) + ' a week']
+      : ['Could add', usd(v) + ' a week'];
+  }
+
   /* ---- option 1: the report card ----
      The three marks, their denominators, and everything downstream of
      them. Both totals are DERIVED — 92 out of 100 is the sum of these
@@ -5491,7 +5500,7 @@
           promo: {
             name: 'Sunday hours', when: 'Starts Sun Jun 15',
             rows: [['Closes', t + ' PM', 'was 6 PM'], ['Staffing', '+1 on the close, ' + hrs],
-                   ['Estimated gain', signedMoney(shown) + ' a week']],
+                   gainRow(shown)],
             action: 'Update my hours', working: 'Updating', latched: 'Hours updated'
           },
           done: 'Done. From Sun Jun 15 you close at <strong>' + t + ' PM</strong> on Sundays, in store and online. After the first Sunday I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
@@ -5525,7 +5534,7 @@
           promo: {
             name: 'Tuesday happy hour', when: 'Tuesdays 4\u20136 PM, from Jun 17',
             rows: [['Offer', d + '% off all drinks'], ['Promotion', '$40 a week'],
-                   ['Estimated gain', signedMoney(shown) + ' a week']],
+                   gainRow(shown)],
             action: 'Schedule happy hour', working: 'Scheduling', latched: 'Scheduled'
           },
           done: 'Scheduled. The discount runs 4\u20136 PM starting Tue Jun 17. After the first Tuesday I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
@@ -5561,7 +5570,7 @@
           promo: {
             name: 'Top-item prices', when: 'From Mon Jun 16',
             rows: [['Change', '+' + p + '% on your top 10 items'], ['Average order', '$' + after, 'was $28.00'],
-                   ['Estimated gain', signedMoney(shown) + ' a week']],
+                   gainRow(shown)],
             action: 'Update prices', working: 'Updating', latched: 'Prices updated'
           },
           done: 'Updated. The new prices go live in store and online on Mon Jun 16. I\u2019ll watch whether orders on those items hold up and let you know.'
@@ -5594,7 +5603,7 @@
           promo: {
             name: 'Tuesday hours', when: 'Starts Tue Jun 17',
             rows: [['Closes', t, 'was 2 PM'], ['Staffing', '1 barista, +' + hrs],
-                   ['Estimated gain', signedMoney(shown) + ' a week']],
+                   gainRow(shown)],
             action: 'Update my hours', working: 'Updating', latched: 'Hours updated'
           },
           done: 'Done. From Tue Jun 17 you close at <strong>' + t + '</strong> on Tuesdays, in store and online. After the first Tuesday I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
@@ -5624,7 +5633,7 @@
           promo: {
             name: 'Weekend latte + pastry', when: 'Weekends, from Sat Jun 21',
             rows: [['Offer', 'Any pastry for ' + price + ' with a latte'], ['Food cost', '$1.95 a pastry'],
-                   ['Estimated gain', signedMoney(shown) + ' a week']],
+                   gainRow(shown)],
             action: 'Add the offer', working: 'Adding', latched: 'Offer added'
           },
           done: 'Added. The offer shows in store and online from Sat Jun 21. After the first weekend I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
@@ -5659,7 +5668,7 @@
           promo: {
             name: 'Saturday features', when: 'From Sat Jun 21',
             rows: [['Featured', list.charAt(0).toUpperCase() + list.slice(1)], ['Placement', 'Top of the board and online'],
-                   ['Estimated gain', signedMoney(shown) + ' a week']],
+                   gainRow(shown)],
             action: 'Update the menu', working: 'Updating', latched: 'Menu updated'
           },
           done: 'Updated. ' + list.charAt(0).toUpperCase() + list.slice(1) + ' lead the board from Sat Jun 21, in store and online. After the first Saturday I\u2019ll tell you how it compares with the <strong>' + usd(shown) + '</strong> estimate.'
@@ -5694,7 +5703,7 @@
           promo: {
             name: 'Thursday lunch schedule', when: 'From Thu Jun 19',
             rows: [['Shifts', s + ' fewer, 11 AM\u20133 PM'], ['On the floor', (7 - n) + ' people', 'was 7'],
-                   ['Estimated gain', signedMoney(shown) + ' a week']],
+                   gainRow(shown)],
             action: 'Update the schedule', working: 'Updating', latched: 'Schedule updated'
           },
           done: 'Updated. From Thu Jun 19 lunch runs with ' + (7 - n) + ' people, and the team has been told. I\u2019ll watch wait times and let you know if the line gets too long.'
@@ -6768,7 +6777,7 @@
     } catch (e) { wiChart = null; }
 
     el.setAttribute('aria-label',
-      'Estimated weekly gain at each setting. Best result at ' +
+      'Extra money each week at each setting. Best result at ' +
       sc.read(best) + '.');
 
     return wiChart;
