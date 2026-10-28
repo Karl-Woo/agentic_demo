@@ -81,8 +81,8 @@ if __name__ == '__main__':
     os.chdir(project_root())
     with ReusableServer(('', PORT), NoCacheHandler) as httpd:
         print('serving %s' % project_root())
-        print('  http://localhost:%d/                        (test wrapper, A/B/C swap)' % PORT)
-        print('  http://localhost:%d/insights.html?variant=a (one variant, no wrapper)' % PORT)
+        print('  http://localhost:%d/                     (assistant mode)' % PORT)
+        print('  http://localhost:%d/?moment=4&mode=1     (start at 4:05 pm, in Ask me)' % PORT)
         print('  no-store: edits are always picked up on reload')
         try:
             httpd.serve_forever()

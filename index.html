@@ -1,265 +1,1955 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gamification Exploration</title>
-<!-- Wrapper for user testing. Each variant is the full Insights page
-     (insights.html?variant=a|b|c; "A low" is ?variant=a&score=low) in its
-     own iframe, so each keeps its own
-     state when you swap away and back. The swap pill is hidden until the
-     cursor comes near the bottom centre of the screen, so it stays out of
-     a participant's way.
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ask me · Vera · Clover assistant mode</title>
+<!-- Assistant mode: an agentic demo for the Clover dashboard.
 
-     Keys: 1 / 2 / 3 / 4 jump to a variant (A, A low, B, C), arrow
-     left / right step through.
-     The URL hash (#a, #a-low, #b, #c) tracks the current variant, so a
-     session can be opened straight on one. -->
+     Three states, each with its own shape:
+       1  Today (home)        one centred column, max 720
+       2  Chat                one centred column, max 720
+       3  Chat + Clover page  chat 38% left, the real Clover page right
+     There is never an empty right column.
+
+     The Clover top bar stays in every state; only the left nav collapses.
+     The right column is the real dashboard page under a slim window header
+     (breadcrumb, Open full page, close). The selected card's tint is
+     shared with a 3px bar on that header and the highlighted cells.
+
+     Story: slide 10 of the vision deck, five moments (the device reads
+     7:05, 10:05, 2:05, 4:05, 9:05). Demo stepper: the "Demo" pill
+     bottom-right, or press D; 1–5 jump to a moment, 0 resets.
+     URL: ?moment=1..5 starts at a moment; ?mode=1 opens Ask me.
+
+     Design system: styles.css (Graphik, Dash 3.0 type scale, tokens,
+     iPad bezel + scaled 1280x834 canvas). Below 1024px the bezel drops away
+     and the page opens as a sheet. -->
+<link rel="stylesheet" href="styles.css">
 <style>
-  @font-face {
-    font-family: 'Graphik';
-    src: url('asset/fonts/Graphik/Graphik-Regular.otf') format('opentype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'Graphik';
-    src: url('asset/fonts/Graphik/Graphik-Semibold.otf') format('opentype');
-    font-weight: 600;
-  }
+/* ===========================================================================
+   Assistant mode — additions on top of styles.css (all prefixed am-)
+   =========================================================================== */
+:root {
+  --accent:      var(--green);
+  --accent-ink:  var(--green-ink);
+  /* The selected card. Same tint as the dashboard's selected nav item, and
+     the same tint on the page window's edge bar and highlighted cells. */
+  --am-selected: var(--nav-active);
+  --am-warn-tint: #FBE7BC;
+  --am-warn-ink:  #6B4A0E;
+  --am-quiet:     #EDEFF1;
+  --am-hover:     #F1F3F4;
+  --am-bar:       #DADCE0;
+  --am-scrim:     rgba(32, 33, 36, 0.32);
+  --am-rule:      rgba(31, 33, 36, 0.16);
+  --am-col:       720px;     /* States 1 and 2 */
+  --am-split:     38%;       /* State 3 chat column */
+}
 
-  html, body {
-    margin: 0;
-    height: 100%;
-    overflow: hidden;
-    background: #F2F2F2;
-    font-family: 'Graphik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
+[hidden] { display: none !important; }
+.am-ico { display: block; flex: 0 0 auto; }
+svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.am-num { font-variant-numeric: tabular-nums; }
 
-  .stage { position: fixed; inset: 0; }
+/* ---------- controls ---------- */
+.btn { gap: var(--sp-2); white-space: nowrap; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-btn-quiet { background: var(--am-quiet); color: var(--ink); }
+.am-btn-quiet:hover { background: var(--line); }
 
-  .stage iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    display: block;
-    visibility: hidden;
-  }
-  .stage iframe.is-active { visibility: visible; }
+.am-link {
+  display: inline; padding: 0;
+  font: inherit; color: var(--ink);
+  cursor: pointer;
+  text-decoration: none; text-underline-offset: 3px;
+  border-radius: 4px;
+}
+.am-link:hover { text-decoration: underline; }
+.am-link:focus-visible, .am-textbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-textbtn {
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  height: var(--hit); padding: 0 var(--sp-3);
+  border-radius: var(--sp-2);
+  font: var(--label); color: var(--ink);
+  cursor: pointer;
+  text-underline-offset: 3px;
+}
+.am-textbtn:hover { text-decoration: underline; }
 
-  /* ---- the swap pill (after Combined Demo's .next-overlay) ---- */
-  .swap {
-    position: fixed;
-    left: 50%;
-    bottom: 22px;
-    transform: translateX(-50%) translateY(6px);
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.78);
-    color: #1F1F1F;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.9) inset,
-      0 6px 18px rgba(0, 0, 0, 0.10),
-      0 0 0 1px rgba(0, 0, 0, 0.02);
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      opacity 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
-      transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
-      background-color 160ms ease;
-    z-index: 100;
-  }
+.am-iconbtn {
+  position: relative;
+  width: var(--hit); height: var(--hit);
+  display: grid; place-items: center;
+  border-radius: var(--sp-2);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.am-iconbtn:hover { background: var(--am-hover); }
+.am-iconbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-iconbtn img { width: var(--icon); height: var(--icon); }
 
-  body.show-swap .swap,
-  .swap:hover,
-  .swap:focus-within {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
-  }
-  .swap:hover { background: #fff; }
+@keyframes am-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes am-spin { to { transform: rotate(360deg); } }
+@keyframes am-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes am-win-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
 
-  .swap-label {
-    padding: 0 8px 0 10px;
-    color: #6B6B6B;
-    font-weight: 400;
-  }
+.am-tag { display: inline-flex; align-items: center; padding: 2px var(--sp-2); border-radius: 6px; background: var(--am-quiet); color: var(--ink-2); font: var(--caption-bold); white-space: nowrap; }
+.am-tag--warn { background: var(--am-warn-tint); color: var(--am-warn-ink); }
 
-  .swap-seg {
-    appearance: none;
-    border: 0;
-    margin: 0;
-    min-width: 88px;
-    height: 32px;
-    padding: 0 14px;
-    border-radius: 5px;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    transition: background-color 140ms ease, color 140ms ease;
-  }
-  .swap-seg:hover { background: rgba(0, 0, 0, 0.05); }
-  .swap-seg[aria-pressed="true"] {
-    background: #208000;
-    color: #fff;
-  }
-  .swap-seg:focus-visible { outline: 2px solid #208000; outline-offset: 2px; }
+/* ---------- Clover top bar (all views) ---------- */
+.navbtn--pill:hover { background: var(--am-hover); }
+.navbtn--pill.is-active { background: var(--nav-active); }
+.am-badge {
+  min-width: 20px; height: 20px; padding: 0 6px;
+  display: inline-grid; place-items: center;
+  border-radius: 999px;
+  background: var(--accent); color: #fff;
+  font: var(--caption-bold); font-variant-numeric: tabular-nums;
+  margin-left: calc(var(--sp-1) * -1);
+}
+.railbtn:focus-visible, .navbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.railbtn.is-inert, .navbtn.is-inert { cursor: default; }
 
-  @media (max-width: 720px) {
-    .swap { bottom: 14px; font-size: 12px; }
-    .swap-seg { min-width: 0; padding: 0 10px; }
-  }
+/* The top bar now sits outside the scroller, so the rail and the corner
+   mask pin to the top of the scroller rather than under the bar. */
+#viewA .rail { top: 0; }
+#viewA .main::before { top: 0; }
+
+/* ---------- breadcrumb ---------- */
+.am-crumb { display: flex; align-items: center; gap: var(--sp-1); min-width: 0; font: var(--label); }
+.am-crumb-part { color: var(--muted); white-space: nowrap; }
+.am-crumb-part.is-current { color: var(--ink); overflow: hidden; text-overflow: ellipsis; }
+.am-crumb-sep { width: 16px; height: 16px; opacity: 0.55; }
+.am-dash-crumb { padding: var(--sp-6) 0 0; }
+
+/* ===========================================================================
+   Clover pages — one set of renderers for the dashboard and the window.
+   Each keeps its own title, pill actions, segmented control and date nav.
+   =========================================================================== */
+.am-page-body { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+.am-ptop { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-4); margin-top: var(--sp-4); }
+.am-ptitle { font: var(--heading-01); margin: 0; }
+.am-pmeta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-2); font: var(--caption); color: var(--muted); margin-top: var(--sp-1); }
+.am-pactions { display: flex; align-items: center; gap: var(--sp-2); flex: 0 0 auto; padding-top: var(--sp-1); }
+.am-pill {
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  height: 32px; padding: 0 var(--sp-3);
+  border-radius: 999px;
+  background: var(--am-quiet); color: var(--ink);
+  font: var(--caption-bold);
+  cursor: pointer; white-space: nowrap;
+}
+.am-pill:hover { background: var(--line); }
+.am-pill--filled { background: var(--green); color: #fff; }
+.am-pill--filled:hover { background: var(--green-dk); }
+.am-pill img { width: 16px; height: 16px; }
+.am-pcontrols { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-3); }
+.am-seg { display: inline-flex; padding: 2px; border-radius: 999px; background: var(--am-quiet); }
+.am-seg button { height: 28px; padding: 0 var(--sp-3); border-radius: 999px; font: var(--caption-bold); color: var(--muted); cursor: pointer; white-space: nowrap; }
+.am-seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(16, 24, 40, 0.10); }
+.am-seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-datenav { display: inline-flex; align-items: center; height: 32px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
+.am-datenav button { width: 32px; height: 30px; display: grid; place-items: center; border-radius: 999px; cursor: pointer; }
+.am-datenav button:hover { background: var(--am-hover); }
+.am-datenav button img { width: 16px; height: 16px; }
+.am-datenav span { font: var(--caption-bold); color: var(--ink); padding: 0 var(--sp-1); white-space: nowrap; }
+
+.am-card { padding: var(--sp-6); }
+.am-card .card-head { margin-bottom: var(--sp-3); }
+.am-card .card-title { margin: 0; }
+
+.am-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); }
+.am-tile { background: var(--soft); border-radius: var(--sp-3); padding: var(--sp-4); }
+.am-tile-label { font: var(--caption); color: var(--muted); }
+.am-tile-value { font: var(--heading-02); color: var(--ink); margin-top: var(--sp-1); font-variant-numeric: tabular-nums; }
+.am-tile-note { font: var(--caption); color: var(--muted); margin-top: 2px; }
+
+.am-chart { display: flex; align-items: stretch; gap: var(--sp-2); height: 144px; }
+.am-bar-col { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--sp-1); }
+.am-bar-val { font: var(--caption); color: var(--muted); font-variant-numeric: tabular-nums; }
+.am-bar { width: 100%; max-width: 40px; border-radius: 4px 4px 0 0; background: var(--am-bar); }
+.am-bar.is-recent { background: var(--faint); }
+.am-chart-days { display: flex; gap: var(--sp-2); padding-top: var(--sp-2); border-top: 1px solid var(--line); }
+.am-chart-days span { flex: 1 1 0; text-align: center; font: var(--caption); color: var(--faint); }
+
+.am-grid-wrap { overflow-x: auto; margin: 0 calc(var(--sp-6) * -1); padding: 0 var(--sp-6); }
+.am-table { width: 100%; border-collapse: collapse; }
+.am-table th { font: var(--caption); color: var(--muted); text-align: left; white-space: nowrap; padding: var(--sp-2); border-bottom: 1px solid var(--line); }
+.am-table td { font: var(--body); color: var(--ink); white-space: nowrap; height: 56px; padding: var(--sp-2); border-bottom: 1px solid var(--line-soft); font-variant-numeric: tabular-nums; }
+.am-table tbody tr:last-child td { border-bottom: 0; }
+.am-table th:first-child, .am-table td:first-child { padding-left: 0; }
+.am-table th:last-child, .am-table td:last-child { padding-right: 0; }
+.am-table .am-num { text-align: right; }
+.am-table tfoot td { font: var(--body-bold); border-top: 1px solid var(--line); border-bottom: 0; }
+.am-table td.am-hl:first-child, .am-table td.am-hl-warn:first-child { padding-left: var(--sp-2); }
+.am-table td.am-hl:last-child { padding-right: var(--sp-2); }
+.am-sched { min-width: 600px; }
+.am-sched td { font: var(--caption); }
+.am-sched td:first-child { font: var(--caption-bold); }
+.am-sched th:last-child, .am-sched td:last-child { text-align: right; }
+.am-sched th:first-child, .am-sched td:first-child { position: sticky; left: 0; z-index: 1; background: #fff; padding-right: var(--sp-3); }
+.am-table .is-over { color: var(--am-warn-ink); }
+/* Expandable rows, as Clover's tables do them: a chevron in the first cell,
+   and the detail as a row of the same height, indented to the text. */
+.am-table svg.am-xchev { display: inline-block; vertical-align: -3px; margin-right: var(--sp-1); color: var(--faint); }
+.am-sub td { height: 56px; font: var(--caption); color: var(--ink-2); white-space: normal; }
+.am-evidence { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-2); padding-left: 20px; }
+.am-evidence-label { color: var(--muted); margin-right: var(--sp-1); }
+
+/* The highlighted draft: the selected card's tint. Sick is a status, so it
+   keeps the dashboard's warning tint. */
+.am-hl      { background: var(--am-selected); }
+.am-hl-warn { background: var(--am-warn-tint); }
+.am-sched td.am-hl, .am-sched td.am-hl-warn { padding-left: var(--sp-2); padding-right: var(--sp-2); }
+.am-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.am-cell-label { font: var(--caption-bold); color: var(--accent-ink); }
+.am-hl-warn .am-cell-label { color: var(--am-warn-ink); }
+.am-time-edit { display: flex; align-items: center; gap: var(--sp-1); }
+
+.am-select, .am-qty {
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--sp-2);
+  background: #fff;
+  font: var(--caption); color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.am-select { padding: 0 var(--sp-1); }
+.am-qty { width: 64px; height: var(--hit); padding: 0 var(--sp-3); font: var(--body); text-align: right; -moz-appearance: textfield; }
+.am-qty::-webkit-outer-spin-button, .am-qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.am-select:focus, .am-qty:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+.am-inline-field { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-3); font: var(--body); color: var(--ink); }
+.am-inline-field > span:first-child { font: var(--caption); color: var(--muted); min-width: 64px; }
+.am-inline-field .am-select { height: var(--hit); font: var(--body); padding: 0 var(--sp-2); }
+
+/* Unrelated rows and summary cards while a draft is open. */
+.am-dimmed *, .am-table tr.is-dim td { color: var(--muted) !important; }
+.am-dimmed .am-bar { opacity: 0.5; }
+.am-table tr.is-dim td:first-child { font-weight: 400; }
+
+/* ===========================================================================
+   View B — the mode. data-state: today | chat | split
+   =========================================================================== */
+.am-mode {
+  position: relative;
+  flex: 1 1 auto; min-height: 0;
+  display: flex;
+  padding: 0 var(--sp-3) var(--sp-3);
+  background: #fff;
+}
+.am-today, .am-chat { display: none; min-height: 0; }
+.am-mode[data-state="today"] .am-today { display: flex; }
+.am-mode[data-state="chat"] .am-chat,
+.am-mode[data-state="split"] .am-chat { display: flex; }
+
+/* ---------- State 1: Today ---------- */
+.am-today { flex-direction: column; width: 100%; max-width: var(--am-col); margin: 0 auto; }
+.am-today-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 var(--sp-4) var(--sp-6); scrollbar-width: thin; }
+.am-today-head { display: flex; align-items: baseline; gap: var(--sp-3); margin: var(--sp-8) 0 var(--sp-4); }
+.am-today-title { font: var(--heading-01); margin: 0; }
+.am-today-date { font: var(--body); color: var(--muted); }
+.am-yday {
+  display: block; width: calc(100% + var(--sp-6)); margin: 0 calc(var(--sp-3) * -1);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--sp-3);
+  text-align: left; font: var(--body); color: var(--ink);
+  cursor: pointer; font-variant-numeric: tabular-nums;
+}
+.am-yday:hover { background: var(--am-hover); }
+.am-yday:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.am-yday-label { color: var(--muted); }
+.am-outlook { margin: var(--sp-1) 0 0; font: var(--body); color: var(--ink-2); }
+.am-sec { display: flex; align-items: baseline; gap: var(--sp-2); margin: var(--sp-8) 0 var(--sp-2); font: var(--heading-04); color: var(--ink); }
+.am-sec-count { font: var(--body); color: var(--muted); font-variant-numeric: tabular-nums; }
+/* An empty section is one muted line, not a heading over nothing. */
+.am-sec.am-sec--empty { display: block; margin: var(--sp-6) 0 0; font: var(--body); color: var(--muted); }
+.am-rows { list-style: none; margin: 0 calc(var(--sp-3) * -1); padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.am-row {
+  width: 100%;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto 16px; column-gap: var(--sp-3); row-gap: 2px;
+  padding: var(--sp-3);
+  border-radius: var(--sp-3);
+  text-align: left; cursor: pointer;
+  transition: background 160ms ease;
+}
+.am-row:hover { background: var(--am-hover); }
+.am-row.is-hl, .am-row.is-hl:hover, .am-row:active { background: var(--am-selected); }
+.am-row-chev { grid-column: 3; grid-row: 1 / span 2; align-self: center; color: var(--faint); }
+.am-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.am-row.is-new { animation: am-in 320ms ease both; }
+.am-row-title { grid-column: 1; grid-row: 1; display: flex; align-items: center; gap: var(--sp-2); min-width: 0; font: var(--body-bold); color: var(--ink); }
+.am-row-title > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.am-row-meta { grid-column: 2; grid-row: 1; justify-self: end; font: var(--caption); color: var(--muted); white-space: nowrap; align-self: center; font-variant-numeric: tabular-nums; }
+.am-row-ctx { grid-column: 1; grid-row: 2; font: var(--body); color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.am-row-tag { grid-column: 2; grid-row: 2; justify-self: end; align-self: center; font: var(--caption); color: var(--muted); white-space: nowrap; }
+.am-row.is-done .am-row-title, .am-row.is-done .am-row-ctx { color: var(--muted); }
+.am-row.is-done .am-row-title svg { color: var(--muted); }
+.am-spin { width: 14px; height: 14px; flex: 0 0 auto; border: 2px solid var(--line); border-top-color: var(--muted); border-radius: 50%; animation: am-spin 900ms linear infinite; }
+.am-none { font: var(--body); color: var(--muted); padding: var(--sp-1) 0; }
+
+/* ---------- Composer (Today and Chat) ---------- */
+/* A solid band behind the input with 16px above it, so a cut-off row reads
+   as scrollable rather than clipped. */
+.am-composer { position: relative; z-index: 1; flex: 0 0 auto; display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-4); background: #fff; }
+.am-field {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; align-items: center;
+  height: 48px; padding: 0 var(--sp-1) 0 var(--sp-4);
+  border: 1px solid var(--line); border-radius: var(--sp-3);
+  background: #fff;
+}
+.am-field:focus-within { border-color: var(--faint); }
+.am-field input { flex: 1 1 auto; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font: var(--body); color: var(--ink); }
+.am-field input::placeholder { color: var(--faint); opacity: 1; }
+.am-field .am-iconbtn { width: 36px; height: 36px; }
+.am-field .am-iconbtn img { width: 20px; height: 20px; }
+.am-send { flex: 0 0 auto; width: var(--hit); height: var(--hit); display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; cursor: pointer; }
+.am-send:disabled { background: var(--am-quiet); color: var(--faint); cursor: default; }
+.am-send:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-send svg { stroke-width: 2; }
+
+/* ---------- States 2 and 3: the chat column ---------- */
+.am-chat {
+  flex: 0 0 auto;
+  flex-direction: column;
+  width: var(--am-col); max-width: 100%;
+  margin-left: max(0px, calc((100% - var(--am-col)) / 2));
+  background: #fff;
+  transition: width 280ms cubic-bezier(0.4, 0, 0.2, 1), margin-left 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.am-mode[data-state="split"] .am-chat { width: var(--am-split); margin-left: 0; }
+.am-chat-head {
+  flex: 0 0 auto;
+  height: var(--sp-14);
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 0 var(--sp-2);
+  border-bottom: 1px solid var(--line-soft);
+}
+.am-chat-name { font: var(--label); color: var(--ink); }
+.am-back {
+  justify-self: start;
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  height: var(--hit); padding: 0 var(--sp-3) 0 var(--sp-2);
+  border-radius: var(--sp-2);
+  font: var(--label); color: var(--ink);
+  cursor: pointer;
+}
+.am-back:hover { background: var(--am-hover); }
+.am-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-back img { width: var(--icon); height: var(--icon); }
+
+.am-thread { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: var(--sp-2) var(--sp-4) var(--sp-6); scrollbar-width: thin; }
+.am-dayg { display: flex; flex-direction: column; gap: var(--sp-6); }
+.am-dayg + .am-dayg { margin-top: var(--sp-8); }
+.am-day { margin: var(--sp-2) 0 calc(var(--sp-2) * -1); font: var(--caption-bold); color: var(--muted); }
+.am-entry { display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-1); min-width: 0; }
+.am-entry--user { align-items: flex-end; }
+.am-caption { font: var(--caption); color: var(--muted); }
+.am-msg { font: var(--body); color: var(--ink); }
+.am-sysline { font: var(--caption); color: var(--muted); }
+.am-sysline .am-link { color: var(--ink); font: var(--caption-bold); }
+/* Autonomy ladder: a sentence, then two small text buttons on their own line. */
+.am-ask-btns { display: flex; gap: var(--sp-1); margin: 2px 0 0 calc(var(--sp-3) * -1); }
+.am-askbtn { height: 32px; padding: 0 var(--sp-3); border-radius: var(--sp-2); font: var(--caption-bold); color: var(--ink); cursor: pointer; }
+.am-askbtn:hover { background: var(--am-hover); }
+.am-askbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-logs { display: flex; flex-direction: column; gap: var(--sp-1); margin-top: var(--sp-1); }
+.am-logs:empty { display: none; }
+.msg--sent { overflow-wrap: anywhere; }
+.am-running { display: flex; align-items: center; gap: var(--sp-2); font: var(--caption); color: var(--muted); }
+.am-running::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--faint); animation: am-pulse 1400ms ease-in-out infinite; }
+
+/* Why: the last line of the message that introduces the card. */
+.am-why { align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; margin-top: 2px; padding: 0; font: var(--body); color: var(--muted); cursor: pointer; border-radius: 4px; }
+.am-why:hover { color: var(--ink); }
+.am-why:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-why svg { transition: transform 160ms ease; }
+.am-why[aria-expanded="true"] svg { transform: rotate(180deg); }
+.am-why-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.am-why-list li { position: relative; padding-left: var(--sp-4); font: var(--body); color: var(--ink-2); }
+.am-why-list li::before { content: ''; position: absolute; left: 4px; top: 10px; width: 4px; height: 4px; border-radius: 50%; background: var(--faint); }
+
+/* Vera's connected-data answer: figures with source chips, not a table. */
+.am-answer { display: flex; flex-direction: column; gap: var(--sp-2); }
+.am-figs { font: var(--body); color: var(--ink); line-height: 28px; font-variant-numeric: tabular-nums; }
+.am-src {
+  display: inline-flex; align-items: center;
+  height: 20px; padding: 0 var(--sp-2); margin: 0 2px;
+  border-radius: 999px;
+  background: var(--am-quiet); color: var(--ink-2);
+  font: var(--caption-bold); font-size: 12px; line-height: 20px;
+  vertical-align: 1px; white-space: nowrap;
+}
+.am-open-link { align-self: flex-start; margin-top: var(--sp-1); font: var(--body); text-decoration: underline; }
+
+/* Approval card */
+.am-acard {
+  position: relative;
+  margin-top: var(--sp-2);
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--sp-3);
+  background: #fff;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.am-acard:hover { background: #FBFCFC; }
+.am-acard.is-open, .am-acard.is-open:hover { background: var(--am-selected); border-color: transparent; }
+.am-acard.is-line { padding: var(--sp-3) var(--sp-4); }
+.am-acard-title { margin: 0; font: var(--body-bold); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.am-acard-context { font: var(--body); color: var(--ink); margin-top: var(--sp-1); }
+.am-acard-cons { font: var(--body); color: var(--muted); margin-top: var(--sp-2); font-variant-numeric: tabular-nums; }
+.am-acard-actions { display: flex; align-items: center; gap: var(--sp-1); margin-top: var(--sp-3); }
+/* Clover's three button levels: filled pill (the selected decision),
+   outlined pill (every other pending decision, the "New sale" style),
+   text (Edit). */
+.am-acard-actions .btn { border-radius: 999px; }
+.am-btn-outline { background: #fff; color: var(--green-tx); box-shadow: inset 0 0 0 1px var(--green); }
+.am-btn-outline:hover { background: var(--green-tint); }
+.am-acard-line { display: flex; align-items: center; gap: var(--sp-1); min-width: 0; font: var(--body); color: var(--ink); white-space: nowrap; }
+.am-acard-line b { font: var(--body-bold); color: var(--ink); overflow: hidden; text-overflow: ellipsis; }
+.am-acard-line .am-link { color: var(--green-tx); }   /* the line's one target */
+.am-acard-line svg { margin-right: 2px; }
+.am-dismissed { margin-top: var(--sp-2); font: var(--body); color: var(--muted); }
+.am-dismissed .am-link { color: var(--ink-2); }
+.am-lines { margin-top: var(--sp-3); }
+.am-line { display: flex; justify-content: space-between; gap: var(--sp-4); font: var(--body); color: var(--ink); padding: 2px 0; font-variant-numeric: tabular-nums; }
+.am-line--total { margin-top: var(--sp-1); padding-top: var(--sp-1); border-top: 1px solid var(--am-rule); font: var(--body-bold); }
+
+.am-split { position: relative; display: inline-flex; align-items: center; }
+.am-split > .am-textbtn:first-child { padding-right: var(--sp-1); }
+.am-split-more { width: 32px; padding: 0; display: grid; place-items: center; color: var(--muted); }
+.am-split-more:hover { color: var(--ink); }
+.am-menu {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 3;
+  min-width: 160px; padding: var(--sp-1);
+  background: #fff;
+  border-radius: var(--sp-3);
+  box-shadow: inset 0 0 0 1px var(--line), 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+.am-menu-item { width: 100%; height: var(--hit); padding: 0 var(--sp-3); border-radius: var(--sp-2); text-align: left; font: var(--body); color: var(--ink); cursor: pointer; }
+.am-menu-item:hover, .am-menu-item:focus-visible { background: var(--am-hover); outline: none; }
+
+/* ---------- State 3: the Clover page window ---------- */
+.am-win {
+  position: relative;
+  flex: 1 1 0; min-width: 0;
+  display: none; flex-direction: column;
+  margin-left: var(--sp-3);
+  background: var(--tonal);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.am-mode[data-state="split"] .am-win { display: flex; animation: am-win-in 280ms cubic-bezier(0.4, 0, 0.2, 1) both; }
+.am-win-head {
+  position: relative;
+  flex: 0 0 auto;
+  height: 48px;
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: 0 var(--sp-2) 0 var(--sp-5);
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+/* Shared name with the card: its tint, as a bar on the window's edge. */
+.am-win-head::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; }
+.am-win.has-card .am-win-head::before { background: var(--am-selected); }
+.am-win-head .am-crumb { flex: 1 1 auto; font: var(--caption-bold); }
+.am-win-head .am-crumb-sep { width: 14px; height: 14px; }
+.am-win-note { font: var(--caption); color: var(--muted); white-space: nowrap; }
+.am-win-actions { display: flex; align-items: center; gap: var(--sp-1); flex: 0 0 auto; }
+.am-win-actions .am-textbtn { height: 32px; font: var(--caption-bold); }
+.am-win-actions .am-iconbtn { width: 32px; height: 32px; }
+.am-win-actions .am-iconbtn img { width: 20px; height: 20px; }
+.am-win-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0 var(--sp-8) var(--sp-10); scrollbar-width: none; }
+.am-win-scroll::-webkit-scrollbar { display: none; }
+.am-win-scroll .am-ptop { margin-top: var(--sp-6); }
+.am-sheet-handle { display: none; }
+.am-scrim { display: none; }
+
+/* ===========================================================================
+   Demo stepper — presenter only, outside the device
+   =========================================================================== */
+.am-demo-toggle {
+  position: fixed; right: 12px; bottom: 12px; z-index: 200;
+  height: 28px; padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(32, 33, 36, 0.72); color: #fff;
+  font: 500 12px/28px var(--font);
+  opacity: 0.45; cursor: pointer;
+  transition: opacity 160ms ease;
+}
+.am-demo-toggle:hover, .am-demo-toggle[aria-expanded="true"] { opacity: 1; }
+.am-demo {
+  position: fixed; right: 12px; bottom: 48px; z-index: 200;
+  width: 340px; max-width: calc(100vw - 24px);
+  padding: 16px;
+  border-radius: 16px;
+  background: #202124; color: #fff;
+  font: 400 13px/18px var(--font);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+}
+.am-demo-steps { display: flex; gap: 4px; }
+.am-demo-steps button { flex: 1 1 0; height: 32px; border-radius: 8px; background: rgba(255, 255, 255, 0.10); color: #fff; font: 500 12px/32px var(--font); cursor: pointer; white-space: nowrap; }
+.am-demo-steps button[aria-pressed="true"] { background: #fff; color: #202124; }
+.am-demo-steps button:focus-visible, .am-demo-reset:focus-visible { outline: 2px solid #8AB4F8; outline-offset: 2px; }
+.am-demo h3 { margin: 14px 0 6px; font: 600 15px/20px var(--font); }
+.am-demo dl { margin: 0; display: grid; grid-template-columns: 56px 1fr; gap: 6px 8px; }
+.am-demo dt { color: rgba(255, 255, 255, 0.56); }
+.am-demo dd { margin: 0; }
+.am-demo-adv { font-weight: 600; color: #A8DAB5; }
+.am-demo-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: rgba(255, 255, 255, 0.56); font-size: 12px; }
+.am-demo-reset { color: #fff; text-decoration: underline; cursor: pointer; font: inherit; }
+
+/* ===========================================================================
+   Below 1024px (iPad portrait, phone): no bezel, single column
+   =========================================================================== */
+body.is-phone .stage { padding: 0; background: #fff; display: block; }
+body.is-phone .ipad { width: 100%; height: 100%; aspect-ratio: auto; filter: none; }
+body.is-phone .bezel, body.is-phone .statusbar { display: none; }
+body.is-phone .screen { inset: 0; border-radius: 0; }
+body.is-phone .screen-inner { width: 100%; height: 100%; transform: none !important; left: 0 !important; top: 0 !important; }
+
+body.is-phone .topnav { padding: 0 var(--sp-2); }
+body.is-phone .topnav-divider,
+body.is-phone .topnav-left .navbtn--sm,
+body.is-phone .topnav-right [data-nav="bell"],
+body.is-phone .topnav-right [data-nav="settings"] { display: none; }
+body.is-phone .topnav-logo { margin-left: var(--sp-2); }
+body.is-phone .navbtn--pill { margin-right: 0; }
+body.is-phone #viewA .rail { --rail-pad-l: 8px; --rail-pad-r: 8px; height: calc(100dvh - var(--sp-14)); }
+body.is-phone #viewA .main { min-height: calc(100dvh - var(--sp-14) - var(--sp-3)); padding: 0 var(--sp-4) var(--sp-8); }
+body.is-phone #viewA .main::before { margin: 0 calc(var(--sp-4) * -1) calc(var(--radius) * -1); }
+body.is-phone .am-tiles { gap: var(--sp-2); }
+body.is-phone .am-tile { padding: var(--sp-3); }
+body.is-phone .am-tile-value { font: var(--heading-04); }
+body.is-phone .am-card { padding: var(--sp-4); }
+body.is-phone .am-grid-wrap { margin: 0 calc(var(--sp-4) * -1); padding: 0 var(--sp-4); }
+body.is-phone .am-ptitle { font: var(--heading-02); }
+body.is-phone .am-ptop { flex-wrap: wrap; }
+
+body.is-phone .am-mode { padding: 0; }
+body.is-phone .am-mode[data-state="split"] .am-chat { width: 100%; }
+body.is-phone .am-composer { padding-bottom: max(var(--sp-4), env(safe-area-inset-bottom)); }
+body.is-phone .am-today-head { margin-top: var(--sp-6); }
+body.is-phone .am-win {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: flex; height: 90%; margin: 0;
+  border: 0; border-radius: var(--radius) var(--radius) 0 0;
+  transform: translateY(100%); visibility: hidden; animation: none !important;
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 280ms;
+}
+body.is-phone .am-win.is-sheet-open { transform: none; visibility: visible; transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1), visibility 0s; }
+body.is-phone .am-sheet-handle { display: flex; justify-content: center; padding: var(--sp-2) 0; background: #fff; touch-action: none; cursor: grab; }
+body.is-phone .am-sheet-handle span { width: var(--sp-10); height: var(--sp-1); border-radius: 2px; background: var(--am-bar); }
+body.is-phone .am-win-head { padding-left: var(--sp-4); }
+body.is-phone .am-win-scroll { padding: 0 var(--sp-4) var(--sp-8); }
+body.is-phone .am-scrim.is-on { display: block; position: absolute; inset: 0; z-index: 30; background: var(--am-scrim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .am-chat, .am-win, .am-row, .am-spin, .am-running::before { transition: none !important; animation: none !important; }
+}
 </style>
 </head>
 <body>
 
-<div class="stage" id="stage"></div>
+<div class="stage">
+  <div class="ipad">
+    <img class="bezel" src="asset/Bezel.png" alt="">
 
-<nav class="swap" id="swap" aria-label="Switch variant">
-  <span class="swap-label">Variant</span>
-  <button class="swap-seg" type="button" data-variant="a" aria-pressed="false">A</button>
-  <button class="swap-seg" type="button" data-variant="a-low" aria-pressed="false">A low</button>
-  <button class="swap-seg" type="button" data-variant="b" aria-pressed="false">B</button>
-  <button class="swap-seg" type="button" data-variant="c" aria-pressed="false">C</button>
-</nav>
+    <div class="screen">
+      <div class="screen-inner" id="screenInner">
+
+        <!-- iPad status bar — context only -->
+        <div class="statusbar">
+          <div class="sb-left">
+            <span class="sb-time" id="sbTime">7:00</span>
+            <span class="sb-date" id="sbDate"></span>
+          </div>
+          <div class="sb-right">
+            <svg class="sb-signal" viewBox="0 0 17 11" aria-hidden="true">
+              <rect x="0" y="7" width="3" height="4" rx="0.5" />
+              <rect x="4.5" y="5" width="3" height="6" rx="0.5" />
+              <rect x="9" y="2.5" width="3" height="8.5" rx="0.5" />
+              <rect x="13.5" y="0" width="3" height="11" rx="0.5" />
+            </svg>
+            <svg class="sb-wifi" viewBox="0 0 15 11" aria-hidden="true">
+              <path d="M7.5 9.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm-3.2-2.8a4.5 4.5 0 0 1 6.4 0l1-1a6 6 0 0 0-8.4 0l1 1Zm-2.4-2.4a8 8 0 0 1 11.2 0l1-1a9.5 9.5 0 0 0-13.2 0l1 1Z" />
+            </svg>
+            <span class="sb-pct">100%</span>
+            <svg class="sb-batt" viewBox="0 0 27 12" aria-hidden="true">
+              <rect x="0.5" y="0.5" width="22" height="11" rx="2.5" class="sb-batt-shell" />
+              <rect x="2" y="2" width="19" height="8" rx="1.5" />
+              <rect x="23.5" y="4" width="2" height="4" rx="1" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Clover top bar: visible in every view and every state -->
+        <header class="topnav">
+          <div class="topnav-left">
+            <button class="navbtn is-inert" type="button" aria-label="Expand navigation" data-act="noop"><img src="asset/ui/menu-expand.svg" alt=""></button>
+            <img class="topnav-logo" src="asset/brand/clover-mark.svg" alt="Clover">
+            <span class="topnav-divider" aria-hidden="true"></span>
+            <span class="merchant" id="merchantName"></span>
+            <button class="navbtn navbtn--sm is-inert" type="button" aria-label="Switch merchant" data-act="noop"><img src="asset/ui/switch.svg" alt=""></button>
+          </div>
+          <div class="topnav-right">
+            <button class="navbtn navbtn--pill" type="button" id="askBtn" data-act="ask-me" aria-pressed="false">
+              <img src="asset/ui/ai-search.svg" alt="">
+              <span>Ask me</span>
+              <span class="am-badge" id="askBadge"></span>
+            </button>
+            <button class="navbtn is-inert" type="button" data-nav="bell" aria-label="Notifications" data-act="noop"><img src="asset/ui/notification.svg" alt=""></button>
+            <button class="navbtn is-inert" type="button" data-nav="settings" aria-label="Settings" data-act="noop"><img src="asset/ui/settings.svg" alt=""></button>
+            <button class="navbtn is-inert" type="button" aria-label="Account" data-act="noop"><img src="asset/ui/account.svg" alt=""></button>
+          </div>
+        </header>
+
+        <!-- ===================== The regular dashboard ===================== -->
+        <div class="viewport" id="viewA">
+          <div class="layout">
+            <nav class="rail" aria-label="Primary">
+              <button class="railbtn is-inert" type="button" title="Home" aria-label="Home" data-act="noop"><img src="asset/ui/home.svg" alt=""></button>
+              <button class="railbtn" type="button" title="Items and services" aria-label="Items and services" data-act="nav" data-page="item"><img src="asset/ui/tag.svg" alt=""></button>
+              <button class="railbtn is-inert" type="button" title="Orders" aria-label="Orders" data-act="noop"><img src="asset/ui/receipt.svg" alt=""></button>
+              <button class="railbtn" type="button" title="Employees" aria-label="Employees" data-act="nav" data-page="scheduling"><img src="asset/ui/employee.svg" alt=""></button>
+              <button class="railbtn" type="button" title="Finances" aria-label="Finances" data-act="nav" data-page="disputes"><img src="asset/ui/bank.svg" alt=""></button>
+              <button class="railbtn" type="button" title="Reports" aria-label="Reports" data-act="nav" data-page="sales"><img src="asset/ui/reports.svg" alt=""></button>
+              <span class="rail-divider" aria-hidden="true"></span>
+              <button class="railbtn is-inert" type="button" title="Settings" aria-label="Settings" data-act="noop"><img src="asset/ui/settings.svg" alt=""></button>
+            </nav>
+            <main class="main">
+              <div class="am-dash-crumb" id="dashCrumb"></div>
+              <div class="am-page-body" id="dashBody"></div>
+            </main>
+          </div>
+        </div>
+
+        <!-- ===================== Ask me: the mode ===================== -->
+        <div class="am-mode" id="viewB" data-state="today" hidden>
+
+          <!-- State 1: Today -->
+          <section class="am-today" id="today" aria-label="Today">
+            <div class="am-today-scroll" id="todayScroll"></div>
+            <form class="am-composer" id="todayComposer" autocomplete="off">
+              <div class="am-field">
+                <input id="todayInput" type="text" placeholder="Ask about anything" aria-label="Message">
+                <button class="am-iconbtn" type="button" aria-label="Voice input" data-act="noop"><img src="asset/ui/mic.svg" alt=""></button>
+                <button class="am-iconbtn" type="button" aria-label="Attach file" data-act="noop"><img src="asset/ui/attachment.svg" alt=""></button>
+              </div>
+              <button class="am-send" type="submit" aria-label="Send" disabled><span data-svg="send" data-size="20"></span></button>
+            </form>
+          </section>
+
+          <!-- States 2 and 3: the chat column (slides left; never reloads) -->
+          <aside class="am-chat" id="chat" aria-label="Conversation">
+            <header class="am-chat-head">
+              <button class="am-back" type="button" data-act="back-today"><img src="asset/ui/arrow-left.svg" alt="">Today</button>
+              <span class="am-chat-name" id="assistantName"></span>
+              <span></span>
+            </header>
+            <div class="am-thread" id="thread" aria-live="polite"></div>
+            <form class="am-composer" id="composer" autocomplete="off">
+              <div class="am-field">
+                <input id="composerInput" type="text" placeholder="Ask about anything" aria-label="Message">
+                <button class="am-iconbtn" type="button" aria-label="Voice input" data-act="noop"><img src="asset/ui/mic.svg" alt=""></button>
+                <button class="am-iconbtn" type="button" aria-label="Attach file" data-act="noop"><img src="asset/ui/attachment.svg" alt=""></button>
+              </div>
+              <button class="am-send" id="sendBtn" type="submit" aria-label="Send" disabled><span data-svg="send" data-size="20"></span></button>
+            </form>
+          </aside>
+
+          <div class="am-scrim" id="scrim" data-act="close-page"></div>
+
+          <!-- State 3: the Clover page window -->
+          <section class="am-win" id="win" aria-label="Clover page">
+            <div class="am-sheet-handle" id="sheetHandle" aria-hidden="true"><span></span></div>
+            <header class="am-win-head" id="winHead">
+              <div class="am-crumb" id="winCrumb"></div>
+              <div class="am-win-actions">
+                <button class="am-textbtn" type="button" data-act="open-full">Open full page</button>
+                <button class="am-iconbtn" type="button" data-act="close-page" aria-label="Close page"><img src="asset/ui/close.svg" alt=""></button>
+              </div>
+            </header>
+            <div class="am-win-scroll" id="winScroll">
+              <div class="am-page-body" id="pageBody"></div>
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Demo stepper: presenter only. D toggles, 1–5 jump, 0 resets. -->
+<button class="am-demo-toggle" type="button" id="demoToggle" data-act="demo-toggle" aria-expanded="false" aria-controls="demo">Demo</button>
+<section class="am-demo" id="demo" aria-label="Demo stepper" hidden></section>
 
 <script>
 (function () {
-  'use strict';
+'use strict';
 
-  var VARIANTS = ['a', 'a-low', 'b', 'c'];
-  function pageFor(v) {
-    return v === 'a-low' ? 'insights.html?variant=a&score=low' : 'insights.html?variant=' + v;
+/* =====================================================================
+   DATA — the slide 10 story. Times are minutes after midnight.
+   ===================================================================== */
+const data = {
+  merchant: "Sample Coffee Co.",
+  name: "Vera",                       // one name: the chat header. Captions carry the agent label only.
+  today: [2026, 10, 29],              // the demo date; every weekday and date label derives from it
+  clockAfter: 5,                      // each stop sets the device a few minutes after its moment
+
+  /* Slide 10: one merchant, one day, five agents. Advantages from slide 9. */
+  moments: [
+    { t: 420,  time: "7:00 am", title: "Daily brief arrives", shows: ["Sees every sale"], state: "1 · Today",
+      does: "Reads Today. Does nothing.",
+      say: "Yesterday's numbers come straight from the POS; no report opened. Nothing is asking for attention yet. The day's items arrive as the agents notice things." },
+    { t: 600,  time: "10:00 am", title: "Stockout avoided", shows: ["Sees every sale", "Can take action"], state: "3 · Items and services › Oat milk 1L",
+      does: "Tap “Oat milk reorder”. Place order. Point at “without asking next time?”.",
+      say: "The forecast comes from every sale. One tap places the order. The autonomy ladder appears once, here, in context." },
+    { t: 840,  time: "2:00 pm", title: "Schedule fixed", shows: ["Can take action", "Knows the full P&L"], state: "3 · Employees › Scheduling",
+      does: "Tap “Saturday shift swap”. On the page set Priya's end to 3 pm (card: 28 → 33 hrs). Publish swap.",
+      say: "The overtime line comes from payroll data, not the schedule alone." },
+    { t: 960,  time: "4:00 pm", title: "Dispute won", shows: ["Can take action"], state: "3 · Finances › Disputes",
+      does: "Tap “Chargeback response filed” in Done today.",
+      say: "It landed in Done, not Needs you: filed without asking, with the evidence on the real page as the audit trail. The line under it sets Disputes back to “ask me first”, the same pattern as 10:00." },
+    { t: 1260, time: "9:00 pm", title: "Vera answers", shows: ["Knows the full P&L"], state: "2 · Chat",
+      does: "Type “Am I profitable this month?” in Today's input.",
+      say: "The source chips are the point: Clover sales, QuickBooks costs and Gusto payroll in one answer." }
+  ],
+
+  yesterday: { net: 2140, vsPct: 18, orders: 212,
+               byHour: [140, 260, 240, 190, 220, 250, 230, 160, 140, 120, 110, 80],
+               hours: ["7a", "8a", "9a", "10a", "11a", "12p", "1p", "2p", "3p", "4p", "5p", "6p"] },
+  outlook: "Rain from 11 am. Street fair on Maple St, two blocks away, 12–6 pm. Expect the lunch rush an hour early.",
+
+  /* The conversation, oldest first. `at` is when the item arrives. */
+  feed: [
+    { day: "Yesterday", items: [
+      { kind: "assistant", id: "delivery", at: -1, agent: "Orders", time: "4:10 pm",
+        text: "The almond milk delivery from Supplier A arrived complete. I checked it in and updated stock." },
+      { kind: "system", at: -1, time: "4:12 pm", text: "Checked in 12 almond milk" }
+    ] },
+    { day: "Today", items: [
+      { kind: "assistant", id: "brief", at: 420, agent: "Brief", time: "7:00 am",
+        text: "Good morning. Yesterday came in at {net} net sales, {vs}. Rain starts at 11 and the street fair on Maple St runs 12–6, so expect the lunch rush an hour early. Nothing needs you yet; I'll bring things here as they come up." },
+      { kind: "assistant", id: "reorder", at: 600, agent: "Inventory", time: "10:00 am", card: "reorder",
+        text: "Oat milk is down to 6 units and sales doubled this week. At this pace you run out Saturday, during the fair." },
+      { kind: "assistant", id: "swap", at: 840, agent: "Labor", time: "2:00 pm", card: "swap",
+        text: "Sam called in sick for Saturday. Priya can cover without overtime, so I drafted the swap." },
+      { kind: "assistant", id: "dispute", at: 960, agent: "Disputes", time: "4:00 pm", card: "dispute",
+        text: "A $42.50 chargeback came in from Visa with a Friday deadline. I attached the receipt, the signature and the pickup confirmation and filed the response." }
+    ] }
+  ],
+  brief: { title: "Morning brief", context: "Rain from 11, street fair 12–6", agent: "Brief", at: 420, time: "7:00 am" },
+
+  cards: {
+    reorder: { title: "Oat milk reorder", doneTitle: "Oat milk reorder placed", agent: "Inventory", at: 600, time: "10:00 am",
+               page: "item", primary: "Place order", doneVerb: "placed", ask: "reorder" },
+    swap:    { title: "Saturday shift swap", doneTitle: "Saturday shift swap published", agent: "Labor", at: 840, time: "2:00 pm",
+               page: "scheduling", primary: "Publish swap", doneVerb: "published" },
+    dispute: { title: "Chargeback response", doneTitle: "Chargeback response filed", agent: "Disputes", at: 960, time: "4:00 pm",
+               page: "disputes", auto: true, doneVerb: "filed", view: "View filing", ask: "dispute",
+               running: { from: 840, title: "Chargeback response", context: "Gathering evidence for a $42.50 Visa chargeback" } }
+  },
+
+  /* The autonomy ladder, as one system line under a card. */
+  asks: {
+    reorder: { q: "Place reorders like this without asking next time?", yes: "Yes", no: "Not yet",
+               onYes: "Inventory will place reorders like this without asking. They'll show in Done today.",
+               onNo: "Inventory will keep asking before it reorders." },
+    dispute: { q: "Filed without asking, as set for Disputes.", yes: "Ask me first next time", no: "Keep as is",
+               onYes: "Disputes will ask you before filing.",
+               onNo: "Disputes will keep filing responses like this on its own." }
+  },
+
+  item: { name: "Oat milk 1L", category: "Dairy alternatives", sku: "OAT-1L", price: 4.50,
+          onHand: 6, daysLeft: 2, soldThisWeek: 42, forecastPerDay: 3.3,
+          dailySales: [4, 3, 5, 4, 8, 10, 12] },          // the 7 days ending yesterday
+  suppliers: {
+    A: { name: "Supplier A", arrives: "Friday", prices: { "Oat milk 1L": 2.10, "Almond milk 1L": 2.40 },
+         why: ["Arrives {arrives}, before the stockout", "{delta} more than {other}, which arrives {otherArrives}", "Your usual supplier for dairy"] },
+    B: { name: "Supplier B", arrives: "Monday", prices: { "Oat milk 1L": 1.95, "Almond milk 1L": 2.25 },
+         why: ["{delta} less than {other}", "Arrives {arrives}, after the stockout"] }
+  },
+  order: { supplier: "A", cash: 120,            // this week's cash for supplies (Cash agent)
+           lines: [ { item: "Oat milk 1L", short: "oat milk", qty: 24 }, { item: "Almond milk 1L", short: "almond milk", qty: 12 } ] },
+
+  schedule: {
+    days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    overtimeAfter: 40,
+    staff: [
+      { name: "Sam",    shifts: { Mon: [7, 13], Wed: [7, 13], Fri: [7, 13], Sat: [10, 16] } },
+      { name: "Priya",  shifts: { Mon: [13, 19], Tue: [13, 19], Thu: [7, 15], Fri: [7, 15] } },
+      { name: "Jordan", shifts: { Tue: [7, 15], Wed: [7, 15], Thu: [13, 19], Fri: [13, 19], Sun: [8, 16] } },
+      { name: "Alex",   shifts: { Wed: [13, 19], Sat: [7, 13], Sun: [8, 14] } }
+    ],
+    sick:  { name: "Sam", day: "Sat", dayName: "Saturday" },
+    cover: { name: "Priya", why: ["Available all day", "{line}", "Trained on the espresso bar", "Closest commute"] }
+  },
+
+  disputes: {
+    live: { amount: 42.50, network: "Visa", reason: "Item not received",          // dated today, due tomorrow
+            evidence: ["Receipt #4821", "Customer signature", "Pickup confirmation, Oct 24"] },
+    past: [
+      { date: "Oct 12", amount: 18.00, network: "Mastercard", reason: "Duplicate charge", status: "Won" },
+      { date: "Sep 30", amount: 63.75, network: "Amex",       reason: "Not as described", status: "Lost" },
+      { date: "Sep 8",  amount: 27.40, network: "Visa",       reason: "Fraudulent",       status: "Won" },
+      { date: "Aug 22", amount: 12.50, network: "Discover",   reason: "Duplicate charge", status: "Won" },
+      { date: "Aug 9",  amount: 35.00, network: "Visa",       reason: "Not recognized",   status: "Won" },
+      { date: "Aug 3",  amount: 22.80, network: "Mastercard", reason: "Canceled order",   status: "Lost" }
+    ],
+    wonThisYear: 6, winRate: "75%"
+  },
+
+  /* Connected data for the 9:00 pm answer and Reports › Profit and loss. */
+  pnl: {
+    lines: [ { label: "Sales", oct: 41200, sep: 39800, src: "Clover", sign: 1 },
+             { label: "Cost of goods", oct: 14900, sep: 14300, src: "QuickBooks", sign: -1 },
+             { label: "Labor", oct: 18700, sep: 17300, src: "Gusto", sign: -1 },
+             { label: "Rent and other", oct: 3800, sep: 3800, src: "QuickBooks", sign: -1 } ],
+    note: "Labor is running two points higher than September because of the fair weekend."
+  },
+
+  pages: {
+    item:       { title: "Oat milk 1L",     path: ["Items and services", "Oat milk 1L"], card: "reorder", ask: "Ask about this item" },
+    scheduling: { title: "Scheduling",      path: ["Employees", "Scheduling"],           card: "swap",    ask: "Ask about this schedule" },
+    disputes:   { title: "Disputes",        path: ["Finances", "Disputes"],              card: "dispute", ask: "Ask about this dispute" },
+    sales:      { title: "Sales overview",  path: ["Reports", "Sales overview"],                         ask: "Ask about this report" },
+    pl:         { title: "Profit and loss", path: ["Reports", "Profit and loss"],                        ask: "Ask about this report" }
+  },
+
+  keywords: { reorder: "oat|milk|reorder|supplier|stock", swap: "schedul|shift|sam|priya|saturday|cover", dispute: "dispute|chargeback|visa" },
+  profitRe: "profit|p&l|p and l|making money|in the black|margin",
+  salesRe: "sales|yesterday|report",
+  cannedReply: "Noted. I'll keep this thread updated.",
+  timing: { replyDelay: 900, longPress: 550 }
+};
+
+/* =====================================================================
+   ICONS
+   ===================================================================== */
+const UI = 'asset/ui/';
+function img(name, size, cls) {
+  size = size || 24;
+  return '<img class="am-ico' + (cls ? ' ' + cls : '') + '" src="' + UI + name + '.svg" width="' + size + '" height="' + size + '" alt="">';
+}
+const SVG = {
+  chevronDown: '<path d="M6 9L12 15L18 9"/>',
+  send:        '<path d="M12 19V5M5.5 11.5L12 5L18.5 11.5"/>',
+  chevronRight:'<path d="M9 6L15 12L9 18"/>',
+  check:       '<path d="M5 12.5L9.5 17L19 7.5"/>'
+};
+function svg(name, size, cls) {
+  size = size || 24;
+  return '<svg class="am-ico' + (cls ? ' ' + cls : '') + '" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" aria-hidden="true">' + SVG[name] + '</svg>';
+}
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+const SCH = data.schedule;
+const CARD_ORDER = ['reorder', 'swap', 'dispute'];
+const sickShiftInit = SCH.staff.find(function (p) { return p.name === SCH.sick.name; }).shifts[SCH.sick.day];
+const params = new URLSearchParams(location.search);
+
+const state = {
+  view: 'dashboard',          // dashboard | mode
+  screen: 'today',            // today | chat   (State 3 = chat + page)
+  page: null,                 // page in the window
+  openId: null,               // selected card
+  sheetOpen: false,           // single column: page as a sheet
+  dashPage: 'sales',
+  moment: 0, now: 420,
+  menuFor: null,
+  whyOpen: {},
+  done: {}, doneAt: {},       // approvals: label + minutes
+  dismissed: {},
+  logs: { reorder: [], swap: [], dispute: [] },
+  ask: { reorder: null, dispute: 'open' },
+  tail: [],                   // merchant messages and replies
+  pending: false,
+  newIds: {},                 // rows that arrived with this moment
+  order: null, committedQty: null, cover: null
+};
+function resetDrafts(id) {
+  if (!id || id === 'reorder') {
+    state.order = JSON.parse(JSON.stringify(data.order));
+    state.committedQty = data.order.lines.map(function (l) { return l.qty; });
+    state.ask.reorder = null;
   }
+  if (!id || id === 'swap') state.cover = { start: sickShiftInit[0], end: sickShiftInit[1] };
+  if (!id || id === 'dispute') state.ask.dispute = 'open';
+}
+resetDrafts();
 
-  var stage  = document.getElementById('stage');
-  var segs   = Array.prototype.slice.call(document.querySelectorAll('.swap-seg'));
-  var frames = {};
-  var current = null;
-
-  /* ---- frames ----
-     Created lazily: the first variant loads straight away, the others
-     are preloaded once it has finished, hidden. A hidden frame does not
-     play its entrance until it is shown — it waits for {kind:'show'}. */
-  function frameFor(v) {
-    if (frames[v]) return frames[v];
-    var f = document.createElement('iframe');
-    f.title = v === 'a-low' ? 'Variant A, low score' : 'Variant ' + v.toUpperCase();
-    f.src = pageFor(v);
-    f.addEventListener('load', function () {
-      bridge(f);
-      if (v === current) post(f);
-    });
-    stage.appendChild(f);
-    frames[v] = f;
-    return f;
-  }
-
-  function post(f) {
-    try { f.contentWindow.postMessage({ kind: 'show' }, '*'); } catch (e) {}
-  }
-
-  function show(v) {
-    if (VARIANTS.indexOf(v) < 0 || v === current) return;
-    current = v;
-    var f = frameFor(v);
-    Object.keys(frames).forEach(function (k) {
-      frames[k].classList.toggle('is-active', k === v);
-    });
-    segs.forEach(function (b) {
-      b.setAttribute('aria-pressed', String(b.getAttribute('data-variant') === v));
-    });
-    post(f);   // harmless if it has not loaded yet; the load handler re-posts
-    if (history.replaceState) history.replaceState(null, '', '#' + v);
-    try { f.contentWindow.focus(); } catch (e) {}
-  }
-
-  function step(d) {
-    var i = VARIANTS.indexOf(current);
-    show(VARIANTS[(i + d + VARIANTS.length) % VARIANTS.length]);
-  }
-
-  segs.forEach(function (b) {
-    b.addEventListener('click', function () { show(b.getAttribute('data-variant')); });
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $ = function (s, r) { return (r || document).querySelector(s); };
+const mqSingle = window.matchMedia('(max-width: 1023.98px)');
+const isMobile = function () { return mqSingle.matches; };
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   });
+}
+function round2(n) { return Math.round(n * 100) / 100; }
+function money(n) { return '$' + round2(n).toFixed(2); }
+function money0(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+function fillT(s, v) { return s.replace(/\{(\w+)\}/g, function (m, k) { return k in v ? v[k] : m; }); }
+function clockLabel(mins) {
+  const h = Math.floor(mins / 60) % 24, m = mins % 60;
+  return (h % 12 || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h < 12 ? 'am' : 'pm');
+}
+/* Actions happen at device time: "placed 10:05 am" when the clock reads 10:05. */
+let momentSetAt = Date.now();
+function actionMinutes() { return state.now + Math.floor((Date.now() - momentSetAt) / 60000); }
 
-  /* ---- keys ---- */
-  function onKey(e) {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    var t = e.target;
-    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) &&
-              t.type !== 'range')) return;
-    if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
-      show(VARIANTS[+e.key - 1]);
-    } else if (e.key === 'ArrowRight' && !(t && t.type === 'range')) {
-      step(1);
-    } else if (e.key === 'ArrowLeft' && !(t && t.type === 'range')) {
-      step(-1);
-    } else {
-      return;
+/* ---- dates: everything derives from data.today ---- */
+const TODAY = new Date(data.today[0], data.today[1] - 1, data.today[2]);
+function addDays(d, n) { const x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+function fmtD(d, o) { return d.toLocaleDateString('en-US', o); }
+const YDAY = addDays(TODAY, -1);
+const MONDAY = addDays(TODAY, -((TODAY.getDay() + 6) % 7));
+const MD = { month: 'short', day: 'numeric' };
+const DATES = {
+  todayLong: fmtD(TODAY, { weekday: 'long', month: 'short', day: 'numeric' }),          // Thursday, Oct 29
+  statusbar: fmtD(TODAY, { weekday: 'short' }) + ' ' + fmtD(TODAY, MD),                 // Thu Oct 29
+  ydayLong: fmtD(YDAY, { weekday: 'long', month: 'short', day: 'numeric' }),            // Wednesday, Oct 28
+  ydayShort: fmtD(YDAY, { weekday: 'short', month: 'short', day: 'numeric' }),          // Wed, Oct 28
+  ydayWeekday: fmtD(YDAY, { weekday: 'long' }),                                         // Wednesday
+  todayMD: fmtD(TODAY, MD),                                                             // Oct 29
+  deadline: fmtD(addDays(TODAY, 1), { weekday: 'short', month: 'short', day: 'numeric' }), // Fri, Oct 30
+  week: fmtD(MONDAY, MD) + ' – ' + fmtD(addDays(MONDAY, 6), MD),                        // Oct 26 – Nov 1
+  monthToDate: fmtD(TODAY, { month: 'short' }) + ' 1–' + TODAY.getDate(),               // Oct 1–29
+  monthYear: fmtD(TODAY, { month: 'long', year: 'numeric' }),                           // October 2026
+  last7: [0, 1, 2, 3, 4, 5, 6].map(function (i) { return fmtD(addDays(TODAY, i - 7), { weekday: 'short' }); })
+};
+function ydayVs() {
+  const p = data.yesterday.vsPct;
+  return Math.abs(p) + '% ' + (p >= 0 ? 'above' : 'below') + ' last ' + DATES.ydayWeekday;
+}
+function textVars() { return { net: money0(data.yesterday.net), vs: ydayVs() }; }
+const NUM_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'];
+function needsSentence(n) {
+  if (!n) return 'Nothing needs you right now.';
+  return (NUM_WORDS[n] || n) + (n === 1 ? ' thing needs' : ' things need') + ' you.';
+}
+
+/* ---- status, derived ---- */
+function arrived(id) { return data.cards[id].at <= state.now; }
+function statusOf(id) {
+  const c = data.cards[id];
+  if (!arrived(id)) return c.running && state.now >= c.running.from ? 'running' : 'none';
+  if (state.dismissed[id]) return 'dismissed';
+  if (c.auto || state.done[id]) return 'done';
+  return 'waiting';
+}
+function doneLabel(id) { return data.cards[id].auto ? data.cards[id].time : state.done[id]; }
+function waitingIds() { return CARD_ORDER.filter(function (id) { return statusOf(id) === 'waiting'; }); }
+function primaryId() {
+  if (state.openId) return statusOf(state.openId) === 'waiting' ? state.openId : null;
+  return waitingIds()[0] || null;
+}
+function stateName() {
+  if (state.screen === 'today') return 'today';
+  if (state.page && (!isMobile() || state.sheetOpen)) return 'split';
+  return 'chat';
+}
+
+/* ---- order ---- */
+function supplier() { return data.suppliers[state.order.supplier]; }
+function otherKey() { return state.order.supplier === 'A' ? 'B' : 'A'; }
+function unitPrice(item, key) { return data.suppliers[key || state.order.supplier].prices[item]; }
+function lineTotal(l, key) { return round2(l.qty * unitPrice(l.item, key)); }
+function orderTotal(key) { return round2(state.order.lines.reduce(function (s, l) { return s + lineTotal(l, key); }, 0)); }
+function qtyOf(item) { const l = state.order.lines.find(function (x) { return x.item === item; }); return l ? l.qty : 0; }
+function coverDays() { return Math.floor((data.item.onHand + qtyOf(data.item.name)) / data.item.forecastPerDay); }
+
+/* ---- schedule ---- */
+function person(name) { return SCH.staff.find(function (p) { return p.name === name; }); }
+function sickShift() { return person(SCH.sick.name).shifts[SCH.sick.day]; }
+function coverShift() { return [state.cover.start, state.cover.end]; }
+function span(s) { return s[1] - s[0]; }
+function hoursOf(shifts) { return Object.keys(shifts).reduce(function (h, d) { return h + span(shifts[d]); }, 0); }
+function overtime(h) { return Math.max(0, h - SCH.overtimeAfter); }
+function overlap(a, b) { return Math.max(0, Math.min(a[1], b[1]) - Math.max(a[0], b[0])); }
+function uncovered() { return span(sickShift()) - overlap(sickShift(), coverShift()); }
+function hr(h) { return String(h % 12 || 12); }
+function hrFull(h) { return (h % 12 || 12) + (h < 12 || h === 24 ? ' am' : ' pm'); }
+function shiftLabel(s) { return hr(s[0]) + '–' + hr(s[1]); }
+function effectiveShifts(p) {
+  const s = Object.assign({}, p.shifts);
+  if (statusOf('swap') === 'done') {
+    if (p.name === SCH.sick.name) delete s[SCH.sick.day];
+    if (p.name === SCH.cover.name) s[SCH.sick.day] = coverShift();
+  }
+  return s;
+}
+
+/* =====================================================================
+   LIVE TEXT — one source for card, Today row and Why, so they agree.
+   ===================================================================== */
+function live(id) {
+  let L;
+  if (id === 'swap') {
+    const c = SCH.cover.name, sick = SCH.sick, cs = coverShift();
+    const before = hoursOf(person(c).shifts), after = before + span(cs);
+    const ot = overtime(after), un = uncovered();
+    const otText = ot ? plural(ot, 'hr') + ' overtime' : 'no overtime';
+    const line = after < SCH.overtimeAfter ? plural(SCH.overtimeAfter - after, 'hour') + ' under the ' + SCH.overtimeAfter + '-hour overtime line, per payroll'
+      : after === SCH.overtimeAfter ? 'Right at the ' + SCH.overtimeAfter + '-hour overtime line, per payroll'
+      : plural(ot, 'hour') + ' over the ' + SCH.overtimeAfter + '-hour overtime line, per payroll';
+    L = {
+      context: sick.dayName + ' · ' + sick.name + ' ' + shiftLabel(sickShift()) + ' (sick) → ' + c + ' ' + shiftLabel(cs),
+      today: c + ' covers ' + sick.dayName + ' ' + shiftLabel(cs) + ' for ' + sick.name + ', ' + otText,
+      consequence: c + ' ' + before + ' → ' + after + ' hrs · ' + otText + (un ? ' · ' + plural(un, 'hr') + ' still open' : ''),
+      whyLabel: 'Why ' + c,
+      why: SCH.cover.why.map(function (w) { return fillT(w, { line: line }); })
+    };
+  } else if (id === 'reorder') {
+    const sup = supplier(), other = data.suppliers[otherKey()], tot = orderTotal();
+    const delta = money(Math.abs(round2(tot - orderTotal(otherKey()))));
+    L = {
+      context: 'From ' + sup.name + ', arrives ' + sup.arrives,
+      today: state.order.lines.map(function (l) { return l.qty + ' ' + l.short; }).join(' + ') + ' from ' + sup.name + ', lands ' + sup.arrives,
+      lines: state.order.lines.map(function (l) {
+        return '<div class="am-line"><span>' + l.qty + ' × ' + esc(l.item) + '</span><span>' + money(lineTotal(l)) + '</span></div>';
+      }).join('') + '<div class="am-line am-line--total"><span>Total</span><span>' + money(tot) + '</span></div>',
+      consequence: money(tot) + ' · covers ' + plural(coverDays(), 'day') + ' · ' +
+        (tot <= data.order.cash ? "within this week's cash" : money(tot - data.order.cash) + " over this week's cash"),
+      whyLabel: 'Why ' + sup.name,
+      why: sup.why.map(function (w) { return fillT(w, { delta: delta, other: other.name, otherArrives: other.arrives, arrives: sup.arrives }); })
+    };
+  } else {
+    const d = data.disputes.live;
+    L = { context: money(d.amount) + ', ' + d.network + ', evidence attached', today: money(d.amount) + ', ' + d.network + ', evidence attached' };
+  }
+  L.whyList = (L.why || []).map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('');
+  return L;
+}
+function refreshLive(id) {
+  const L = live(id);
+  document.querySelectorAll('[data-live^="' + id + ':"]').forEach(function (el) {
+    const k = el.dataset.live.split(':')[1];
+    if (k in L) el.textContent = L[k];
+  });
+  document.querySelectorAll('[data-live-html^="' + id + ':"]').forEach(function (el) {
+    const k = el.dataset.liveHtml.split(':')[1];
+    if (k in L) el.innerHTML = L[k];
+  });
+}
+
+/* =====================================================================
+   CLOVER PAGES — the real page, with its own chrome. While a draft is
+   open the only changes are: highlighted draft cells (the card's tint),
+   dimmed unrelated rows, and inline fields where the draft lives.
+   ===================================================================== */
+function modeFor(pageId, ctx) {
+  const card = data.pages[pageId].card || null, st = card ? statusOf(card) : null;
+  const focused = ctx === 'assist' && !!card && state.openId === card;
+  return { assist: ctx === 'assist', card: card, st: st, focused: focused, draft: focused && st === 'waiting' };
+}
+function pageHTML(id, ctx) {
+  const m = modeFor(id, ctx);
+  if (id === 'item') return itemPageHTML(m);
+  if (id === 'scheduling') return schedulePageHTML(m);
+  if (id === 'disputes') return disputesPageHTML(m);
+  if (id === 'pl') return plPageHTML(m);
+  return salesPageHTML(m);
+}
+function crumbHTML(parts) {
+  return '<nav class="am-crumb" aria-label="Breadcrumb">' + parts.map(function (p, i) {
+    return (i ? img('chevron-right', 16, 'am-crumb-sep') : '') +
+      '<span class="am-crumb-part' + (i === parts.length - 1 ? ' is-current' : '') + '">' + esc(p) + '</span>';
+  }).join('') + '</nav>';
+}
+function pill(label, filled, icon) {
+  return '<button class="am-pill' + (filled ? ' am-pill--filled' : '') + '" type="button" data-act="noop">' + (icon ? img(icon, 16) : '') + esc(label) + '</button>';
+}
+function seg(opts, sel, act) {
+  return '<div class="am-seg" role="group">' + opts.map(function (o) {
+    return '<button type="button" data-act="' + (act || 'noop') + '" data-page="' + o[0] + '" aria-pressed="' + (o[0] === sel) + '">' + esc(o[1]) + '</button>';
+  }).join('') + '</div>';
+}
+function datenav(label) {
+  return '<div class="am-datenav"><button type="button" data-act="noop" aria-label="Previous">' + img('chevron-left', 16) + '</button>' +
+    '<span>' + esc(label) + '</span><button type="button" data-act="noop" aria-label="Next">' + img('chevron-right', 16) + '</button></div>';
+}
+function pageTop(id, meta, actions, controls) {
+  return '<div class="am-ptop"><div><h1 class="am-ptitle">' + esc(data.pages[id].title) + '</h1>' +
+      (meta ? '<p class="am-pmeta">' + meta + '</p>' : '') + '</div>' +
+      '<div class="am-pactions">' + (actions || '') + '</div></div>' +
+    (controls ? '<div class="am-pcontrols">' + controls + '</div>' : '');
+}
+function panelHTML(title, note, inner, cls) {
+  return '<section class="card am-card' + (cls ? ' ' + cls : '') + '">' +
+    (title || note ? '<div class="card-head"><h2 class="card-title card-title--sm">' + esc(title) + '</h2>' +
+      (note ? '<p class="card-note">' + esc(note) + '</p>' : '') + '</div>' : '') + inner + '</section>';
+}
+function tilesHTML(list) {
+  return '<div class="am-tiles">' + list.map(function (t) {
+    return '<div class="am-tile"><p class="am-tile-label">' + esc(t[0]) + '</p><p class="am-tile-value">' + esc(t[1]) + '</p>' +
+      (t[2] ? '<p class="am-tile-note">' + esc(t[2]) + '</p>' : '') + '</div>';
+  }).join('') + '</div>';
+}
+function chartHTML(vals, labels, recent, label) {
+  const max = Math.max.apply(null, vals), n = vals.length;
+  const aria = label + ': ' + vals.map(function (v, i) { return labels[i] + ' ' + v; }).join(', ');
+  return '<div class="am-chart" role="img" aria-label="' + esc(aria) + '">' + vals.map(function (v, i) {
+      return '<div class="am-bar-col"><span class="am-bar-val">' + v + '</span>' +
+        '<div class="am-bar' + (i >= n - recent ? ' is-recent' : '') + '" style="height: ' + Math.round(104 * v / max) + 'px"></div></div>';
+    }).join('') + '</div>' +
+    '<div class="am-chart-days" aria-hidden="true">' + labels.map(function (d) { return '<span>' + esc(d) + '</span>'; }).join('') + '</div>';
+}
+function labelled(label, value) { return '<div class="am-cell"><span class="am-cell-label">' + esc(label) + '</span>' + value + '</div>'; }
+
+/* ---------- Items and services › Oat milk 1L ---------- */
+function itemPageHTML(m) {
+  const it = data.item, placed = statusOf('reorder') === 'done';
+  const meta = esc(it.category) + ' · ' + money(it.price) + ' · SKU ' + esc(it.sku) +
+    (placed ? ' <span class="am-tag">' + qtyOf(it.name) + ' on order · arrives ' + esc(supplier().arrives) + '</span>' : '');
+  const stock = panelHTML('Stock', 'Updated 9:30 AM',
+    tilesHTML([['On hand', it.onHand], ['Days left', it.daysLeft, 'At this week’s pace'], ['Sold this week', it.soldThisWeek]]));
+  const po = placed || m.draft ? purchaseOrderHTML(m) : '';
+  const chart = panelHTML('Daily sales', 'Last 7 days', chartHTML(it.dailySales, DATES.last7, 3, 'Daily sales, last 7 days'));
+  return pageTop('item', meta, pill('Edit item') + pill('More'), '') + stock + po + chart;
+}
+function purchaseOrderHTML(m) {
+  const sup = supplier(), draft = m.draft, hl = m.focused ? ' class="am-hl"' : '';
+  const supRow = draft
+    ? '<label class="am-inline-field"><span>Supplier</span><select class="am-select" data-edit="supplier">' +
+        Object.keys(data.suppliers).map(function (k) {
+          return '<option value="' + k + '"' + (k === state.order.supplier ? ' selected' : '') + '>' + esc(data.suppliers[k].name) + '</option>';
+        }).join('') + '</select></label>'
+    : '<p class="am-inline-field"><span>Supplier</span>' + esc(sup.name) + '</p>';
+  const rows = state.order.lines.map(function (l, i) {
+    const qty = draft
+      ? '<input class="am-qty" type="number" inputmode="numeric" min="0" step="1" value="' + l.qty + '" data-line="' + i + '" aria-label="Quantity, ' + esc(l.item) + '">'
+      : l.qty;
+    return '<tr' + hl + '><td>' + esc(l.item) + '</td><td class="am-num">' + qty + '</td>' +
+      '<td class="am-num">' + money(unitPrice(l.item)) + '</td><td class="am-num" data-line-total="' + i + '">' + money(lineTotal(l)) + '</td></tr>';
+  }).join('');
+  return panelHTML('Purchase order', draft ? 'Draft' : 'Placed · arrives ' + sup.arrives,
+    supRow +
+    '<table class="am-table"><thead><tr><th scope="col">Item</th><th scope="col" class="am-num">Qty</th><th scope="col" class="am-num">Unit</th><th scope="col" class="am-num">Total</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody>' +
+    '<tfoot><tr><td colspan="3">Total · arrives ' + esc(sup.arrives) + '</td><td class="am-num" data-order-total>' + money(orderTotal()) + '</td></tr></tfoot></table>');
+}
+
+/* ---------- Employees › Scheduling ---------- */
+function timeOptions(from, to, sel) {
+  let h = '';
+  for (let x = from; x <= to; x++) h += '<option value="' + x + '"' + (x === sel ? ' selected' : '') + '>' + hrFull(x) + '</option>';
+  return h;
+}
+function schedulePageHTML(m) {
+  const sick = SCH.sick, cov = SCH.cover.name, st = statusOf('swap');
+  const known = st !== 'none' && st !== 'running', done = st === 'done';
+  let shiftCount = 0, labor = 0, ot = 0;
+  const head = '<tr><th scope="col">Name</th>' + SCH.days.map(function (d) { return '<th scope="col">' + d + '</th>'; }).join('') + '<th scope="col">Hours</th></tr>';
+  const rows = SCH.staff.map(function (p) {
+    const involved = p.name === sick.name || p.name === cov;
+    const s = effectiveShifts(p), h = hoursOf(s);
+    shiftCount += Object.keys(s).length; labor += h; ot += overtime(h);
+    const cells = SCH.days.map(function (d) {
+      const isDay = d === sick.day;
+      let cls = '', c = s[d] ? shiftLabel(s[d]) : '<span aria-label="Off">–</span>';
+      if (known && isDay && p.name === sick.name) {
+        if (done) c = '<span class="am-tag">Off sick</span>';
+        else if (m.draft) { cls = 'am-hl-warn'; c = labelled('Sick', shiftLabel(p.shifts[d])); }
+        else c = shiftLabel(p.shifts[d]) + ' <span class="am-tag am-tag--warn">Sick</span>';
+      }
+      if (known && isDay && p.name === cov) {
+        if (m.draft) {
+          cls = 'am-hl';
+          c = labelled('Draft', '<span class="am-time-edit">' +
+            '<select class="am-select" data-edit="start" aria-label="' + esc(cov) + ' ' + sick.dayName + ' start">' + timeOptions(6, 21, state.cover.start) + '</select>' +
+            '<span aria-hidden="true">–</span>' +
+            '<select class="am-select" data-edit="end" aria-label="' + esc(cov) + ' ' + sick.dayName + ' end">' + timeOptions(7, 22, state.cover.end) + '</select></span>');
+        } else if (done && m.focused) { cls = 'am-hl'; c = labelled('Published', shiftLabel(coverShift())); }
+      }
+      return '<td' + (cls ? ' class="' + cls + '"' : '') + '>' + c + '</td>';
+    }).join('');
+    let hours = String(h), hcls = overtime(h) ? 'is-over' : '';
+    if (m.draft && p.name === cov) {
+      const after = h + span(coverShift());
+      hours = h + ' → ' + after;
+      hcls = overtime(after) ? 'is-over' : '';
     }
-    e.preventDefault();
-  }
-  window.addEventListener('keydown', onKey);
+    return '<tr' + (m.focused && !involved ? ' class="is-dim"' : '') + '><td>' + esc(p.name) + '</td>' + cells + '<td class="' + hcls + '">' + hours + '</td></tr>';
+  }).join('');
+  const tiles = panelHTML('', '', tilesHTML([['Shifts', shiftCount], ['Labor hours', labor], ['Overtime hours', ot, 'From payroll']]), m.focused ? 'am-dimmed' : '');
+  const table = panelHTML('', '', '<div class="am-grid-wrap"><table class="am-table am-sched"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>');
+  return pageTop('scheduling', SCH.staff.length + ' team members · overtime after ' + SCH.overtimeAfter + ' hours',
+      pill('Add shift', false, 'plus') + pill('Publish', true),
+      seg([['day', 'Day'], ['week', 'Week']], 'week') + datenav(DATES.week)) +
+    tiles + table;
+}
 
-  /* ---- hover reveal ----
-     The pill shows while the cursor is in the bottom-centre patch: a
-     90px band, 360px wide. The frames cover the whole window, so their
-     own mousemoves are listened to as well (same origin, capture phase,
-     so the demo's handlers are untouched). */
-  var BAND = 90, WIDTH = 360;
-  function near(x, y) {
-    var w = window.innerWidth, h = window.innerHeight;
-    return y >= h - BAND && Math.abs(x - w / 2) <= WIDTH / 2;
+/* ---------- Finances › Disputes ---------- */
+function disputesPageHTML(m) {
+  const D = data.disputes, st = statusOf('dispute'), d = D.live;
+  const showLive = st === 'running' || st === 'done';
+  const filed = st === 'done';
+  const hl = m.focused ? ' am-hl' : '';
+  const xchev = function (open) { return svg(open ? 'chevronDown' : 'chevronRight', 16, 'am-xchev'); };
+  let rows = '';
+  if (showLive) {
+    rows += '<tr class="am-xrow' + hl + '"' + (filed ? ' aria-expanded="true"' : '') + '><td>' + xchev(filed) + DATES.todayMD + '</td><td class="am-num">' + money(d.amount) + '</td><td>' + d.network + '</td><td>' + esc(d.reason) + '</td>' +
+      '<td>' + (filed ? '<span class="am-tag">Response filed</span>' : '<span class="am-tag am-tag--warn">Needs response</span>') + '</td><td>' + DATES.deadline + '</td></tr>';
+    if (filed) {   // the expanded detail row
+      rows += '<tr class="am-sub' + hl + '"><td colspan="6"><div class="am-evidence"><span class="am-evidence-label">Evidence</span>' +
+        d.evidence.map(function (e) { return '<span class="am-tag">' + esc(e) + '</span>'; }).join('') + '</div></td></tr>';
+    }
   }
-  function track(x, y) { document.body.classList.toggle('show-swap', near(x, y)); }
+  rows += D.past.map(function (r) {
+    return '<tr class="am-xrow' + (m.focused ? ' is-dim' : '') + '"><td>' + xchev(false) + r.date + '</td><td class="am-num">' + money(r.amount) + '</td><td>' + r.network + '</td><td>' + esc(r.reason) + '</td>' +
+      '<td>' + r.status + '</td><td>–</td></tr>';
+  }).join('');
+  const open = showLive && !filed ? 1 : 0;
+  const tiles = panelHTML('', '', tilesHTML([['Needs response', open], ['Won this year', D.wonThisYear], ['Win rate', D.winRate]]), m.focused ? 'am-dimmed' : '');
+  const table = panelHTML('', '', '<div class="am-grid-wrap"><table class="am-table"><thead><tr><th scope="col">Date</th><th scope="col" class="am-num">Amount</th><th scope="col">Network</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col">Deadline</th></tr></thead><tbody>' + rows + '</tbody></table></div>');
+  return pageTop('disputes', 'Chargebacks and retrievals', pill('Export'),
+      seg([['all', 'All'], ['open', 'Needs response'], ['closed', 'Closed']], 'all') + datenav('Last 90 days')) +
+    tiles + table;
+}
 
-  window.addEventListener('mousemove', function (e) { track(e.clientX, e.clientY); });
-  document.addEventListener('mouseleave', function () {
-    document.body.classList.remove('show-swap');
+/* ---------- Reports › Sales overview / Profit and loss ---------- */
+const REPORT_TABS = [['sales', 'Sales overview'], ['pl', 'Profit and loss']];
+function salesPageHTML() {
+  const y = data.yesterday;
+  return pageTop('sales', DATES.ydayLong, pill('Export'), seg(REPORT_TABS, 'sales', 'page-tab') + datenav(DATES.ydayShort)) +
+    panelHTML('', '', tilesHTML([['Net sales', money0(y.net), ydayVs()], ['Orders', y.orders], ['Average ticket', money(y.net / y.orders)]])) +
+    panelHTML('Sales by hour', 'Net sales, $', chartHTML(y.byHour, y.hours, 0, 'Net sales by hour'));
+}
+function plPageHTML() {
+  const P = data.pnl;
+  const net = function (k) { return P.lines.reduce(function (s, l) { return s + l.sign * l[k]; }, 0); };
+  const labor = P.lines.find(function (l) { return l.src === 'Gusto'; });
+  const sales = P.lines[0];
+  const pct = function (k) { return Math.round(1000 * labor[k] / sales[k]) / 10; };
+  const rows = P.lines.map(function (l) {
+    return '<tr><td>' + esc(l.label) + '</td><td><span class="am-src">' + esc(l.src) + '</span></td>' +
+      '<td class="am-num">' + money0(l.oct) + '</td><td class="am-num">' + money0(l.sep) + '</td></tr>';
+  }).join('');
+  return pageTop('pl', 'Connected: Clover, QuickBooks, Gusto', pill('Export'), seg(REPORT_TABS, 'pl', 'page-tab') + datenav(DATES.monthYear)) +
+    panelHTML('', '', tilesHTML([['Net profit', money0(net('oct')), DATES.monthToDate], ['Margin', (Math.round(1000 * net('oct') / sales.oct) / 10) + '%'], ['Labor % of sales', pct('oct') + '%', 'September ' + pct('sep') + '%']])) +
+    panelHTML('Statement', 'Month to date', '<div class="am-grid-wrap"><table class="am-table"><thead><tr><th scope="col">Line</th><th scope="col">Source</th><th scope="col" class="am-num">' + DATES.monthToDate + '</th><th scope="col" class="am-num">September</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody><tfoot><tr><td colspan="2">Net profit</td><td class="am-num">' + money0(net('oct')) + '</td><td class="am-num">' + money0(net('sep')) + '</td></tr></tfoot></table></div>');
+}
+
+/* =====================================================================
+   DASHBOARD
+   ===================================================================== */
+function renderTopnav() {
+  $('#merchantName').textContent = data.merchant;
+  const n = waitingIds().length, on = state.view === 'mode';
+  const b = $('#askBadge');
+  b.textContent = n; b.hidden = !n;
+  const btn = $('#askBtn');
+  btn.classList.toggle('is-active', on);
+  btn.setAttribute('aria-pressed', String(on));
+  btn.setAttribute('aria-label', 'Ask me' + (n ? ', ' + n + ' need you' : ''));
+  $('#sbTime').textContent = clockLabel(state.now).replace(/ (am|pm)$/, '');
+}
+function renderDashboard() {
+  document.querySelectorAll('.railbtn[data-page]').forEach(function (b) {
+    const on = b.dataset.page === state.dashPage || (b.dataset.page === 'sales' && state.dashPage === 'pl');
+    b.classList.toggle('is-active', on);
+    if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
+  $('#dashCrumb').innerHTML = crumbHTML(data.pages[state.dashPage].path);
+  $('#dashBody').innerHTML = pageHTML(state.dashPage, 'dash');
+}
 
-  function bridge(f) {
-    try {
-      var w = f.contentWindow;
-      w.addEventListener('mousemove', function (e) {
-        var r = f.getBoundingClientRect();
-        track(r.left + e.clientX, r.top + e.clientY);
-      }, true);
-      w.addEventListener('keydown', onKey, true);
-    } catch (e) { /* cross-origin: keys and hover only work over the pill */ }
-  }
-
-  /* ---- boot ----
-     A hash opens that variant. With no hash, a first landing picks A, B or
-     C at random so sessions don't all start on the same one. A low is left
-     out of the draw: it is A's alternate state, not a fourth option.
-     show() writes the pick into the hash, so a reload stays put. */
-  var RANDOM_POOL = ['a', 'b', 'c'];
-  var start = (location.hash || '').replace('#', '').toLowerCase();
-  if (VARIANTS.indexOf(start) < 0) {
-    start = RANDOM_POOL[Math.floor(Math.random() * RANDOM_POOL.length)];
-  }
-  show(start);
-
-  frames[start].addEventListener('load', function () {
-    setTimeout(function () { VARIANTS.forEach(frameFor); }, 600);
+/* =====================================================================
+   STATE 1 — Today
+   ===================================================================== */
+function todayRows() {
+  const needs = [], running = [], done = [];
+  CARD_ORDER.forEach(function (id) {
+    const c = data.cards[id], st = statusOf(id);
+    if (st === 'waiting') needs.push({ id: id, title: c.title, ctx: live(id).today, agent: c.agent, time: c.time });
+    else if (st === 'running') running.push({ id: id, title: c.running.title, ctx: c.running.context, agent: c.agent, time: clockLabel(c.running.from), running: true });
+    else if (st === 'done') done.push({ id: id, title: c.doneTitle, ctx: live(id).today, agent: c.agent, time: doneLabel(id), sort: c.auto ? c.at : state.doneAt[id],
+                                        tag: c.auto ? 'Done for you' : 'Approved by you' });
+    else if (st === 'dismissed') done.push({ id: id, title: c.title, ctx: 'Dismissed', agent: c.agent, time: c.time, sort: c.at, tag: '' });
   });
-
-  window.addEventListener('hashchange', function () {
-    show((location.hash || '').replace('#', '').toLowerCase());
+  if (state.now >= data.brief.at) {
+    const b = data.brief;
+    done.push({ id: 'brief', title: b.title, ctx: b.context, agent: b.agent, time: b.time, sort: b.at, tag: 'Done for you' });
+  }
+  state.tail.forEach(function (t) {
+    if (t.kind === 'answer') done.push({ id: t.id, title: t.q, ctx: t.headline, agent: data.name, time: t.time, sort: t.at + 0.5, tag: '' });
   });
+  done.sort(function (a, b) { return b.sort - a.sort; });
+  return { needs: needs, running: running, done: done };
+}
+function rowHTML(r, opts) {
+  opts = opts || {};
+  const lead = opts.done ? svg('check', 18) : r.running ? '<span class="am-spin" aria-hidden="true"></span>' : '';
+  return '<li><button class="am-row' + (opts.hl ? ' is-hl' : '') + (opts.done ? ' is-done' : '') + (state.newIds[r.id] ? ' is-new' : '') +
+      '" type="button" data-act="today-row" data-id="' + esc(r.id) + '"' + (r.running ? ' aria-busy="true"' : '') + '>' +
+    '<span class="am-row-title">' + lead + '<span>' + esc(r.title) + '</span></span>' +
+    '<span class="am-row-meta">' + esc(r.agent) + ' · ' + esc(r.time) + '</span>' +
+    '<span class="am-row-ctx">' + esc(r.ctx) + '</span>' +
+    (r.tag ? '<span class="am-row-tag">' + esc(r.tag) + '</span>' : '') +
+    '<span class="am-row-chev">' + svg('chevronRight', 16) + '</span>' +
+  '</button></li>';
+}
+function renderToday() {
+  const R = todayRows(), y = data.yesterday;
+  /* An empty section collapses to one muted line. */
+  const section = function (label, rows, empty, opts) {
+    if (!rows.length) return '<h2 class="am-sec am-sec--empty">' + label + ' · ' + empty + '</h2>';
+    return '<h2 class="am-sec">' + label + (opts.count ? ' <span class="am-sec-count">(' + rows.length + ')</span>' : '') + '</h2>' +
+      '<ul class="am-rows">' + rows.map(function (r, i) { return rowHTML(r, Object.assign({ hl: opts.hlFirst && i === 0 }, opts)); }).join('') + '</ul>';
+  };
+  $('#todayScroll').innerHTML =
+    '<header class="am-today-head"><h1 class="am-today-title">Today</h1><span class="am-today-date">' + esc(DATES.todayLong) + '</span></header>' +
+    '<button class="am-yday" type="button" data-act="today-row" data-id="yesterday"><span class="am-yday-label">Yesterday</span> · ' +
+      money0(y.net) + ' net sales · ' + esc(ydayVs()) + ' · ' + y.orders + ' orders</button>' +
+    '<p class="am-outlook">' + esc(data.outlook) + ' ' + needsSentence(R.needs.length) + '</p>' +
+    section('Needs you', R.needs, 'nothing right now', { count: true, hlFirst: true }) +
+    section('Running', R.running, 'nothing running', {}) +
+    section('Done today', R.done, 'nothing yet', { done: true });
+}
+
+/* =====================================================================
+   STATES 2/3 — conversation
+   ===================================================================== */
+function cardHTML(id) {
+  const c = data.cards[id], st = statusOf(id), open = state.openId === id;
+  if (st === 'dismissed') {
+    return '<p class="am-dismissed" data-card-root="' + id + '">' + esc(c.title) + ' · dismissed · ' +
+      '<button class="am-link" type="button" data-act="restore-card" data-card="' + id + '">Restore</button></p>';
+  }
+  if (st === 'done') {
+    const tail = c.auto
+      ? '<button class="am-link" type="button" data-act="open-card" data-card="' + id + '">' + esc(c.view) + '</button>'
+      : '<button class="am-link" type="button" data-act="undo" data-card="' + id + '">Undo</button>';
+    return '<article class="am-acard is-line' + (open ? ' is-open' : '') + '" data-card-root="' + id + '" aria-label="' + esc(c.title + ', ' + c.doneVerb + ' ' + doneLabel(id)) + '"' + (open ? ' aria-current="true"' : '') + '>' +   // no filled button on a done card
+      '<p class="am-acard-line">' + svg('check', 18) + '<b>' + esc(c.title) + '</b><span>· ' + esc(c.doneVerb + ' ' + doneLabel(id)) + ' ·</span>' + tail + '</p></article>';
+  }
+  const L = live(id), menuOpen = state.menuFor === id;
+  return '<article class="am-acard' + (open ? ' is-open' : '') + '" data-card-root="' + id + '" aria-label="' + esc(c.title) + '"' + (open ? ' aria-current="true"' : '') + '>' +
+    '<h3 class="am-acard-title">' + esc(c.title) + '</h3>' +
+    '<p class="am-acard-context" data-live="' + id + ':context">' + esc(L.context) + '</p>' +
+    (id === 'reorder' ? '<div class="am-lines" data-live-html="reorder:lines">' + L.lines + '</div>' : '') +
+    '<p class="am-acard-cons" data-live="' + id + ':consequence">' + esc(L.consequence) + '</p>' +
+    '<div class="am-acard-actions">' +
+      '<button class="btn ' + (primaryId() === id ? 'btn-primary' : 'am-btn-outline') + '" type="button" data-act="primary" data-card="' + id + '">' + esc(c.primary) + '</button>' +
+      '<span class="am-split">' +
+        '<button class="am-textbtn" type="button" data-act="edit" data-card="' + id + '">Edit</button>' +
+        '<button class="am-textbtn am-split-more" type="button" data-act="menu" data-card="' + id + '" aria-label="More actions for ' + esc(c.title) + '" aria-haspopup="menu" aria-expanded="' + menuOpen + '">' + svg('chevronDown', 16) + '</button>' +
+        (menuOpen ? '<div class="am-menu" role="menu" aria-label="' + esc(c.title) + '"><button class="am-menu-item" type="button" role="menuitem" data-act="dismiss" data-card="' + id + '">Dismiss</button></div>' : '') +
+      '</span></div>' +
+  '</article>';
+}
+function whyHTML(id) {
+  const L = live(id);
+  if (!L.why || !L.why.length || statusOf(id) === 'dismissed') return '';
+  const open = !!state.whyOpen[id];
+  return '<button class="am-why" type="button" data-act="why" data-card="' + id + '" aria-expanded="' + open + '" aria-controls="why-' + id + '">' +
+      '<span data-live="' + id + ':whyLabel">' + esc(L.whyLabel) + '</span>' + svg('chevronDown', 16) + '</button>' +
+    '<ul class="am-why-list" id="why-' + id + '" data-live-html="' + id + ':whyList"' + (open ? '' : ' hidden') + '>' + L.whyList + '</ul>';
+}
+function sysHTML(text, time) { return '<p class="am-sysline">' + esc(text) + (time ? ' · ' + esc(time) : '') + '</p>'; }
+function askHTML(key) {
+  const a = data.asks[key], v = state.ask[key];
+  if (v === 'yes') return sysHTML(a.onYes);
+  if (v === 'no') return sysHTML(a.onNo);
+  return '<div class="am-ask" data-ask="' + key + '"><p class="am-sysline">' + esc(a.q) + '</p><div class="am-ask-btns">' +
+    '<button class="am-askbtn" type="button" data-act="ask-answer" data-key="' + key + '" data-val="yes">' + esc(a.yes) + '</button>' +
+    '<button class="am-askbtn" type="button" data-act="ask-answer" data-key="' + key + '" data-val="no">' + esc(a.no) + '</button></div></div>';
+}
+function logsHTML(id) {
+  const list = (data.cards[id].auto && statusOf(id) === 'done' ? [{ ask: data.cards[id].ask }] : []).concat(state.logs[id]);
+  return list.map(function (l) { return l.ask ? askHTML(l.ask) : sysHTML(l.text, l.time); }).join('');
+}
+/* The header already says Vera; captions carry the agent label and time only. */
+function captionHTML(agent, time) {
+  return '<p class="am-caption">' + (agent ? esc(agent) + ' · ' : '') + esc(time) + '</p>';
+}
+function answerHTML(t) {
+  const P = data.pnl;
+  return '<div class="am-entry" data-entry="' + t.id + '">' + captionHTML(data.name, t.time) +   // Vera is the agent label for connected-data answers
+    '<div class="am-answer"><p class="am-msg">' + esc(t.headline) + '</p>' +
+      '<p class="am-figs">' + P.lines.map(function (l) {
+        return esc(l.label) + ' ' + money0(l.oct) + ' <span class="am-src">' + esc(l.src) + '</span>';
+      }).join(' · ') + '</p>' +
+      '<p class="am-msg">' + esc(P.note) + '</p></div>' +
+    '<button class="am-link am-open-link" type="button" data-act="open-page" data-page="pl">Open in Reports</button></div>';
+}
+function entryHTML(it) {
+  if (it.kind === 'system') return sysHTML(it.text, it.time);
+  if (it.kind === 'user') return '<div class="am-entry am-entry--user"><p class="msg--sent">' + esc(it.text) + '</p></div>';
+  if (it.kind === 'answer') return answerHTML(it);
+  const cid = it.card;
+  return '<div class="am-entry"' + (it.id ? ' data-entry="' + esc(it.id) + '"' : '') + '>' +
+    captionHTML(it.agent, it.time) +
+    '<p class="am-msg">' + esc(fillT(it.text, textVars())) + '</p>' +
+    (cid ? whyHTML(cid) + cardHTML(cid) + '<div class="am-logs" data-logs="' + cid + '">' + logsHTML(cid) + '</div>' : '') +
+  '</div>';
+}
+function renderThread(opts) {
+  opts = opts || {};
+  const el = $('#thread'), keep = el.scrollTop;
+  const a = document.activeElement;
+  const focusKey = a && el.contains(a) && a.dataset.act
+    ? '[data-act="' + a.dataset.act + '"]' + (a.dataset.card ? '[data-card="' + a.dataset.card + '"]' : '') : null;
+  el.innerHTML = data.feed.map(function (g, gi) {
+    const items = g.items.filter(function (it) { return it.at <= state.now; });
+    const tail = gi === data.feed.length - 1 ? state.tail.map(entryHTML).join('') + (state.pending ? '<p class="am-running">Checking Clover, QuickBooks and Gusto</p>' : '') : '';
+    if (!items.length && !tail) return '';
+    return '<section class="am-dayg" aria-label="' + esc(g.day) + '"><h2 class="am-day">' + esc(g.day) + '</h2>' + items.map(entryHTML).join('') + tail + '</section>';
+  }).join('');
+  if (focusKey && !el.contains(document.activeElement)) {
+    const n = el.querySelector(focusKey);
+    if (n) n.focus({ preventScroll: true });
+  }
+  if (opts.toEnd) { el.style.paddingBottom = ''; el.scrollTop = el.scrollHeight; }
+  else if (opts.toEntry) scrollThreadTo(opts.toEntry);
+  else el.scrollTop = keep;
+}
+/* The selected entry's caption lands 24px from the top. If the thread is too short
+   below it, the bottom padding grows so it can. offsetTop: the canvas is scaled. */
+function scrollThreadTo(id) {
+  const t = $('#thread'), target = $('#thread [data-entry="' + id + '"]');
+  if (!target) return;
+  t.style.paddingBottom = '';
+  let y = 0, n = target;
+  while (n && n !== t && t.contains(n)) { y += n.offsetTop; n = n.offsetParent; }
+  const top = Math.max(0, y - 24);
+  const last = t.lastElementChild, end = last ? last.offsetTop + last.offsetHeight : 0;
+  const need = top + t.clientHeight - end;
+  if (need > parseFloat(getComputedStyle(t).paddingBottom)) t.style.paddingBottom = need + 'px';
+  const still = top - (t.scrollHeight - t.clientHeight);
+  if (still > 0) t.style.paddingBottom = (parseFloat(getComputedStyle(t).paddingBottom) + still) + 'px';
+  t.scrollTop = top;
+}
+
+/* =====================================================================
+   STATE 3 — the page window
+   ===================================================================== */
+let lastAnchor = null;
+function renderPage() {
+  const id = state.page;
+  if (!id) { $('#pageBody').innerHTML = ''; lastAnchor = null; return; }
+  const p = data.pages[id];
+  $('#winCrumb').innerHTML = crumbHTML(p.path).replace(/^<nav class="am-crumb"[^>]*>|<\/nav>$/g, '');
+  $('#win').classList.toggle('has-card', !!(state.openId && data.cards[state.openId].page === id));
+  $('#pageBody').innerHTML = pageHTML(id, 'assist');
+  const key = id + ':' + (state.openId || '');
+  if (lastAnchor !== key) anchorPage();      // re-renders from edits keep the scroll
+  lastAnchor = key;
+  revealHighlight();
+}
+/* Open anchored to the object: the highlighted row's card sits near the top, with the
+   cards above it partly scrolled away. Without a highlight, the page opens at the top. */
+function anchorPage() {
+  const sc = $('#winScroll');
+  sc.style.paddingBottom = '';
+  const hl = state.openId && $('#pageBody .am-hl, #pageBody .am-hl-warn');
+  const card = hl && hl.closest('.card');
+  if (!card) { sc.scrollTop = 0; return; }
+  const s = sc.getBoundingClientRect(), c = card.getBoundingClientRect();
+  const scale = s.height / sc.offsetHeight || 1;
+  const target = Math.max(0, Math.round((c.top - s.top) / scale + sc.scrollTop - 56));
+  const body = $('#pageBody'), end = body.offsetTop + body.offsetHeight;
+  const need = target + sc.clientHeight - end;
+  if (need > parseFloat(getComputedStyle(sc).paddingBottom)) sc.style.paddingBottom = need + 'px';
+  const still = target - (sc.scrollHeight - sc.clientHeight);
+  if (still > 0) sc.style.paddingBottom = (parseFloat(getComputedStyle(sc).paddingBottom) + still) + 'px';
+  sc.scrollTop = target;
+}
+function revealHighlight() {
+  const wrap = $('#pageBody .am-grid-wrap');
+  const cell = wrap && wrap.querySelector('.am-hl, .am-hl-warn');
+  if (!cell || wrap.scrollWidth <= wrap.clientWidth) return;
+  requestAnimationFrame(function () {
+    const w = wrap.getBoundingClientRect(), c = cell.getBoundingClientRect();
+    const scale = w.width / wrap.offsetWidth || 1;
+    wrap.scrollLeft += ((c.left + c.width / 2) - (w.left + w.width / 2)) / scale;
+  });
+}
+
+function renderLayout() {
+  const name = stateName(), mobile = isMobile();
+  $('#viewB').dataset.state = name;
+  const sheet = mobile && name === 'split';
+  const win = $('#win');
+  win.classList.toggle('is-sheet-open', sheet);
+  win.setAttribute('role', mobile ? 'dialog' : 'region');
+  win.setAttribute('aria-modal', sheet ? 'true' : 'false');
+  $('#scrim').classList.toggle('is-on', sheet);
+  $('#assistantName').textContent = data.name;
+  $('#composerInput').placeholder = name === 'split' && state.page ? (data.pages[state.page].ask || 'Ask about anything') : 'Ask about anything';
+}
+function renderAll(opts) {
+  renderTopnav();
+  if (state.view !== 'mode') { renderDashboard(); return; }
+  renderLayout();
+  if (state.screen === 'today') renderToday();
+  renderPage();
+  renderThread(opts);
+  if (opts && opts.toEntry) setTimeout(function () { scrollThreadTo(opts.toEntry); }, 300);   // after the slide
+}
+
+/* =====================================================================
+   NAVIGATION
+   ===================================================================== */
+function enterMode() {
+  state.view = 'mode';
+  state.screen = 'today';
+  state.page = null; state.openId = null; state.sheetOpen = false; state.menuFor = null;
+  $('#viewA').hidden = true;
+  $('#viewB').hidden = false;
+  renderAll();
+  $('#todayScroll').scrollTop = 0;
+  const first = $('#todayScroll .am-row.is-hl') || $('#todayInput');
+  first.focus({ preventScroll: true });
+}
+function exitMode() {
+  state.view = 'dashboard';
+  state.sheetOpen = false; state.menuFor = null;
+  $('#viewB').hidden = true;
+  $('#viewA').hidden = false;
+  renderAll();
+  $('#viewA').scrollTop = 0;
+  $('#askBtn').focus();
+}
+function backToToday() {
+  state.screen = 'today';
+  state.page = null; state.openId = null; state.sheetOpen = false; state.menuFor = null;
+  renderAll();
+  const first = $('#todayScroll .am-row.is-hl') || $('#todayInput');
+  first.focus({ preventScroll: true });
+}
+function closePage() {
+  state.page = null; state.openId = null; state.sheetOpen = false;
+  renderAll();
+}
+/* Select a card: chat column, its page beside it (a sheet on single column). */
+function openCard(id, sheet) {
+  state.openId = id;
+  state.page = data.cards[id].page;
+  state.screen = 'chat';
+  state.menuFor = null;
+  if (isMobile()) state.sheetOpen = !!sheet;
+}
+function openPage(pageId, sheet) {
+  state.page = pageId;
+  state.openId = null;
+  state.screen = 'chat';
+  if (isMobile()) state.sheetOpen = sheet !== false;
+}
+function focusIn(cardId, sel) {
+  const root = $('#thread [data-card-root="' + cardId + '"]');
+  const el = root && root.querySelector(sel);
+  if (el) el.focus({ preventScroll: true });
+}
+function todayRow(id) {
+  if (id === 'yesterday') { openPage('sales'); renderAll({ toEntry: 'brief' }); return; }
+  if (id === 'brief' || /^ans-/.test(id)) {
+    state.screen = 'chat'; state.page = null; state.openId = null;
+    renderAll({ toEntry: id });
+    return;
+  }
+  const st = statusOf(id);
+  if (st === 'running') { openPage(data.cards[id].page); renderAll({ toEnd: true }); return; }
+  if (st === 'dismissed') { openPage(data.cards[id].page); renderAll({ toEntry: id }); return; }
+  openCard(id, true);
+  renderAll({ toEntry: id });
+  focusIn(id, '[data-act="primary"], [data-act="undo"], [data-act="open-card"]');
+}
+
+/* =====================================================================
+   ACTIONS
+   ===================================================================== */
+function log(cardId, text) {
+  const entry = { text: text, time: clockLabel(actionMinutes()) };
+  state.logs[cardId].push(entry);
+  const box = $('#thread [data-logs="' + cardId + '"]');
+  if (box) box.insertAdjacentHTML('beforeend', sysHTML(entry.text, entry.time));
+}
+function primary(id) {
+  const mins = actionMinutes();
+  state.openId = id;
+  state.page = data.cards[id].page;
+  state.done[id] = clockLabel(mins);
+  state.doneAt[id] = mins;
+  state.menuFor = null;
+  const key = data.cards[id].ask;
+  if (key && state.ask[key] === null) {        // the autonomy ladder, once, in context
+    state.ask[key] = 'open';
+    state.logs[id].push({ ask: key });
+  }
+  renderAll();
+  focusIn(id, '[data-act="undo"]');
+}
+function undo(id) {
+  delete state.done[id];
+  delete state.doneAt[id];
+  openCard(id, false);
+  renderAll();
+  focusIn(id, '[data-act="primary"]');
+}
+function dismiss(id) {
+  state.dismissed[id] = true;
+  state.menuFor = null;
+  if (state.openId === id) state.openId = null;
+  renderAll();
+  focusIn(id, '[data-act="restore-card"]');
+}
+function restoreCard(id) {
+  delete state.dismissed[id];
+  openCard(id, false);
+  renderAll();
+  focusIn(id, '[data-act="primary"]');
+}
+/* Edit focuses the field on the page where the draft lives. */
+const EDIT_TARGET = { swap: '#pageBody [data-edit="start"]', reorder: '#pageBody .am-qty' };
+function edit(id) {
+  openCard(id, true);
+  renderAll();
+  const t = $(EDIT_TARGET[id]);
+  if (t) { t.focus({ preventScroll: true }); if (t.select) t.select(); }
+}
+function tapCard(id) {
+  if (statusOf(id) === 'dismissed') return;
+  if (state.openId === id && stateName() === 'split') return;
+  openCard(id, true);
+  renderAll();
+}
+function toggleMenu(id, open) {
+  state.menuFor = open ? id : null;
+  renderThread();
+  if (open) { const item = $('#thread .am-menu-item'); if (item) item.focus({ preventScroll: true }); }
+}
+function toggleWhy(id) {
+  state.whyOpen[id] = !state.whyOpen[id];
+  const b = $('#thread [data-act="why"][data-card="' + id + '"]'), l = $('#why-' + id);
+  if (b) b.setAttribute('aria-expanded', String(state.whyOpen[id]));
+  if (l) l.hidden = !state.whyOpen[id];
+}
+
+/* ---- edits on the page ---- */
+function updateOrderTotals() {
+  state.order.lines.forEach(function (l, i) {
+    const c = $('#pageBody [data-line-total="' + i + '"]');
+    if (c) c.textContent = money(lineTotal(l));
+  });
+  const tot = $('#pageBody [data-order-total]');
+  if (tot) tot.textContent = money(orderTotal());
+  refreshLive('reorder');
+}
+function parseQty(s) { s = String(s).trim(); return /^\d+$/.test(s) ? Math.min(9999, parseInt(s, 10)) : null; }
+function commitQty(input) {
+  const i = +input.dataset.line, line = state.order.lines[i];
+  input.value = line.qty;
+  if (line.qty !== state.committedQty[i]) {
+    state.committedQty[i] = line.qty;
+    log('reorder', 'You changed ' + line.item + ' to ' + line.qty);
+  }
+}
+
+/* ---- the composer ---- */
+let ansSeq = 0;
+function send(text) {
+  const at = state.now;
+  state.tail.push({ kind: 'user', at: at, time: clockLabel(actionMinutes()), text: text });
+  state.screen = 'chat';
+  const reply = function (t) {
+    state.tail.push({ kind: 'assistant', at: at, time: clockLabel(actionMinutes()), text: t });
+    if (state.view === 'mode') renderThread({ toEnd: true });
+  };
+  if (new RegExp(data.profitRe, 'i').test(text)) {
+    state.pending = true;
+    renderAll({ toEnd: true });
+    setTimeout(function () {
+      state.pending = false;
+      const P = data.pnl, net = P.lines.reduce(function (s, l) { return s + l.sign * l.oct; }, 0);
+      state.tail.push({ kind: 'answer', id: 'ans-' + (++ansSeq), at: at, time: clockLabel(actionMinutes()), q: text,
+                        headline: (net >= 0 ? 'Yes, by about ' : 'Not yet; down about ') + money0(Math.abs(net)) + ' so far.' });
+      if (state.view === 'mode') renderAll({ toEnd: true });
+    }, data.timing.replyDelay);
+    return;
+  }
+  const match = CARD_ORDER.find(function (id) {
+    const st = statusOf(id);
+    return (st === 'waiting' || st === 'done') && new RegExp(data.keywords[id], 'i').test(text);
+  });
+  if (match) {
+    openCard(match, false);                  // asking about something with a page: State 3
+    renderAll({ toEnd: true });
+    setTimeout(function () { reply("Here's the " + data.cards[match].title.toLowerCase() + '.'); }, data.timing.replyDelay);
+    return;
+  }
+  if (new RegExp(data.salesRe, 'i').test(text)) {
+    openPage('sales', false);
+    renderAll({ toEnd: true });
+    setTimeout(function () { reply("Here's yesterday in Reports."); }, data.timing.replyDelay);
+    return;
+  }
+  renderAll({ toEnd: true });
+  setTimeout(function () { reply(data.cannedReply); }, data.timing.replyDelay);
+}
+
+/* =====================================================================
+   DEMO STEPPER — slide 10's five moments
+   ===================================================================== */
+function setMoment(i, opts) {
+  opts = opts || {};
+  const prevNow = state.now;
+  state.moment = i;
+  state.now = data.moments[i].t + data.clockAfter;   // the device reads a few minutes after the moment
+  momentSetAt = Date.now();
+  // Anything that has not happened yet at this moment is reset.
+  CARD_ORDER.forEach(function (id) {
+    if (data.cards[id].at > state.now || opts.reset) {
+      delete state.done[id]; delete state.doneAt[id]; delete state.dismissed[id];
+      state.logs[id] = []; state.whyOpen[id] = false;
+      resetDrafts(id);
+    }
+  });
+  state.tail = opts.reset ? [] : state.tail.filter(function (t) { return t.at <= state.now; });
+  state.newIds = {};
+  CARD_ORDER.forEach(function (id) { if (data.cards[id].at > prevNow && data.cards[id].at <= state.now) state.newIds[id] = true; });
+  if (state.view === 'mode') {
+    state.screen = 'today'; state.page = null; state.openId = null; state.sheetOpen = false; state.menuFor = null;
+  }
+  renderAll();
+  if (state.view === 'mode') { $('#todayScroll').scrollTop = 0; }
+  renderDemo();
+}
+function renderDemo() {
+  const M = data.moments[state.moment];
+  $('#demo').innerHTML =
+    '<div class="am-demo-steps">' + data.moments.map(function (m, i) {
+      return '<button type="button" data-act="moment" data-i="' + i + '" aria-pressed="' + (i === state.moment) + '">' + clockLabel(m.t + data.clockAfter) + '</button>';
+    }).join('') + '</div>' +
+    '<h3>' + esc(clockLabel(M.t + data.clockAfter) + ' · ' + M.title) + '</h3>' +
+    '<dl><dt>Shows</dt><dd class="am-demo-adv">' + M.shows.map(esc).join(' · ') + '</dd>' +
+    '<dt>State</dt><dd>' + esc(M.state) + '</dd>' +
+    '<dt>Do</dt><dd>' + esc(M.does) + '</dd>' +
+    '<dt>Say</dt><dd>' + esc(M.say) + '</dd></dl>' +
+    '<div class="am-demo-foot"><span>D toggles · 1–5 jump · 0 reset</span><button class="am-demo-reset" type="button" data-act="demo-reset">Reset</button></div>';
+}
+function toggleDemo(force) {
+  const d = $('#demo'), open = force === undefined ? d.hidden : force;
+  d.hidden = !open;
+  $('#demoToggle').setAttribute('aria-expanded', String(open));
+}
+
+/* =====================================================================
+   EVENTS
+   ===================================================================== */
+let lp = null, swallowClick = false;
+const threadEl = $('#thread');
+threadEl.addEventListener('pointerdown', function (e) {
+  const root = e.target.closest('article[data-card-root]');
+  if (!root || e.target.closest('button, select, input') || statusOf(root.dataset.cardRoot) !== 'waiting') return;
+  const id = root.dataset.cardRoot;
+  lp = { x: e.clientX, y: e.clientY, t: setTimeout(function () { lp = null; swallowClick = true; toggleMenu(id, true); }, data.timing.longPress) };
+});
+function cancelLP() { if (lp) { clearTimeout(lp.t); lp = null; } }
+threadEl.addEventListener('pointermove', function (e) { if (lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > 8) cancelLP(); });
+['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { threadEl.addEventListener(t, cancelLP); });
+threadEl.addEventListener('contextmenu', function (e) {
+  const root = e.target.closest('article[data-card-root]');
+  if (!root || statusOf(root.dataset.cardRoot) !== 'waiting') return;
+  e.preventDefault();
+  toggleMenu(root.dataset.cardRoot, true);
+});
+document.addEventListener('pointerdown', function () { swallowClick = false; }, true);
+document.addEventListener('click', function (e) {
+  if (swallowClick) { swallowClick = false; e.stopPropagation(); e.preventDefault(); }
+}, true);
+
+document.addEventListener('click', function (e) {
+  if (state.menuFor && !e.target.closest('.am-menu, [data-act="menu"]')) { state.menuFor = null; renderThread(); }
+  const el = e.target.closest('[data-act]');
+  if (!el) {
+    const root = e.target.closest('[data-card-root]');
+    if (root && state.view === 'mode') tapCard(root.dataset.cardRoot);
+    return;
+  }
+  const id = el.dataset.card;
+  switch (el.dataset.act) {
+    case 'noop': break;
+    case 'nav':
+      state.dashPage = el.dataset.page;
+      renderDashboard();
+      $('#viewA').scrollTop = 0;
+      break;
+    case 'ask-me': if (state.view === 'mode') exitMode(); else enterMode(); break;
+    case 'back-today': backToToday(); break;
+    case 'today-row': todayRow(el.dataset.id); break;
+    case 'open-page': openPage(el.dataset.page); renderAll(); break;
+    case 'page-tab':
+      if (state.view === 'mode') { state.page = el.dataset.page; state.openId = null; renderAll(); }
+      else { state.dashPage = el.dataset.page; renderDashboard(); }
+      break;
+    case 'open-full': state.dashPage = state.page; exitMode(); break;
+    case 'close-page': closePage(); break;
+    case 'primary': primary(id); break;
+    case 'undo': undo(id); break;
+    case 'dismiss': dismiss(id); break;
+    case 'restore-card': restoreCard(id); break;
+    case 'edit': edit(id); break;
+    case 'open-card': openCard(id, true); renderAll(); break;
+    case 'menu': toggleMenu(id, state.menuFor !== id); break;
+    case 'why': toggleWhy(id); break;
+    case 'ask-answer':
+      state.ask[el.dataset.key] = el.dataset.val;
+      renderThread();
+      break;
+    case 'moment': setMoment(+el.dataset.i); break;
+    case 'demo-reset': setMoment(0, { reset: true }); break;
+    case 'demo-toggle': toggleDemo(); break;
+  }
+});
+
+/* Structured drafts are edited on the page. */
+const pageBody = $('#pageBody');
+pageBody.addEventListener('change', function (e) {
+  const t = e.target, which = t.dataset.edit;
+  if (which === 'start' || which === 'end') {
+    let s = state.cover.start, en = state.cover.end;
+    const v = +t.value;
+    if (which === 'start') { s = v; if (en <= s) en = s + 1; } else { en = v; if (s >= en) s = en - 1; }
+    state.cover = { start: s, end: en };
+    log('swap', 'You changed ' + SCH.cover.name + ' to ' + shiftLabel(coverShift()));
+    renderPage();
+    refreshLive('swap');
+    $('#pageBody [data-edit="' + which + '"]').focus();
+  } else if (which === 'supplier') {
+    const before = orderTotal();
+    state.order.supplier = t.value;
+    const diff = round2(before - orderTotal());
+    log('reorder', 'You switched to ' + supplier().name + ', ' + (diff === 0 ? 'same price' : money(Math.abs(diff)) + (diff > 0 ? ' less' : ' more')));
+    renderPage();
+    refreshLive('reorder');
+    $('#pageBody [data-edit="supplier"]').focus();
+  }
+});
+pageBody.addEventListener('input', function (e) {
+  const q = e.target.closest('.am-qty');
+  if (!q) return;
+  const v = parseQty(q.value);
+  if (v === null) return;
+  state.order.lines[+q.dataset.line].qty = v;
+  updateOrderTotals();
+});
+pageBody.addEventListener('focusout', function (e) { if (e.target.closest('.am-qty')) commitQty(e.target); });
+pageBody.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.closest('.am-qty')) e.target.blur(); });
+
+/* Composer. Typing in Today's input moves to State 2 and keeps typing there. */
+const input = $('#composerInput'), sendBtn = $('#sendBtn'), todayInput = $('#todayInput');
+todayInput.addEventListener('input', function () {
+  const v = todayInput.value;
+  if (!v) return;
+  todayInput.value = '';
+  state.screen = 'chat'; state.page = null; state.openId = null;
+  renderAll({ toEnd: true });
+  input.value = v;
+  sendBtn.disabled = !v.trim();
+  input.focus();
+  input.setSelectionRange(v.length, v.length);
+});
+$('#todayComposer').addEventListener('submit', function (e) { e.preventDefault(); });
+input.addEventListener('input', function () { sendBtn.disabled = !input.value.trim(); });
+$('#composer').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  sendBtn.disabled = true;
+  send(text);
+});
+
+document.addEventListener('keydown', function (e) {
+  const typing = e.target.closest && e.target.closest('input, textarea, select');
+  if (!typing && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    if (e.key === 'd' || e.key === 'D') { toggleDemo(); return; }
+    if (/^[1-5]$/.test(e.key)) { setMoment(+e.key - 1); return; }
+    if (e.key === '0') { setMoment(0, { reset: true }); return; }
+  }
+  if (e.key !== 'Escape' || state.view !== 'mode') return;
+  if (state.menuFor) { const id = state.menuFor; toggleMenu(id, false); focusIn(id, '[data-act="menu"]'); }
+  else if (stateName() === 'split') closePage();
+});
+
+/* Sheet: drag the handle down to dismiss. */
+(function () {
+  const handle = $('#sheetHandle'), win = $('#win');
+  let drag = null;
+  handle.addEventListener('pointerdown', function (e) {
+    if (stateName() !== 'split' || !isMobile()) return;
+    drag = { y: e.clientY, dy: 0 };
+    handle.setPointerCapture(e.pointerId);
+    win.style.transition = 'none';
+  });
+  handle.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    drag.dy = Math.max(0, e.clientY - drag.y);
+    win.style.transform = 'translateY(' + drag.dy + 'px)';
+  });
+  function end() {
+    if (!drag) return;
+    const close = drag.dy > 96;
+    drag = null;
+    win.style.transition = ''; win.style.transform = '';
+    if (close) closePage();
+  }
+  handle.addEventListener('pointerup', end);
+  handle.addEventListener('pointercancel', end);
+})();
+
+/* =====================================================================
+   CANVAS
+   ===================================================================== */
+const inner = $('#screenInner'), screenEl = $('.screen');
+const DESIGN_W = 1280, DESIGN_H = 834;
+function fit() {
+  const single = isMobile();
+  document.body.classList.toggle('is-phone', single);
+  if (single) { inner.style.transform = inner.style.left = inner.style.top = ''; return; }
+  const sw = screenEl.clientWidth, sh = screenEl.clientHeight;
+  const scale = Math.min(sw / DESIGN_W, sh / DESIGN_H);
+  inner.style.transform = 'scale(' + scale + ')';
+  inner.style.left = ((sw - DESIGN_W * scale) / 2) + 'px';
+  inner.style.top  = ((sh - DESIGN_H * scale) / 2) + 'px';
+}
+if (window.ResizeObserver) new ResizeObserver(fit).observe(screenEl);
+window.addEventListener('resize', fit);
+mqSingle.addEventListener('change', function () {
+  state.sheetOpen = isMobile() && !!state.page;
+  fit();
+  renderAll();
+});
+
+/* =====================================================================
+   BOOT  (?moment=1..5 starts at a moment; ?mode=1 opens Ask me)
+   ===================================================================== */
+document.querySelectorAll('[data-svg]').forEach(function (el) { el.outerHTML = svg(el.dataset.svg, +el.dataset.size || 24); });
+$('#sbDate').textContent = DATES.statusbar;
+fit();
+const startAt = Math.min(5, Math.max(1, +params.get('moment') || 1)) - 1;
+setMoment(startAt);
+state.newIds = {};
+renderDemo();
+if (params.get('mode')) enterMode();
+requestAnimationFrame(function () { document.body.classList.add('is-ready'); });
+
 })();
 </script>
 </body>
