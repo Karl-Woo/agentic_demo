@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ask me · Vera · Clover assistant mode</title>
+<title>Vera · Clover assistant mode</title>
 <!-- Assistant mode: an agentic demo for the Clover dashboard.
+
+     It opens on Clover Home: Vera's brief on top with "Open Vera" (the one
+     filled button), and "Ask Vera" chips under the snapshot, item sales and
+     finances. Open Vera enters the mode:
 
      Three states, each with its own shape:
        1  Today (home)        one centred column, max 720
@@ -17,10 +21,14 @@
      (breadcrumb, Open full page, close). The selected card's tint is
      shared with a 3px bar on that header and the highlighted cells.
 
-     Story: slide 10 of the vision deck, five moments (the device reads
-     7:05, 10:05, 2:05, 4:05, 9:05). Demo stepper: the "Demo" pill
-     bottom-right, or press D; 1–5 jump to a moment, 0 resets.
-     URL: ?moment=1..5 starts at a moment; ?mode=1 opens Ask me.
+     Story: slide 10 of the vision deck, five stops in a fixed order
+     (7:02, 10:04, 2:03, 4:05, 9:02 pm). The stepper sets the world at each
+     stop (clock, Home, Today, thread, badge): stop 1 lands on Home, stops
+     2–5 on Today; the
+     presenter performs every human action. Nothing opens by itself.
+     Stepper: the "1 / 5" pill bottom-right of the screen, ArrowLeft and
+     ArrowRight, or 1–5. It hides after 3 s without pointer movement.
+     URL: ?stop=1..5 starts at a stop.
 
      Design system: styles.css (Graphik, Dash 3.0 type scale, tokens,
      iPad bezel + scaled 1280x834 canvas). Below 1024px the bezel drops away
@@ -45,6 +53,16 @@
   --am-rule:      rgba(31, 33, 36, 0.16);
   --am-col:       720px;     /* States 1 and 2 */
   --am-split:     38%;       /* State 3 chat column */
+  /* Home: Clover's plum for money moments, and the chart/bar series. */
+  --am-plum:      #2E2257;
+  --am-plum-tint: #E4DDF7;
+  --am-lilac:     #CBC0F2;
+  --am-blue:      #2B8CD8;
+  --am-violet:    #8C6CE0;
+  --am-up:        var(--green-tx);
+  --am-down:      #C5221F;
+  --am-alert-tint: #FCE8E6;
+  --am-alert-ink:  #A50E0E;
 }
 
 [hidden] { display: none !important; }
@@ -55,8 +73,6 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 /* ---------- controls ---------- */
 .btn { gap: var(--sp-2); white-space: nowrap; }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.am-btn-quiet { background: var(--am-quiet); color: var(--ink); }
-.am-btn-quiet:hover { background: var(--line); }
 
 .am-link {
   display: inline; padding: 0;
@@ -90,10 +106,14 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-iconbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .am-iconbtn img { width: var(--icon); height: var(--icon); }
 
-@keyframes am-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-@keyframes am-spin { to { transform: rotate(360deg); } }
-@keyframes am-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes am-win-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes am-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes am-cell-pulse { 0%, 100% { background: var(--nav-active); } 50% { background: var(--green-tint); } }
+/* The working line's dots: each is lit for a third of the 900 ms loop. */
+@keyframes am-dot { 0% { opacity: 1; } 33.333%, 100% { opacity: 0.25; } }
+
+/* Agent output arrives with styles.css's drop keyframe, 60 ms apart. */
+.am-drop { animation: drop var(--dur) var(--ease) both; animation-delay: calc(var(--i, 0) * 60ms + var(--d, 0ms)); }
 
 .am-tag { display: inline-flex; align-items: center; padding: 2px var(--sp-2); border-radius: 6px; background: var(--am-quiet); color: var(--ink-2); font: var(--caption-bold); white-space: nowrap; }
 .am-tag--warn { background: var(--am-warn-tint); color: var(--am-warn-ink); }
@@ -162,6 +182,7 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-card .card-title { margin: 0; }
 
 .am-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); }
+.am-card-chart { margin-top: var(--sp-4); }
 .am-tile { background: var(--soft); border-radius: var(--sp-3); padding: var(--sp-4); }
 .am-tile-label { font: var(--caption); color: var(--muted); }
 .am-tile-value { font: var(--heading-02); color: var(--ink); margin-top: var(--sp-1); font-variant-numeric: tabular-nums; }
@@ -224,11 +245,166 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-inline-field { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-3); font: var(--body); color: var(--ink); }
 .am-inline-field > span:first-child { font: var(--caption); color: var(--muted); min-width: 64px; }
 .am-inline-field .am-select { height: var(--hit); font: var(--body); padding: 0 var(--sp-2); }
+.card-head .am-inline-field { margin: 0; }
+.card-title .am-tag { vertical-align: 3px; margin-left: var(--sp-1); }
 
 /* Unrelated rows and summary cards while a draft is open. */
 .am-dimmed *, .am-table tr.is-dim td { color: var(--muted) !important; }
 .am-dimmed .am-bar { opacity: 0.5; }
 .am-table tr.is-dim td:first-child { font-weight: 400; }
+
+/* ===========================================================================
+   Clover Home — where the demo lands. Vera's brief sits at the top, with
+   the way into the assistant mode; "Ask Vera" strips sit under cards.
+   =========================================================================== */
+.am-search {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 320px; height: var(--hit);
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--line); border-radius: 999px;
+  background: #fff; color: var(--faint);
+  font: var(--body); text-align: left;
+  cursor: default;
+}
+.am-vera-ico { color: var(--green-tx); }
+
+.am-home { display: flex; flex-direction: column; gap: var(--sp-6); padding-top: var(--sp-6); }
+.am-home-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); }
+.am-home-title { font: var(--heading-01); }
+.am-range {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  height: var(--hit); padding: 0 var(--sp-3);
+  border: 1px solid var(--line); border-radius: var(--sp-2);
+  background: #fff; color: var(--muted); font: var(--caption);
+  cursor: pointer;
+}
+.am-hgrid { display: grid; gap: var(--sp-6); align-items: stretch; }
+.am-hgrid--2-1 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.am-hgrid--1-1 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.am-hcard { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-6); }
+.am-hcard-title { display: inline-flex; align-items: center; gap: 2px; font: var(--heading-04); color: var(--ink); }
+.am-hcard-title svg { color: var(--ink-2); }
+.am-hcard-sub { font: var(--caption); color: var(--muted); margin-top: calc(var(--sp-3) * -1); }
+.am-hblock { display: flex; flex-direction: column; gap: var(--sp-3); }
+.am-hsec { display: flex; flex-direction: column; gap: var(--sp-1); }
+.am-hsec-title { font: var(--heading-04); }
+.am-hsec-sub { font: var(--caption); color: var(--muted); }
+.am-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.am-pager { display: inline-flex; align-items: center; gap: var(--sp-1); font: var(--caption); color: var(--muted); white-space: nowrap; }
+.am-pager svg { color: var(--faint); }
+
+/* Vera's brief */
+.am-hbrief { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: var(--sp-4); padding: var(--sp-6); }
+.am-vera-mark { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--nav-active); color: var(--green-tx); }
+.am-hbrief-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-4); }
+.am-hbrief-title { font: var(--heading-04); }
+.am-hbrief-meta { font: var(--caption); color: var(--muted); white-space: nowrap; }
+.am-hbrief-text { margin-top: var(--sp-1); font: var(--body); color: var(--ink-2); max-width: 760px; }
+.am-hbrief-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); margin-top: var(--sp-4); }
+.am-hbrief-needs { font: var(--body-bold); color: var(--ink); }
+.am-hbrief-needs.is-none { font: var(--body); color: var(--muted); }
+
+/* Business snapshot */
+.am-tabs { display: flex; gap: var(--sp-1); }
+.am-tabs button { height: 32px; padding: 0 var(--sp-3); border-radius: var(--sp-2); font: var(--caption-bold); color: var(--muted); cursor: pointer; }
+.am-tabs button[aria-pressed="true"] { background: var(--nav-active); color: var(--green-ink); }
+.am-figrow { display: flex; gap: var(--sp-10); }
+.am-fig-label { font: var(--caption); color: var(--muted); }
+.am-fig-value { font: var(--heading-02); color: var(--ink); font-variant-numeric: tabular-nums; }
+.am-legend { display: flex; gap: var(--sp-4); font: var(--caption); color: var(--muted); }
+.am-legend span { display: inline-flex; align-items: center; gap: var(--sp-1); }
+.am-legend span::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.am-legend span + span::before { background: var(--faint); }
+.am-spark { display: block; width: 100%; height: auto; overflow: visible; }
+.am-spark text { stroke: none; fill: var(--faint); font: var(--caption); font-size: 12px; font-variant-numeric: tabular-nums; }
+.am-spark .grid { stroke: var(--line-soft); stroke-width: 1; }
+.am-spark .last { stroke: var(--faint); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.am-spark .this { stroke: var(--green); stroke-width: 2; }
+.am-spark .area { stroke: none; fill: url(#amSparkFill); }
+.am-spark .dot { fill: #fff; stroke: var(--green); stroke-width: 2; }
+
+/* Ask Vera strip */
+.am-askvera { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-2); margin-top: auto; padding: var(--sp-2) var(--sp-3); border-radius: var(--sp-3); background: var(--soft); }
+.am-askvera-label { display: inline-flex; align-items: center; gap: var(--sp-1); font: var(--caption-bold); color: var(--ink); }
+.am-askvera-label svg { color: var(--green-tx); }
+.am-vchip {
+  height: 28px; padding: 0 var(--sp-3);
+  border-radius: 999px; box-shadow: inset 0 0 0 1px var(--green);
+  background: #fff; color: var(--ink); font: var(--caption);
+  cursor: pointer; white-space: nowrap;
+}
+.am-vchip:hover { background: var(--green-tint); }
+.am-vchip:focus-visible, .am-range:focus-visible, .am-tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Notifications */
+.am-notes { list-style: none; margin: 0; padding: 0; }
+.am-note { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-3) 0; border-bottom: 1px solid var(--line-soft); }
+.am-note:first-child { padding-top: 0; }
+.am-note-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-1); }
+.am-note-tag { padding: 2px var(--sp-2); border-radius: 999px; background: var(--am-alert-tint); color: var(--am-alert-ink); font: var(--caption-bold); font-size: 12px; line-height: 16px; }
+.am-note-title { font: var(--caption-bold); color: var(--ink); }
+.am-note-time { font: var(--caption); font-size: 12px; line-height: 16px; color: var(--muted); }
+.am-note > svg { color: var(--ink-2); }
+.am-hcard > .btn-text { align-self: flex-start; margin-top: auto; }
+
+/* Open batch */
+.am-batch { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-4) var(--sp-6); border-radius: var(--sp-4); background: var(--am-plum); color: #fff; }
+.am-batch-title { font: var(--body-bold); }
+.am-batch-sub { font: var(--caption); color: rgba(255, 255, 255, 0.78); }
+.am-btn-plum { background: var(--am-plum-tint); color: var(--am-plum); }
+.am-btn-plum:hover { background: #fff; }
+
+/* Capital */
+.am-capital { display: grid; grid-template-columns: 136px minmax(0, 1fr); overflow: hidden; }
+.am-capital-art { position: relative; background: var(--am-lilac); }
+.am-capital-art i { position: absolute; bottom: 36%; width: 16px; border-radius: 3px 3px 0 0; background: #fff; box-shadow: 4px 0 0 var(--am-violet); }
+.am-capital-art i:nth-child(1) { left: 36px; height: 24px; }
+.am-capital-art i:nth-child(2) { left: 60px; height: 40px; }
+.am-capital-art i:nth-child(3) { left: 84px; height: 56px; }
+.am-capital-art b { position: absolute; left: 28px; top: 26%; width: 72px; height: 36px; border-radius: 18px; background: rgba(255, 255, 255, 0.72); }
+.am-capital-body { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-6); }
+.am-capital-head { display: flex; justify-content: space-between; gap: var(--sp-3); }
+.am-capital-title { font: var(--body-bold); color: var(--ink); }
+.am-capital-text { font: var(--caption); color: var(--muted); }
+.am-hactions { display: flex; align-items: center; gap: var(--sp-2); margin-top: auto; padding-top: var(--sp-2); }
+
+/* Bars (insights, finances) */
+.am-hbars { display: flex; flex-direction: column; gap: var(--sp-3); }
+.am-hbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--sp-3); row-gap: 2px; align-items: center; }
+.am-hbar-label { grid-column: 1 / -1; font: var(--caption); color: var(--muted); }
+.am-hbar-track { height: 12px; border-radius: 999px; background: var(--am-quiet); overflow: hidden; }
+.am-hbar-fill { height: 100%; border-radius: 999px; background: var(--green); }
+.am-hbar-fill.is-blue { background: var(--am-blue); }
+.am-hbar-fill.is-violet { background: var(--am-violet); }
+.am-hbar-value { font: var(--caption-bold); color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; min-width: 72px; }
+.am-powered { display: inline-flex; align-items: center; gap: var(--sp-1); font: var(--caption-bold); color: var(--green-tx); }
+.am-insight-text { font: var(--body); color: var(--ink); }
+
+/* Product updates */
+.am-update { position: relative; display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-6); overflow: hidden; }
+.am-update::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--am-lilac); }
+.am-update-head { display: flex; justify-content: space-between; gap: var(--sp-3); }
+.am-update-title { font: var(--body-bold); }
+.am-update-text { font: var(--caption); color: var(--muted); }
+
+/* Activity summary */
+.am-activity { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: var(--sp-6) 0; }
+.am-activity > div { padding: 0 var(--sp-6); }
+.am-activity > div + div { border-left: 1px solid var(--line); }
+.am-activity .am-fig-label { display: inline-flex; align-items: center; gap: 2px; }
+.am-activity .am-fig-value { font: var(--heading-01); font-variant-numeric: tabular-nums; }
+.am-activity-sub { font: var(--caption); color: var(--muted); }
+
+/* Item sales */
+.am-topitems { width: 100%; border-collapse: collapse; }
+.am-topitems th { padding: 0 0 var(--sp-2); font: var(--caption-bold); color: var(--muted); text-align: left; border-bottom: 1px solid var(--line-soft); }
+.am-topitems th + th { text-align: right; }
+.am-topitems td { padding: var(--sp-2) 0; font: var(--caption); color: var(--ink); font-variant-numeric: tabular-nums; }
+.am-topitems td + td { text-align: right; }
+.am-delta { display: inline-flex; align-items: center; justify-content: flex-end; gap: 2px; min-width: 72px; }
+.am-delta.is-up { color: var(--am-up); }
+.am-delta.is-down { color: var(--am-down); }
 
 /* ===========================================================================
    View B — the mode. data-state: today | chat | split
@@ -246,21 +422,15 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-mode[data-state="split"] .am-chat { display: flex; }
 
 /* ---------- State 1: Today ---------- */
-.am-today { flex-direction: column; width: 100%; max-width: var(--am-col); margin: 0 auto; }
-.am-today-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 var(--sp-4) var(--sp-6); scrollbar-width: thin; }
+.am-today { flex-direction: column; width: 100%; max-width: var(--am-col); margin: 0 auto; transition: opacity var(--dur-fast) var(--ease); }
+.am-today.is-leaving { opacity: 0; }
+.am-today-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 var(--sp-4) var(--sp-6); scrollbar-width: thin; }
 .am-today-head { display: flex; align-items: baseline; gap: var(--sp-3); margin: var(--sp-8) 0 var(--sp-4); }
 .am-today-title { font: var(--heading-01); margin: 0; }
 .am-today-date { font: var(--body); color: var(--muted); }
-.am-yday {
-  display: block; width: calc(100% + var(--sp-6)); margin: 0 calc(var(--sp-3) * -1);
-  padding: var(--sp-2) var(--sp-3);
-  border-radius: var(--sp-3);
-  text-align: left; font: var(--body); color: var(--ink);
-  cursor: pointer; font-variant-numeric: tabular-nums;
-}
-.am-yday:hover { background: var(--am-hover); }
-.am-yday:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.am-yday { font: var(--body); color: var(--ink); font-variant-numeric: tabular-nums; }
 .am-yday-label { color: var(--muted); }
+.am-facts { margin: 0; font: var(--body); color: var(--ink); }
 .am-outlook { margin: var(--sp-1) 0 0; font: var(--body); color: var(--ink-2); }
 .am-sec { display: flex; align-items: baseline; gap: var(--sp-2); margin: var(--sp-8) 0 var(--sp-2); font: var(--heading-04); color: var(--ink); }
 .am-sec-count { font: var(--body); color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -279,7 +449,6 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-row.is-hl, .am-row.is-hl:hover, .am-row:active { background: var(--am-selected); }
 .am-row-chev { grid-column: 3; grid-row: 1 / span 2; align-self: center; color: var(--faint); }
 .am-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.am-row.is-new { animation: am-in 320ms ease both; }
 .am-row-title { grid-column: 1; grid-row: 1; display: flex; align-items: center; gap: var(--sp-2); min-width: 0; font: var(--body-bold); color: var(--ink); }
 .am-row-title > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .am-row-meta { grid-column: 2; grid-row: 1; justify-self: end; font: var(--caption); color: var(--muted); white-space: nowrap; align-self: center; font-variant-numeric: tabular-nums; }
@@ -287,8 +456,24 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-row-tag { grid-column: 2; grid-row: 2; justify-self: end; align-self: center; font: var(--caption); color: var(--muted); white-space: nowrap; }
 .am-row.is-done .am-row-title, .am-row.is-done .am-row-ctx { color: var(--muted); }
 .am-row.is-done .am-row-title svg { color: var(--muted); }
-.am-spin { width: 14px; height: 14px; flex: 0 0 auto; border: 2px solid var(--line); border-top-color: var(--muted); border-radius: 50%; animation: am-spin 900ms linear infinite; }
 .am-none { font: var(--body); color: var(--muted); padding: var(--sp-1) 0; }
+/* Needs you → Done today: the row fades out in place, then in at its new
+   position while the rest of the list reflows (FLIP, in JS). */
+.am-rows > li.is-ghost { transition: opacity var(--dur-fast) var(--ease); }
+.am-rows > li.is-ghost.is-out { opacity: 0; }
+[data-flip].is-held { display: none; }
+
+/* Stop 5's suggestion: one chip above Today's input. */
+.am-suggest { flex: 0 0 auto; display: flex; padding: 0 var(--sp-4); }
+.am-chip {
+  height: 32px; padding: 0 var(--sp-3);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  font: var(--caption-bold); color: var(--ink);
+  cursor: pointer; white-space: nowrap;
+}
+.am-chip:hover { background: var(--am-hover); }
+.am-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- Composer (Today and Chat) ---------- */
 /* A solid band behind the input with 16px above it, so a cut-off row reads
@@ -318,9 +503,13 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
   width: var(--am-col); max-width: 100%;
   margin-left: max(0px, calc((100% - var(--am-col)) / 2));
   background: #fff;
-  transition: width 280ms cubic-bezier(0.4, 0, 0.2, 1), margin-left 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: am-fade-in var(--dur) var(--ease) both;    /* State 1 → 2 or 3 */
 }
-.am-mode[data-state="split"] .am-chat { width: var(--am-split); margin-left: 0; }
+/* State 2 → 3: the column narrows. Only this direction animates. */
+.am-mode[data-state="split"] .am-chat {
+  width: var(--am-split); margin-left: 0;
+  transition: width var(--dur-slow) var(--ease), margin-left var(--dur-slow) var(--ease);
+}
 .am-chat-head {
   flex: 0 0 auto;
   height: var(--sp-14);
@@ -351,16 +540,22 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-msg { font: var(--body); color: var(--ink); }
 .am-sysline { font: var(--caption); color: var(--muted); }
 .am-sysline .am-link { color: var(--ink); font: var(--caption-bold); }
-/* Autonomy ladder: a sentence, then two small text buttons on their own line. */
-.am-ask-btns { display: flex; gap: var(--sp-1); margin: 2px 0 0 calc(var(--sp-3) * -1); }
-.am-askbtn { height: 32px; padding: 0 var(--sp-3); border-radius: var(--sp-2); font: var(--caption-bold); color: var(--ink); cursor: pointer; }
-.am-askbtn:hover { background: var(--am-hover); }
-.am-askbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Autonomy: a sentence, then two text buttons on their own line. */
+.am-ask-btns { display: flex; gap: var(--sp-1); margin: 2px 0 0 calc(var(--sp-2) * -1); }
+.am-ask-btns .btn { height: 32px; font: var(--caption-bold); }
 .am-logs { display: flex; flex-direction: column; gap: var(--sp-1); margin-top: var(--sp-1); }
 .am-logs:empty { display: none; }
+.am-after { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
+.am-after:empty { display: none; }
+.am-backline .am-link { font: var(--caption); color: var(--muted); text-decoration: underline; }
+.am-backline .am-link:hover { color: var(--ink); }
 .msg--sent { overflow-wrap: anywhere; }
-.am-running { display: flex; align-items: center; gap: var(--sp-2); font: var(--caption); color: var(--muted); }
-.am-running::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--faint); animation: am-pulse 1400ms ease-in-out infinite; }
+
+/* The working line: before any agent message that follows a tap. */
+.am-working { font: var(--caption); color: var(--muted); }
+.am-dots i { font-style: normal; animation: am-dot 900ms steps(1, end) infinite; }
+.am-dots i:nth-child(2) { animation-delay: -600ms; }
+.am-dots i:nth-child(3) { animation-delay: -300ms; }
 
 /* Why: the last line of the message that introduces the card. */
 .am-why { align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; margin-top: 2px; padding: 0; font: var(--body); color: var(--muted); cursor: pointer; border-radius: 4px; }
@@ -372,9 +567,11 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-why-list li { position: relative; padding-left: var(--sp-4); font: var(--body); color: var(--ink-2); }
 .am-why-list li::before { content: ''; position: absolute; left: 4px; top: 10px; width: 4px; height: 4px; border-radius: 50%; background: var(--faint); }
 
-/* Vera's connected-data answer: figures with source chips, not a table. */
+/* Vera's connected-data answer: one caption line per source, chip last. */
 .am-answer { display: flex; flex-direction: column; gap: var(--sp-2); }
-.am-figs { font: var(--body); color: var(--ink); line-height: 28px; font-variant-numeric: tabular-nums; }
+.am-figs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
+.am-figs li { font: var(--caption); color: var(--muted); font-variant-numeric: tabular-nums; }
+.am-figs b { font: var(--caption-bold); color: var(--ink); font-variant-numeric: tabular-nums; }
 .am-src {
   display: inline-flex; align-items: center;
   height: 20px; padding: 0 var(--sp-2); margin: 0 2px;
@@ -398,7 +595,8 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 }
 .am-acard:hover { background: #FBFCFC; }
 .am-acard.is-open, .am-acard.is-open:hover { background: var(--am-selected); border-color: transparent; }
-.am-acard.is-line { padding: var(--sp-3) var(--sp-4); }
+/* Done: one line, no tint, no frame. The check and the line are enough. */
+.am-acard.is-line, .am-acard.is-line:hover { padding: var(--sp-1) 0; border-color: transparent; background: transparent; overflow: hidden; cursor: default; }
 .am-acard-title { margin: 0; font: var(--body-bold); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .am-acard-context { font: var(--body); color: var(--ink); margin-top: var(--sp-1); }
 .am-acard-cons { font: var(--body); color: var(--muted); margin-top: var(--sp-2); font-variant-numeric: tabular-nums; }
@@ -407,31 +605,14 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
    outlined pill (every other pending decision, the "New sale" style),
    text (Edit). */
 .am-acard-actions .btn { border-radius: 999px; }
-.am-btn-outline { background: #fff; color: var(--green-tx); box-shadow: inset 0 0 0 1px var(--green); }
-.am-btn-outline:hover { background: var(--green-tint); }
 .am-acard-line { display: flex; align-items: center; gap: var(--sp-1); min-width: 0; font: var(--body); color: var(--ink); white-space: nowrap; }
 .am-acard-line b { font: var(--body-bold); color: var(--ink); overflow: hidden; text-overflow: ellipsis; }
 .am-acard-line .am-link { color: var(--green-tx); }   /* the line's one target */
-.am-acard-line svg { margin-right: 2px; }
-.am-dismissed { margin-top: var(--sp-2); font: var(--body); color: var(--muted); }
-.am-dismissed .am-link { color: var(--ink-2); }
+.am-acard-line svg { margin-right: 2px; color: var(--green-tx); }
 .am-lines { margin-top: var(--sp-3); }
 .am-line { display: flex; justify-content: space-between; gap: var(--sp-4); font: var(--body); color: var(--ink); padding: 2px 0; font-variant-numeric: tabular-nums; }
 .am-line--total { margin-top: var(--sp-1); padding-top: var(--sp-1); border-top: 1px solid var(--am-rule); font: var(--body-bold); }
 
-.am-split { position: relative; display: inline-flex; align-items: center; }
-.am-split > .am-textbtn:first-child { padding-right: var(--sp-1); }
-.am-split-more { width: 32px; padding: 0; display: grid; place-items: center; color: var(--muted); }
-.am-split-more:hover { color: var(--ink); }
-.am-menu {
-  position: absolute; top: calc(100% + 4px); left: 0; z-index: 3;
-  min-width: 160px; padding: var(--sp-1);
-  background: #fff;
-  border-radius: var(--sp-3);
-  box-shadow: inset 0 0 0 1px var(--line), 0 4px 12px rgba(16, 24, 40, 0.08);
-}
-.am-menu-item { width: 100%; height: var(--hit); padding: 0 var(--sp-3); border-radius: var(--sp-2); text-align: left; font: var(--body); color: var(--ink); cursor: pointer; }
-.am-menu-item:hover, .am-menu-item:focus-visible { background: var(--am-hover); outline: none; }
 
 /* ---------- State 3: the Clover page window ---------- */
 .am-win {
@@ -444,7 +625,8 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
   border-radius: var(--radius);
   overflow: hidden;
 }
-.am-mode[data-state="split"] .am-win { display: flex; animation: am-win-in 280ms cubic-bezier(0.4, 0, 0.2, 1) both; }
+/* The page enters from 24px right, 80 ms after the chat column starts. */
+.am-mode[data-state="split"] .am-win { display: flex; animation: am-win-in var(--dur-slow) var(--ease) 80ms both; }
 .am-win-head {
   position: relative;
   flex: 0 0 auto;
@@ -467,42 +649,35 @@ svg.am-ico { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-lineca
 .am-win-scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0 var(--sp-8) var(--sp-10); scrollbar-width: none; }
 .am-win-scroll::-webkit-scrollbar { display: none; }
 .am-win-scroll .am-ptop { margin-top: var(--sp-6); }
+/* Page open: the highlighted cells pulse once. */
+#pageBody.is-pulse .am-hl { animation: am-cell-pulse 600ms var(--ease); }
 .am-sheet-handle { display: none; }
 .am-scrim { display: none; }
 
 /* ===========================================================================
-   Demo stepper — presenter only, outside the device
+   Demo stepper — presenter only. A translucent pill in the screen's
+   bottom-right corner; gone after 3 s without pointer movement.
    =========================================================================== */
-.am-demo-toggle {
-  position: fixed; right: 12px; bottom: 12px; z-index: 200;
-  height: 28px; padding: 0 12px;
+.am-stepper {
+  position: absolute; right: var(--sp-4); bottom: var(--sp-4); z-index: 60;
+  display: flex; align-items: center; gap: 2px;
+  height: 32px; padding: 0 2px;
   border-radius: 999px;
-  background: rgba(32, 33, 36, 0.72); color: #fff;
-  font: 500 12px/28px var(--font);
-  opacity: 0.45; cursor: pointer;
-  transition: opacity 160ms ease;
+  background: rgba(32, 33, 36, 0.56); color: #fff;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  font: var(--caption-bold); font-variant-numeric: tabular-nums;
+  transition: opacity 200ms ease, visibility 0s;
 }
-.am-demo-toggle:hover, .am-demo-toggle[aria-expanded="true"] { opacity: 1; }
-.am-demo {
-  position: fixed; right: 12px; bottom: 48px; z-index: 200;
-  width: 340px; max-width: calc(100vw - 24px);
-  padding: 16px;
-  border-radius: 16px;
-  background: #202124; color: #fff;
-  font: 400 13px/18px var(--font);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
-}
-.am-demo-steps { display: flex; gap: 4px; }
-.am-demo-steps button { flex: 1 1 0; height: 32px; border-radius: 8px; background: rgba(255, 255, 255, 0.10); color: #fff; font: 500 12px/32px var(--font); cursor: pointer; white-space: nowrap; }
-.am-demo-steps button[aria-pressed="true"] { background: #fff; color: #202124; }
-.am-demo-steps button:focus-visible, .am-demo-reset:focus-visible { outline: 2px solid #8AB4F8; outline-offset: 2px; }
-.am-demo h3 { margin: 14px 0 6px; font: 600 15px/20px var(--font); }
-.am-demo dl { margin: 0; display: grid; grid-template-columns: 56px 1fr; gap: 6px 8px; }
-.am-demo dt { color: rgba(255, 255, 255, 0.56); }
-.am-demo dd { margin: 0; }
-.am-demo-adv { font-weight: 600; color: #A8DAB5; }
-.am-demo-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: rgba(255, 255, 255, 0.56); font-size: 12px; }
-.am-demo-reset { color: #fff; text-decoration: underline; cursor: pointer; font: inherit; }
+.am-stepper.is-idle { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 200ms ease, visibility 0s linear 200ms; }
+.am-stepper button { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: #fff; cursor: pointer; }
+.am-stepper button:hover { background: rgba(255, 255, 255, 0.16); }
+.am-stepper button:disabled { opacity: 0.32; cursor: default; background: none; }
+.am-stepper button:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+.am-stepper span { min-width: 36px; text-align: center; }
+
+/* Schedule: initial avatars. */
+.am-person { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.am-avatar { width: 24px; height: 24px; display: inline-grid; place-items: center; border-radius: 50%; background: var(--am-quiet); color: var(--ink-2); font: var(--caption-bold); }
 
 /* ===========================================================================
    Below 1024px (iPad portrait, phone): no bezel, single column
@@ -549,8 +724,22 @@ body.is-phone .am-win-head { padding-left: var(--sp-4); }
 body.is-phone .am-win-scroll { padding: 0 var(--sp-4) var(--sp-8); }
 body.is-phone .am-scrim.is-on { display: block; position: absolute; inset: 0; z-index: 30; background: var(--am-scrim); }
 
+body.is-phone .am-stepper { bottom: 88px; }
+body.is-phone .am-search { display: none; }
+body.is-phone .am-hgrid, body.is-phone .am-activity { grid-template-columns: minmax(0, 1fr); }
+body.is-phone .am-activity > div + div { border-left: 0; border-top: 1px solid var(--line); margin-top: var(--sp-4); padding-top: var(--sp-4); }
+body.is-phone .am-figrow { gap: var(--sp-6); flex-wrap: wrap; }
+body.is-phone .am-batch, body.is-phone .am-hbrief-foot, body.is-phone .am-hbrief-head,
+body.is-phone .am-hcard .card-head, body.is-phone .am-capital-head { flex-wrap: wrap; }
+body.is-phone .am-hbrief { grid-template-columns: minmax(0, 1fr); row-gap: var(--sp-3); padding: var(--sp-4); }
+body.is-phone .am-hcard, body.is-phone .am-capital-body, body.is-phone .am-update { padding: var(--sp-4); }
+body.is-phone .am-capital { grid-template-columns: minmax(0, 1fr); grid-template-rows: 96px auto; }
+body.is-phone .am-home-title { font: var(--heading-02); }
+
 @media (prefers-reduced-motion: reduce) {
-  .am-chat, .am-win, .am-row, .am-spin, .am-running::before { transition: none !important; animation: none !important; }
+  .am-today, .am-chat, .am-win, .am-row, .am-rows > li, .am-acard, .am-drop,
+  .am-dots i, #pageBody.is-pulse .am-hl, .am-stepper { transition: none !important; animation: none !important; }
+  .am-dots i { opacity: 1; }
 }
 </style>
 </head>
@@ -597,10 +786,11 @@ body.is-phone .am-scrim.is-on { display: block; position: absolute; inset: 0; z-
             <span class="merchant" id="merchantName"></span>
             <button class="navbtn navbtn--sm is-inert" type="button" aria-label="Switch merchant" data-act="noop"><img src="asset/ui/switch.svg" alt=""></button>
           </div>
+          <button class="am-search is-inert" type="button" data-act="noop" aria-label="Search"><span data-svg="search" data-size="20"></span>Search</button>
           <div class="topnav-right">
             <button class="navbtn navbtn--pill" type="button" id="askBtn" data-act="ask-me" aria-pressed="false">
-              <img src="asset/ui/ai-search.svg" alt="">
-              <span>Ask me</span>
+              <span class="am-vera-ico" data-svg="vera" data-size="24"></span>
+              <span id="askLabel">Vera</span>
               <span class="am-badge" id="askBadge"></span>
             </button>
             <button class="navbtn is-inert" type="button" data-nav="bell" aria-label="Notifications" data-act="noop"><img src="asset/ui/notification.svg" alt=""></button>
@@ -613,7 +803,7 @@ body.is-phone .am-scrim.is-on { display: block; position: absolute; inset: 0; z-
         <div class="viewport" id="viewA">
           <div class="layout">
             <nav class="rail" aria-label="Primary">
-              <button class="railbtn is-inert" type="button" title="Home" aria-label="Home" data-act="noop"><img src="asset/ui/home.svg" alt=""></button>
+              <button class="railbtn" type="button" title="Home" aria-label="Home" data-act="nav" data-page="home"><img src="asset/ui/home.svg" alt=""></button>
               <button class="railbtn" type="button" title="Items and services" aria-label="Items and services" data-act="nav" data-page="item"><img src="asset/ui/tag.svg" alt=""></button>
               <button class="railbtn is-inert" type="button" title="Orders" aria-label="Orders" data-act="noop"><img src="asset/ui/receipt.svg" alt=""></button>
               <button class="railbtn" type="button" title="Employees" aria-label="Employees" data-act="nav" data-page="scheduling"><img src="asset/ui/employee.svg" alt=""></button>
@@ -629,12 +819,13 @@ body.is-phone .am-scrim.is-on { display: block; position: absolute; inset: 0; z-
           </div>
         </div>
 
-        <!-- ===================== Ask me: the mode ===================== -->
+        <!-- ===================== Vera: the mode ===================== -->
         <div class="am-mode" id="viewB" data-state="today" hidden>
 
           <!-- State 1: Today -->
           <section class="am-today" id="today" aria-label="Today">
             <div class="am-today-scroll" id="todayScroll"></div>
+            <div class="am-suggest" id="todaySuggest" hidden></div>
             <form class="am-composer" id="todayComposer" autocomplete="off">
               <div class="am-field">
                 <input id="todayInput" type="text" placeholder="Ask about anything" aria-label="Message">
@@ -681,83 +872,65 @@ body.is-phone .am-scrim.is-on { display: block; position: absolute; inset: 0; z-
           </section>
         </div>
 
+        <!-- Demo stepper: presenter only. ArrowLeft / ArrowRight, or 1–5. -->
+        <nav class="am-stepper" id="stepper" aria-label="Demo stepper">
+          <button type="button" data-act="stop-prev" aria-label="Previous stop"><span data-svg="chevronLeft" data-size="16"></span></button>
+          <span id="stepperLabel" aria-live="polite">1 / 5</span>
+          <button type="button" data-act="stop-next" aria-label="Next stop"><span data-svg="chevronRight" data-size="16"></span></button>
+        </nav>
+
       </div>
     </div>
   </div>
 </div>
-
-<!-- Demo stepper: presenter only. D toggles, 1–5 jump, 0 resets. -->
-<button class="am-demo-toggle" type="button" id="demoToggle" data-act="demo-toggle" aria-expanded="false" aria-controls="demo">Demo</button>
-<section class="am-demo" id="demo" aria-label="Demo stepper" hidden></section>
 
 <script>
 (function () {
 'use strict';
 
 /* =====================================================================
-   DATA — the slide 10 story. Times are minutes after midnight.
+   DATA — slide 10: one merchant, one day, five agents. Minutes after midnight.
    ===================================================================== */
 const data = {
-  merchant: "Sample Coffee Co.",
-  name: "Vera",                       // one name: the chat header. Captions carry the agent label only.
+  merchant: "Fernwood Coffee",
+  owner: "Dana",                      // Home's greeting
+  name: "Vera",                       // one name: the nav pill, the chat header and the working line
   today: [2026, 10, 29],              // the demo date; every weekday and date label derives from it
-  clockAfter: 5,                      // each stop sets the device a few minutes after its moment
 
-  /* Slide 10: one merchant, one day, five agents. Advantages from slide 9. */
-  moments: [
-    { t: 420,  time: "7:00 am", title: "Daily brief arrives", shows: ["Sees every sale"], state: "1 · Today",
-      does: "Reads Today. Does nothing.",
-      say: "Yesterday's numbers come straight from the POS; no report opened. Nothing is asking for attention yet. The day's items arrive as the agents notice things." },
-    { t: 600,  time: "10:00 am", title: "Stockout avoided", shows: ["Sees every sale", "Can take action"], state: "3 · Items and services › Oat milk 1L",
-      does: "Tap “Oat milk reorder”. Place order. Point at “without asking next time?”.",
-      say: "The forecast comes from every sale. One tap places the order. The autonomy ladder appears once, here, in context." },
-    { t: 840,  time: "2:00 pm", title: "Schedule fixed", shows: ["Can take action", "Knows the full P&L"], state: "3 · Employees › Scheduling",
-      does: "Tap “Saturday shift swap”. On the page set Priya's end to 3 pm (card: 28 → 33 hrs). Publish swap.",
-      say: "The overtime line comes from payroll data, not the schedule alone." },
-    { t: 960,  time: "4:00 pm", title: "Dispute won", shows: ["Can take action"], state: "3 · Finances › Disputes",
-      does: "Tap “Chargeback response filed” in Done today.",
-      say: "It landed in Done, not Needs you: filed without asking, with the evidence on the real page as the audit trail. The line under it sets Disputes back to “ask me first”, the same pattern as 10:00." },
-    { t: 1260, time: "9:00 pm", title: "Vera answers", shows: ["Knows the full P&L"], state: "2 · Chat",
-      does: "Type “Am I profitable this month?” in Today's input.",
-      say: "The source chips are the point: Clover sales, QuickBooks costs and Gusto payroll in one answer." }
+  /* The five stops, in order. `clock` is what the status bar reads on landing. */
+  stops: [
+    { at: 420,  clock: 422,  title: "Daily brief" },
+    { at: 600,  clock: 604,  title: "Stockout avoided" },
+    { at: 840,  clock: 843,  title: "Schedule fixed" },
+    { at: 960,  clock: 965,  title: "Dispute won" },
+    { at: 1260, clock: 1262, title: "Vera answers" }
   ],
 
-  yesterday: { net: 2140, vsPct: 18, orders: 212,
-               byHour: [140, 260, 240, 190, 220, 250, 230, 160, 140, 120, 110, 80],
+  yesterday: { net: 2137, vsPct: 18, orders: 212,
+               byHour: [138, 262, 241, 187, 219, 253, 228, 157, 139, 122, 108, 83],
                hours: ["7a", "8a", "9a", "10a", "11a", "12p", "1p", "2p", "3p", "4p", "5p", "6p"] },
-  outlook: "Rain from 11 am. Street fair on Maple St, two blocks away, 12–6 pm. Expect the lunch rush an hour early.",
+  outlook: { facts: ["Rain from 11 am", "Street fair on Maple St, 12–6 pm"], note: "Expect the lunch rush an hour early." },
+  history: { text: "Checked in 12 almond milk", time: "4:12 pm" },       // the one line under Yesterday
+  brief: { at: 420, agent: "Brief", title: "Morning brief", context: "Rain from 11, street fair 12–6",
+           text: "Good morning. Yesterday came in at {net} net sales, {vs}. Rain starts at 11 and the street fair on Maple St runs 12–6, so expect the lunch rush an hour early. Nothing needs you yet; I'll bring things here as they come up." },
 
-  /* The conversation, oldest first. `at` is when the item arrives. */
-  feed: [
-    { day: "Yesterday", items: [
-      { kind: "assistant", id: "delivery", at: -1, agent: "Orders", time: "4:10 pm",
-        text: "The almond milk delivery from Supplier A arrived complete. I checked it in and updated stock." },
-      { kind: "system", at: -1, time: "4:12 pm", text: "Checked in 12 almond milk" }
-    ] },
-    { day: "Today", items: [
-      { kind: "assistant", id: "brief", at: 420, agent: "Brief", time: "7:00 am",
-        text: "Good morning. Yesterday came in at {net} net sales, {vs}. Rain starts at 11 and the street fair on Maple St runs 12–6, so expect the lunch rush an hour early. Nothing needs you yet; I'll bring things here as they come up." },
-      { kind: "assistant", id: "reorder", at: 600, agent: "Inventory", time: "10:00 am", card: "reorder",
-        text: "Oat milk is down to 6 units and sales doubled this week. At this pace you run out Saturday, during the fair." },
-      { kind: "assistant", id: "swap", at: 840, agent: "Labor", time: "2:00 pm", card: "swap",
-        text: "Sam called in sick for Saturday. Priya can cover without overtime, so I drafted the swap." },
-      { kind: "assistant", id: "dispute", at: 960, agent: "Disputes", time: "4:00 pm", card: "dispute",
-        text: "A $42.50 chargeback came in from Visa with a Friday deadline. I attached the receipt, the signature and the pickup confirmation and filed the response." }
-    ] }
-  ],
-  brief: { title: "Morning brief", context: "Rain from 11, street fair 12–6", agent: "Brief", at: 420, time: "7:00 am" },
-
+  /* One per stop 2–4. `actAt` is when the presenter's approval lands on the clock. */
   cards: {
-    reorder: { title: "Oat milk reorder", doneTitle: "Oat milk reorder placed", agent: "Inventory", at: 600, time: "10:00 am",
-               page: "item", primary: "Place order", doneVerb: "placed", ask: "reorder" },
-    swap:    { title: "Saturday shift swap", doneTitle: "Saturday shift swap published", agent: "Labor", at: 840, time: "2:00 pm",
-               page: "scheduling", primary: "Publish swap", doneVerb: "published" },
-    dispute: { title: "Chargeback response", doneTitle: "Chargeback response filed", agent: "Disputes", at: 960, time: "4:00 pm",
+    reorder: { at: 600, actAt: 605, agent: "Inventory", title: "Oat milk reorder", doneTitle: "Oat milk reorder placed",
+               page: "item", primary: "Place order", doneVerb: "placed", ask: "reorder",
+               working: "checking stock and supplier terms",
+               text: "Oat milk is down to 6 units and sales doubled this week. At this pace you run out Saturday, during the fair." },
+    swap:    { at: 840, actAt: 846, agent: "Labor", title: "Saturday shift swap", doneTitle: "Saturday shift swap published",
+               page: "scheduling", primary: "Publish swap", doneVerb: "published",
+               working: "checking Saturday availability",
+               text: "Sam called in sick for Saturday. Priya can cover without overtime, so I drafted the swap." },
+    dispute: { at: 960, agent: "Disputes", title: "Chargeback response", doneTitle: "Chargeback response filed",
                page: "disputes", auto: true, doneVerb: "filed", view: "View filing", ask: "dispute",
-               running: { from: 840, title: "Chargeback response", context: "Gathering evidence for a $42.50 Visa chargeback" } }
+               working: "pulling the filing",
+               text: "A $42.50 chargeback came in from Visa with a Friday deadline. I attached the receipt, the signature and the pickup confirmation and filed the response." }
   },
 
-  /* The autonomy ladder, as one system line under a card. */
+  /* Autonomy: once at stop 2 (reorder), the "ask me first" option once at stop 4. */
   asks: {
     reorder: { q: "Place reorders like this without asking next time?", yes: "Yes", no: "Not yet",
                onYes: "Inventory will place reorders like this without asking. They'll show in Done today.",
@@ -767,16 +940,16 @@ const data = {
                onNo: "Disputes will keep filing responses like this on its own." }
   },
 
-  item: { name: "Oat milk 1L", category: "Dairy alternatives", sku: "OAT-1L", price: 4.50,
-          onHand: 6, daysLeft: 2, soldThisWeek: 42, forecastPerDay: 3.3,
+  item: { name: "Oat milk 1L", category: "Dairy alternatives", sku: "OAT-1L", price: 4.75,
+          onHand: 6, daysLeft: 2, forecastPerDay: 3.3, updated: "9:58 am",
           dailySales: [4, 3, 5, 4, 8, 10, 12] },          // the 7 days ending yesterday
   suppliers: {
-    A: { name: "Supplier A", arrives: "Friday", prices: { "Oat milk 1L": 2.10, "Almond milk 1L": 2.40 },
+    A: { name: "Daybreak Dairy", arrives: "Friday", prices: { "Oat milk 1L": 2.10, "Almond milk 1L": 2.40 },
          why: ["Arrives {arrives}, before the stockout", "{delta} more than {other}, which arrives {otherArrives}", "Your usual supplier for dairy"] },
-    B: { name: "Supplier B", arrives: "Monday", prices: { "Oat milk 1L": 1.95, "Almond milk 1L": 2.25 },
+    B: { name: "Northside Foods", arrives: "Monday", prices: { "Oat milk 1L": 1.95, "Almond milk 1L": 2.25 },
          why: ["{delta} less than {other}", "Arrives {arrives}, after the stockout"] }
   },
-  order: { supplier: "A", cash: 120,            // this week's cash for supplies (Cash agent)
+  order: { supplier: "A", cash: 126.40,          // this week's cash for supplies
            lines: [ { item: "Oat milk 1L", short: "oat milk", qty: 24 }, { item: "Almond milk 1L", short: "almond milk", qty: 12 } ] },
 
   schedule: {
@@ -806,8 +979,9 @@ const data = {
     wonThisYear: 6, winRate: "75%"
   },
 
-  /* Connected data for the 9:00 pm answer and Reports › Profit and loss. */
+  /* Connected data for stop 5 and Reports › Profit and loss. */
   pnl: {
+    q: "Am I profitable this month?", working: "pulling Clover, QuickBooks and Gusto",
     lines: [ { label: "Sales", oct: 41200, sep: 39800, src: "Clover", sign: 1 },
              { label: "Cost of goods", oct: 14900, sep: 14300, src: "QuickBooks", sign: -1 },
              { label: "Labor", oct: 18700, sep: 17300, src: "Gusto", sign: -1 },
@@ -815,7 +989,47 @@ const data = {
     note: "Labor is running two points higher than September because of the fair weekend."
   },
 
+  /* Clover Home: where the demo lands (stop 1). Vera's brief and the way in
+     sit at the top; "Ask Vera" chips open the mode with the question asked. */
+  home: {
+    brief: "Yesterday came in at {net} net sales, {vs}. Rain starts at 11 and the street fair on Maple St runs 12–6, so expect the lunch rush an hour early. I'm watching stock, staff and disputes, and I'll bring anything that needs you into one place.",
+    week: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    thisWeek: [2094, 2190, 2137],                         // Mon to yesterday
+    lastWeek: [1688, 1905, 1811, 1964, 2312, 2486, 1742],
+    figures: { gross: 6421.37, orders: 637 },
+    notesTotal: 5,
+    notes: [ { tag: "Action needed", text: "Confirm your bank account to keep Rapid Deposit on.", date: "Oct 27" },
+             { text: "Your Q3 sales tax summary is ready.", date: "Oct 26" },
+             { text: "A transaction is under review.", date: "Oct 25" } ],
+    batch: 1486.20,
+    capital: { title: "You're pre-approved for up to $18,000", text: "Get funds for stock or equipment, and repay a fixed share of daily card sales." },
+    insight: { avg: 23, text: "Oat milk is selling at twice its usual pace: {n} sold in the last 7 days, against {avg} in an average week." },
+    update: { title: "Penny rounding is coming", text: "The U.S. Mint has stopped making pennies. From Jan 1, cash totals can round to the nearest 5¢. Card totals don't change." },
+    /* Today so far, per stop. */
+    todaySoFar: [ { open: 12.75, openN: 2, discounts: 0,     refunds: 0 },
+                  { open: 46.30, openN: 6, discounts: 6.20,  refunds: 0 },
+                  { open: 27.85, openN: 4, discounts: 14.85, refunds: 4.75 },
+                  { open: 38.60, openN: 5, discounts: 17.35, refunds: 4.75 },
+                  { open: 0,     openN: 0, discounts: 23.10, refunds: 4.75 } ],
+    itemsSold: 341,
+    topItems: [ { name: "Oat milk latte",   sales: 412.50, pct: 21.4 },
+                { name: "Drip coffee",      sales: 318.75, pct: 4.2 },
+                { name: "Cold brew",        sales: 287.25, pct: -6.8 },
+                { name: "Almond croissant", sales: 241.80, pct: 12.5 },
+                { name: "Matcha latte",     sales: 198.00, pct: -3.1 } ],
+    collected: [ { label: "Card", value: 1846.31 }, { label: "Cash", value: 312.40, tone: "blue" }, { label: "Other", value: 125.45, tone: "violet" } ],
+    chips: { snapshot: "Why was yesterday up 18%?", items: "Which items are running low?" }   // Finances asks data.pnl.q
+  },
+  /* Fixed answers for Home's chips (exact match). */
+  answers: {
+    "Why was yesterday up 18%?":    { working: "pulling yesterday's sales",
+                                      text: "Mornings did it. 8 to 10 am ran 29% above last Wednesday, led by oat milk lattes, up 21%. Afternoons were about even." },
+    "Which items are running low?": { working: "checking stock",
+                                      text: "Oat milk 1L is lowest: 6 on hand, about 2 days at this week's pace. Everything else covers a week or more." }
+  },
+
   pages: {
+    home:       { title: "Home",            path: [] },
     item:       { title: "Oat milk 1L",     path: ["Items and services", "Oat milk 1L"], card: "reorder", ask: "Ask about this item" },
     scheduling: { title: "Scheduling",      path: ["Employees", "Scheduling"],           card: "swap",    ask: "Ask about this schedule" },
     disputes:   { title: "Disputes",        path: ["Finances", "Disputes"],              card: "dispute", ask: "Ask about this dispute" },
@@ -823,11 +1037,9 @@ const data = {
     pl:         { title: "Profit and loss", path: ["Reports", "Profit and loss"],                        ask: "Ask about this report" }
   },
 
-  keywords: { reorder: "oat|milk|reorder|supplier|stock", swap: "schedul|shift|sam|priya|saturday|cover", dispute: "dispute|chargeback|visa" },
   profitRe: "profit|p&l|p and l|making money|in the black|margin",
-  salesRe: "sales|yesterday|report",
   cannedReply: "Noted. I'll keep this thread updated.",
-  timing: { replyDelay: 900, longPress: 550 }
+  timing: { working: 800, answerWorking: 1000, idle: 3000 }
 };
 
 /* =====================================================================
@@ -842,7 +1054,15 @@ const SVG = {
   chevronDown: '<path d="M6 9L12 15L18 9"/>',
   send:        '<path d="M12 19V5M5.5 11.5L12 5L18.5 11.5"/>',
   chevronRight:'<path d="M9 6L15 12L9 18"/>',
-  check:       '<path d="M5 12.5L9.5 17L19 7.5"/>'
+  chevronLeft: '<path d="M15 6L9 12L15 18"/>',
+  check:       '<path d="M5 12.5L9.5 17L19 7.5"/>',
+  vera:        '<path d="M11 4L12.9 9.1L18 11L12.9 12.9L11 18L9.1 12.9L4 11L9.1 9.1Z"/><path d="M18.5 3V7M16.5 5H20.5"/>',
+  search:      '<circle cx="11" cy="11" r="6.5"/><path d="M16 16L20 20"/>',
+  calendar:    '<rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10H20M8.5 3.5V7M15.5 3.5V7"/>',
+  arrowRight:  '<path d="M5 12H19M13 6L19 12L13 18"/>',
+  arrowUp:     '<path d="M12 19V5M6 11L12 5L18 11"/>',
+  arrowDown:   '<path d="M12 5V19M6 13L12 19L18 13"/>',
+  plus:        '<path d="M12 5V19M5 12H19"/>'
 };
 function svg(name, size, cls) {
   size = size || 24;
@@ -850,7 +1070,7 @@ function svg(name, size, cls) {
 }
 
 /* =====================================================================
-   STATE
+   STATE — one object. render(state) derives every count, label and list.
    ===================================================================== */
 const SCH = data.schedule;
 const CARD_ORDER = ['reorder', 'swap', 'dispute'];
@@ -858,34 +1078,37 @@ const sickShiftInit = SCH.staff.find(function (p) { return p.name === SCH.sick.n
 const params = new URLSearchParams(location.search);
 
 const state = {
-  view: 'dashboard',          // dashboard | mode
+  view: 'mode',               // dashboard | mode
   screen: 'today',            // today | chat   (State 3 = chat + page)
   page: null,                 // page in the window
   openId: null,               // selected card
   sheetOpen: false,           // single column: page as a sheet
-  dashPage: 'sales',
-  moment: 0, now: 420,
-  menuFor: null,
+  dashPage: 'home',
+  stop: 0, now: 422,
   whyOpen: {},
-  done: {}, doneAt: {},       // approvals: label + minutes
-  dismissed: {},
-  logs: { reorder: [], swap: [], dispute: [] },
-  ask: { reorder: null, dispute: 'open' },
-  tail: [],                   // merchant messages and replies
-  pending: false,
-  newIds: {},                 // rows that arrived with this moment
+  done: {},                   // approvals: id -> minutes
+  logs: { reorder: [], swap: [] },
+  ask: { reorder: null, dispute: null },   // null (unanswered) | 'yes' | 'no'
+  seen: {},                   // card entries already revealed in the thread
+  working: null,              // { id, text } while the working line shows
+  drop: {},                   // keys that animate in on the next render
+  tail: [],                   // the merchant's questions and Vera's answers
   order: null, committedQty: null, cover: null
 };
-function resetDrafts(id) {
-  if (!id || id === 'reorder') {
+function resetCard(id) {
+  delete state.done[id];
+  state.seen[id] = false;
+  state.whyOpen[id] = false;
+  if (state.logs[id]) state.logs[id] = [];
+  if (id === 'reorder') {
     state.order = JSON.parse(JSON.stringify(data.order));
     state.committedQty = data.order.lines.map(function (l) { return l.qty; });
     state.ask.reorder = null;
   }
-  if (!id || id === 'swap') state.cover = { start: sickShiftInit[0], end: sickShiftInit[1] };
-  if (!id || id === 'dispute') state.ask.dispute = 'open';
+  if (id === 'swap') state.cover = { start: sickShiftInit[0], end: sickShiftInit[1] };
+  if (id === 'dispute') state.ask.dispute = null;
 }
-resetDrafts();
+CARD_ORDER.forEach(resetCard);
 
 /* =====================================================================
    HELPERS
@@ -901,15 +1124,26 @@ function esc(s) {
 function round2(n) { return Math.round(n * 100) / 100; }
 function money(n) { return '$' + round2(n).toFixed(2); }
 function money0(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+function moneyC(n) { return '$' + round2(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
 function fillT(s, v) { return s.replace(/\{(\w+)\}/g, function (m, k) { return k in v ? v[k] : m; }); }
 function clockLabel(mins) {
   const h = Math.floor(mins / 60) % 24, m = mins % 60;
   return (h % 12 || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h < 12 ? 'am' : 'pm');
 }
-/* Actions happen at device time: "placed 10:05 am" when the clock reads 10:05. */
-let momentSetAt = Date.now();
-function actionMinutes() { return state.now + Math.floor((Date.now() - momentSetAt) / 60000); }
+
+/* ---- motion: durations come from the CSS tokens; reduced motion skips them ---- */
+const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+const reduced = function () { return mqReduce.matches; };
+function ms(token) {
+  if (reduced()) return 0;
+  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(token)) || 0;
+}
+function easing() { return getComputedStyle(document.documentElement).getPropertyValue('--ease').trim() || 'ease'; }
+/* Every pending step of a stop's choreography; a jump cancels them all. */
+let timers = [], busy = false;
+function later(delay, fn) { const t = setTimeout(function () { timers = timers.filter(function (x) { return x !== t; }); fn(); }, delay); timers.push(t); return t; }
+function clearTimers() { timers.forEach(clearTimeout); timers = []; busy = false; }
 
 /* ---- dates: everything derives from data.today ---- */
 const TODAY = new Date(data.today[0], data.today[1] - 1, data.today[2]);
@@ -936,27 +1170,20 @@ function ydayVs() {
   return Math.abs(p) + '% ' + (p >= 0 ? 'above' : 'below') + ' last ' + DATES.ydayWeekday;
 }
 function textVars() { return { net: money0(data.yesterday.net), vs: ydayVs() }; }
-const NUM_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'];
-function needsSentence(n) {
-  if (!n) return 'Nothing needs you right now.';
-  return (NUM_WORDS[n] || n) + (n === 1 ? ' thing needs' : ' things need') + ' you.';
-}
 
 /* ---- status, derived ---- */
 function arrived(id) { return data.cards[id].at <= state.now; }
 function statusOf(id) {
   const c = data.cards[id];
-  if (!arrived(id)) return c.running && state.now >= c.running.from ? 'running' : 'none';
-  if (state.dismissed[id]) return 'dismissed';
-  if (c.auto || state.done[id]) return 'done';
+  if (!arrived(id)) return 'none';
+  if (c.auto || state.done[id] != null) return 'done';
   return 'waiting';
 }
-function doneLabel(id) { return data.cards[id].auto ? data.cards[id].time : state.done[id]; }
+function doneAt(id) { return data.cards[id].auto ? data.cards[id].at : state.done[id]; }
+function doneLabel(id) { return clockLabel(doneAt(id)); }
 function waitingIds() { return CARD_ORDER.filter(function (id) { return statusOf(id) === 'waiting'; }); }
-function primaryId() {
-  if (state.openId) return statusOf(state.openId) === 'waiting' ? state.openId : null;
-  return waitingIds()[0] || null;
-}
+/* The selected waiting card carries the one filled button; no selection, none. */
+function primaryId() { return state.openId && statusOf(state.openId) === 'waiting' ? state.openId : null; }
 function stateName() {
   if (state.screen === 'today') return 'today';
   if (state.page && (!isMobile() || state.sheetOpen)) return 'split';
@@ -979,8 +1206,6 @@ function coverShift() { return [state.cover.start, state.cover.end]; }
 function span(s) { return s[1] - s[0]; }
 function hoursOf(shifts) { return Object.keys(shifts).reduce(function (h, d) { return h + span(shifts[d]); }, 0); }
 function overtime(h) { return Math.max(0, h - SCH.overtimeAfter); }
-function overlap(a, b) { return Math.max(0, Math.min(a[1], b[1]) - Math.max(a[0], b[0])); }
-function uncovered() { return span(sickShift()) - overlap(sickShift(), coverShift()); }
 function hr(h) { return String(h % 12 || 12); }
 function hrFull(h) { return (h % 12 || 12) + (h < 12 || h === 24 ? ' am' : ' pm'); }
 function shiftLabel(s) { return hr(s[0]) + '–' + hr(s[1]); }
@@ -1001,7 +1226,7 @@ function live(id) {
   if (id === 'swap') {
     const c = SCH.cover.name, sick = SCH.sick, cs = coverShift();
     const before = hoursOf(person(c).shifts), after = before + span(cs);
-    const ot = overtime(after), un = uncovered();
+    const ot = overtime(after);
     const otText = ot ? plural(ot, 'hr') + ' overtime' : 'no overtime';
     const line = after < SCH.overtimeAfter ? plural(SCH.overtimeAfter - after, 'hour') + ' under the ' + SCH.overtimeAfter + '-hour overtime line, per payroll'
       : after === SCH.overtimeAfter ? 'Right at the ' + SCH.overtimeAfter + '-hour overtime line, per payroll'
@@ -1009,7 +1234,7 @@ function live(id) {
     L = {
       context: sick.dayName + ' · ' + sick.name + ' ' + shiftLabel(sickShift()) + ' (sick) → ' + c + ' ' + shiftLabel(cs),
       today: c + ' covers ' + sick.dayName + ' ' + shiftLabel(cs) + ' for ' + sick.name + ', ' + otText,
-      consequence: c + ' ' + before + ' → ' + after + ' hrs · ' + otText + (un ? ' · ' + plural(un, 'hr') + ' still open' : ''),
+      consequence: c + ' ' + before + ' → ' + after + ' hrs · ' + otText,
       whyLabel: 'Why ' + c,
       why: SCH.cover.why.map(function (w) { return fillT(w, { line: line }); })
     };
@@ -1071,7 +1296,7 @@ function crumbHTML(parts) {
   }).join('') + '</nav>';
 }
 function pill(label, filled, icon) {
-  return '<button class="am-pill' + (filled ? ' am-pill--filled' : '') + '" type="button" data-act="noop">' + (icon ? img(icon, 16) : '') + esc(label) + '</button>';
+  return '<button class="am-pill' + (filled ? ' am-pill--filled' : '') + '" type="button" data-act="noop">' + (icon ? (SVG[icon] ? svg(icon, 16) : img(icon, 16)) : '') + esc(label) + '</button>';
 }
 function seg(opts, sel, act) {
   return '<div class="am-seg" role="group">' + opts.map(function (o) {
@@ -1088,8 +1313,9 @@ function pageTop(id, meta, actions, controls) {
       '<div class="am-pactions">' + (actions || '') + '</div></div>' +
     (controls ? '<div class="am-pcontrols">' + controls + '</div>' : '');
 }
-function panelHTML(title, note, inner, cls) {
-  return '<section class="card am-card' + (cls ? ' ' + cls : '') + '">' +
+/* `anchor`: the card the page scrolls to when it opens for a card. */
+function panelHTML(title, note, inner, cls, anchor) {
+  return '<section class="card am-card' + (cls ? ' ' + cls : '') + '"' + (anchor ? ' data-anchor' : '') + '>' +
     (title || note ? '<div class="card-head"><h2 class="card-title card-title--sm">' + esc(title) + '</h2>' +
       (note ? '<p class="card-note">' + esc(note) + '</p>' : '') + '</div>' : '') + inner + '</section>';
 }
@@ -1099,12 +1325,12 @@ function tilesHTML(list) {
       (t[2] ? '<p class="am-tile-note">' + esc(t[2]) + '</p>' : '') + '</div>';
   }).join('') + '</div>';
 }
-function chartHTML(vals, labels, recent, label) {
-  const max = Math.max.apply(null, vals), n = vals.length;
+function chartHTML(vals, labels, recent, label, barMax) {
+  const max = Math.max.apply(null, vals), n = vals.length, top = barMax || 104;
   const aria = label + ': ' + vals.map(function (v, i) { return labels[i] + ' ' + v; }).join(', ');
-  return '<div class="am-chart" role="img" aria-label="' + esc(aria) + '">' + vals.map(function (v, i) {
+  return '<div class="am-chart"' + (barMax ? ' style="height: ' + (top + 40) + 'px"' : '') + ' role="img" aria-label="' + esc(aria) + '">' + vals.map(function (v, i) {
       return '<div class="am-bar-col"><span class="am-bar-val">' + v + '</span>' +
-        '<div class="am-bar' + (i >= n - recent ? ' is-recent' : '') + '" style="height: ' + Math.round(104 * v / max) + 'px"></div></div>';
+        '<div class="am-bar' + (i >= n - recent ? ' is-recent' : '') + '" style="height: ' + Math.round(top * v / max) + 'px"></div></div>';
     }).join('') + '</div>' +
     '<div class="am-chart-days" aria-hidden="true">' + labels.map(function (d) { return '<span>' + esc(d) + '</span>'; }).join('') + '</div>';
 }
@@ -1113,22 +1339,25 @@ function labelled(label, value) { return '<div class="am-cell"><span class="am-c
 /* ---------- Items and services › Oat milk 1L ---------- */
 function itemPageHTML(m) {
   const it = data.item, placed = statusOf('reorder') === 'done';
+  const sold = it.dailySales.reduce(function (a, b) { return a + b; }, 0);
   const meta = esc(it.category) + ' · ' + money(it.price) + ' · SKU ' + esc(it.sku) +
     (placed ? ' <span class="am-tag">' + qtyOf(it.name) + ' on order · arrives ' + esc(supplier().arrives) + '</span>' : '');
-  const stock = panelHTML('Stock', 'Updated 9:30 AM',
-    tilesHTML([['On hand', it.onHand], ['Days left', it.daysLeft, 'At this week’s pace'], ['Sold this week', it.soldThisWeek]]));
+  /* Stock and the 7-day sales in one card, so both sit in view when the page opens. */
+  const stock = panelHTML('Stock', 'Updated ' + it.updated,
+    tilesHTML([['On hand', it.onHand], ['Days left', it.daysLeft, 'At this week’s pace'], ['Sold, last 7 days', sold]]) +
+    '<div class="am-card-chart">' + chartHTML(it.dailySales, DATES.last7, 3, 'Daily sales, last 7 days', 64) + '</div>', '', true);
   const po = placed || m.draft ? purchaseOrderHTML(m) : '';
-  const chart = panelHTML('Daily sales', 'Last 7 days', chartHTML(it.dailySales, DATES.last7, 3, 'Daily sales, last 7 days'));
-  return pageTop('item', meta, pill('Edit item') + pill('More'), '') + stock + po + chart;
+  return pageTop('item', meta, pill('Edit item') + pill('More'), '') + stock + po;
 }
 function purchaseOrderHTML(m) {
   const sup = supplier(), draft = m.draft, hl = m.focused ? ' class="am-hl"' : '';
-  const supRow = draft
+  /* The supplier sits in the card head, so the draft rows stay in view. */
+  const supField = draft
     ? '<label class="am-inline-field"><span>Supplier</span><select class="am-select" data-edit="supplier">' +
         Object.keys(data.suppliers).map(function (k) {
           return '<option value="' + k + '"' + (k === state.order.supplier ? ' selected' : '') + '>' + esc(data.suppliers[k].name) + '</option>';
         }).join('') + '</select></label>'
-    : '<p class="am-inline-field"><span>Supplier</span>' + esc(sup.name) + '</p>';
+    : '<p class="card-note">Placed · ' + esc(sup.name) + ' · arrives ' + esc(sup.arrives) + '</p>';
   const rows = state.order.lines.map(function (l, i) {
     const qty = draft
       ? '<input class="am-qty" type="number" inputmode="numeric" min="0" step="1" value="' + l.qty + '" data-line="' + i + '" aria-label="Quantity, ' + esc(l.item) + '">'
@@ -1136,11 +1365,10 @@ function purchaseOrderHTML(m) {
     return '<tr' + hl + '><td>' + esc(l.item) + '</td><td class="am-num">' + qty + '</td>' +
       '<td class="am-num">' + money(unitPrice(l.item)) + '</td><td class="am-num" data-line-total="' + i + '">' + money(lineTotal(l)) + '</td></tr>';
   }).join('');
-  return panelHTML('Purchase order', draft ? 'Draft' : 'Placed · arrives ' + sup.arrives,
-    supRow +
+  return '<section class="card am-card"><div class="card-head"><h2 class="card-title card-title--sm">Purchase order' + (draft ? ' <span class="am-tag">Draft</span>' : '') + '</h2>' + supField + '</div>' +
     '<table class="am-table"><thead><tr><th scope="col">Item</th><th scope="col" class="am-num">Qty</th><th scope="col" class="am-num">Unit</th><th scope="col" class="am-num">Total</th></tr></thead>' +
     '<tbody>' + rows + '</tbody>' +
-    '<tfoot><tr><td colspan="3">Total · arrives ' + esc(sup.arrives) + '</td><td class="am-num" data-order-total>' + money(orderTotal()) + '</td></tr></tfoot></table>');
+    '<tfoot><tr><td colspan="3">Total · arrives ' + esc(sup.arrives) + '</td><td class="am-num" data-order-total>' + money(orderTotal()) + '</td></tr></tfoot></table></section>';
 }
 
 /* ---------- Employees › Scheduling ---------- */
@@ -1151,7 +1379,7 @@ function timeOptions(from, to, sel) {
 }
 function schedulePageHTML(m) {
   const sick = SCH.sick, cov = SCH.cover.name, st = statusOf('swap');
-  const known = st !== 'none' && st !== 'running', done = st === 'done';
+  const known = st !== 'none', done = st === 'done';
   let shiftCount = 0, labor = 0, ot = 0;
   const head = '<tr><th scope="col">Name</th>' + SCH.days.map(function (d) { return '<th scope="col">' + d + '</th>'; }).join('') + '<th scope="col">Hours</th></tr>';
   const rows = SCH.staff.map(function (p) {
@@ -1183,12 +1411,12 @@ function schedulePageHTML(m) {
       hours = h + ' → ' + after;
       hcls = overtime(after) ? 'is-over' : '';
     }
-    return '<tr' + (m.focused && !involved ? ' class="is-dim"' : '') + '><td>' + esc(p.name) + '</td>' + cells + '<td class="' + hcls + '">' + hours + '</td></tr>';
+    return '<tr' + (m.focused && !involved ? ' class="is-dim"' : '') + '><td><span class="am-person"><span class="am-avatar" aria-hidden="true">' + esc(p.name[0]) + '</span>' + esc(p.name) + '</span></td>' + cells + '<td class="' + hcls + '">' + hours + '</td></tr>';
   }).join('');
   const tiles = panelHTML('', '', tilesHTML([['Shifts', shiftCount], ['Labor hours', labor], ['Overtime hours', ot, 'From payroll']]), m.focused ? 'am-dimmed' : '');
-  const table = panelHTML('', '', '<div class="am-grid-wrap"><table class="am-table am-sched"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>');
+  const table = panelHTML('', '', '<div class="am-grid-wrap"><table class="am-table am-sched"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>', '', true);
   return pageTop('scheduling', SCH.staff.length + ' team members · overtime after ' + SCH.overtimeAfter + ' hours',
-      pill('Add shift', false, 'plus') + pill('Publish', true),
+      pill('Add shift', false, 'plus') + pill('Publish'),
       seg([['day', 'Day'], ['week', 'Week']], 'week') + datenav(DATES.week)) +
     tiles + table;
 }
@@ -1196,7 +1424,7 @@ function schedulePageHTML(m) {
 /* ---------- Finances › Disputes ---------- */
 function disputesPageHTML(m) {
   const D = data.disputes, st = statusOf('dispute'), d = D.live;
-  const showLive = st === 'running' || st === 'done';
+  const showLive = st === 'done';
   const filed = st === 'done';
   const hl = m.focused ? ' am-hl' : '';
   const xchev = function (open) { return svg(open ? 'chevronDown' : 'chevronRight', 16, 'am-xchev'); };
@@ -1215,7 +1443,7 @@ function disputesPageHTML(m) {
   }).join('');
   const open = showLive && !filed ? 1 : 0;
   const tiles = panelHTML('', '', tilesHTML([['Needs response', open], ['Won this year', D.wonThisYear], ['Win rate', D.winRate]]), m.focused ? 'am-dimmed' : '');
-  const table = panelHTML('', '', '<div class="am-grid-wrap"><table class="am-table"><thead><tr><th scope="col">Date</th><th scope="col" class="am-num">Amount</th><th scope="col">Network</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col">Deadline</th></tr></thead><tbody>' + rows + '</tbody></table></div>');
+  const table = panelHTML('', '', '<div class="am-grid-wrap"><table class="am-table"><thead><tr><th scope="col">Date</th><th scope="col" class="am-num">Amount</th><th scope="col">Network</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col">Deadline</th></tr></thead><tbody>' + rows + '</tbody></table></div>', '', true);
   return pageTop('disputes', 'Chargebacks and retrievals', pill('Export'),
       seg([['all', 'All'], ['open', 'Needs response'], ['closed', 'Closed']], 'all') + datenav('Last 90 days')) +
     tiles + table;
@@ -1248,114 +1476,288 @@ function plPageHTML() {
 /* =====================================================================
    DASHBOARD
    ===================================================================== */
-function renderTopnav() {
-  $('#merchantName').textContent = data.merchant;
-  const n = waitingIds().length, on = state.view === 'mode';
-  const b = $('#askBadge');
-  b.textContent = n; b.hidden = !n;
-  const btn = $('#askBtn');
-  btn.classList.toggle('is-active', on);
-  btn.setAttribute('aria-pressed', String(on));
-  btn.setAttribute('aria-label', 'Ask me' + (n ? ', ' + n + ' need you' : ''));
-  $('#sbTime').textContent = clockLabel(state.now).replace(/ (am|pm)$/, '');
-}
 function renderDashboard() {
   document.querySelectorAll('.railbtn[data-page]').forEach(function (b) {
     const on = b.dataset.page === state.dashPage || (b.dataset.page === 'sales' && state.dashPage === 'pl');
     b.classList.toggle('is-active', on);
     if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
-  $('#dashCrumb').innerHTML = crumbHTML(data.pages[state.dashPage].path);
-  $('#dashBody').innerHTML = pageHTML(state.dashPage, 'dash');
+  const home = state.dashPage === 'home';
+  $('#dashCrumb').hidden = home;
+  $('#dashCrumb').innerHTML = home ? '' : crumbHTML(data.pages[state.dashPage].path);
+  $('#dashBody').innerHTML = home ? homeHTML() : pageHTML(state.dashPage, 'dash');
+}
+
+/* =====================================================================
+   HOME — where the demo lands. Vera's brief, with the one filled button
+   (Open Vera), sits on top; the rest is Clover's Home. "Ask Vera" chips
+   open the mode with the question already asked.
+   ===================================================================== */
+function greeting() {
+  const h = Math.floor(state.now / 60);
+  return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', ' + data.owner;
+}
+function askVeraHTML(qs) {
+  return '<div class="am-askvera"><span class="am-askvera-label">' + svg('vera', 16) + 'Ask ' + esc(data.name) + '</span>' +
+    qs.map(function (q) { return '<button class="am-vchip" type="button" data-act="home-ask" data-q="' + esc(q) + '">' + esc(q) + '</button>'; }).join('') +
+  '</div>';
+}
+function hbarsHTML(rows, fmt) {
+  const max = Math.max.apply(null, rows.map(function (r) { return r.value; }));
+  return '<div class="am-hbars">' + rows.map(function (r) {
+    return '<div class="am-hbar"><span class="am-hbar-label">' + esc(r.label) + '</span>' +
+      '<div class="am-hbar-track" aria-hidden="true"><div class="am-hbar-fill' + (r.tone ? ' is-' + r.tone : '') + '" style="width:' + (100 * r.value / max).toFixed(1) + '%"></div></div>' +
+      '<span class="am-hbar-value">' + fmt(r.value) + '</span></div>';
+  }).join('') + '</div>';
+}
+function pagerHTML(label) {
+  return '<span class="am-pager">' + svg('chevronLeft', 16) + esc(label) + svg('chevronRight', 16) + '</span>';
+}
+function sparkHTML() {
+  const H = data.home, W = 560, Ht = 172, L = 40, R = 12, T = 8, B = 28, lo = 1400, hi = 2600;
+  const x = function (i) { return L + i * (W - L - R) / (H.week.length - 1); };
+  const y = function (v) { return T + (hi - v) * (Ht - T - B) / (hi - lo); };
+  const path = function (a) { return a.map(function (v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1); }).join(''); };
+  const tw = H.thisWeek, n = tw.length - 1;
+  let g = '';
+  [1500, 2000, 2500].forEach(function (v) {
+    g += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/>' +
+         '<text x="0" y="' + (y(v) + 4) + '">$' + (v / 1000) + 'k</text>';
+  });
+  H.week.forEach(function (d, i) { g += '<text x="' + x(i).toFixed(1) + '" y="' + (Ht - 6) + '" text-anchor="middle">' + d + '</text>'; });
+  return '<svg class="am-spark" viewBox="0 0 ' + W + ' ' + Ht + '" role="img" aria-label="Gross sales by day, this week against last week">' +
+    '<defs><linearGradient id="amSparkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--green);stop-opacity:.16"/><stop offset="1" style="stop-color:var(--green);stop-opacity:0"/></linearGradient></defs>' +
+    g +
+    '<path class="last" d="' + path(H.lastWeek) + '"/>' +
+    '<path class="area" d="' + path(tw) + 'L' + x(n) + ' ' + y(lo) + 'L' + x(0) + ' ' + y(lo) + 'Z"/>' +
+    '<path class="this" d="' + path(tw) + '"/>' +
+    '<circle class="dot" cx="' + x(n) + '" cy="' + y(tw[n]) + '" r="4"/></svg>';
+}
+function homeHTML() {
+  const H = data.home, w = waitingIds();
+  const needs = w.length
+    ? plural(w.length, 'thing') + ' need' + (w.length === 1 ? 's' : '') + ' you: ' + w.map(function (id) { return data.cards[id].title; }).join(', ') + '.'
+    : 'Nothing needs you yet.';
+  const brief = '<section class="card am-hbrief" aria-labelledby="hBrief">' +
+      '<span class="am-vera-mark" aria-hidden="true">' + svg('vera', 24) + '</span>' +
+      '<div><div class="am-hbrief-head"><h2 class="am-hbrief-title" id="hBrief">' + esc(data.name) + '</h2>' +
+        '<span class="am-hbrief-meta">' + esc(data.brief.title) + ' · ' + clockLabel(data.brief.at) + '</span></div>' +
+      '<p class="am-hbrief-text">' + esc(fillT(H.brief, textVars())) + '</p>' +
+      '<div class="am-hbrief-foot"><span class="am-hbrief-needs' + (w.length ? '' : ' is-none') + '">' + esc(needs) + '</span>' +
+        '<button class="btn btn-primary" type="button" data-act="open-vera">Open ' + esc(data.name) + svg('arrowRight', 16) + '</button></div></div>' +
+    '</section>';
+
+  const F = H.figures;
+  const snapshot = '<section class="card am-hcard" aria-labelledby="hSnap">' +
+      '<div class="card-head"><h2 class="am-hcard-title" id="hSnap">Business snapshot</h2>' +
+        '<div class="am-tabs" role="group" aria-label="Snapshot">' + ['Sales', 'Orders', 'Customers'].map(function (t, i) {
+          return '<button type="button" data-act="noop" aria-pressed="' + (i === 0) + '">' + t + '</button>';
+        }).join('') + '</div></div>' +
+      '<div class="am-figrow">' + [['Gross sales', moneyC(F.gross)], ['Paid orders', F.orders.toLocaleString('en-US')], ['Avg order', moneyC(F.gross / F.orders)]].map(function (f) {
+        return '<div><div class="am-fig-label">' + f[0] + '</div><div class="am-fig-value">' + f[1] + '</div></div>';
+      }).join('') + '</div>' +
+      '<div class="am-legend"><span>This week</span><span>Last week</span></div>' +
+      sparkHTML() + askVeraHTML([H.chips.snapshot]) +
+    '</section>';
+
+  const notes = '<section class="card am-hcard" aria-labelledby="hNotes">' +
+      '<h2 class="am-hcard-title" id="hNotes">Notifications (' + H.notesTotal + ')</h2>' +
+      '<ul class="am-notes">' + H.notes.map(function (n) {
+        return '<li class="am-note"><div class="am-note-main">' + (n.tag ? '<span class="am-note-tag">' + esc(n.tag) + '</span>' : '') +
+          '<span class="am-note-title">' + esc(n.text) + '</span><span class="am-note-time">' + esc(n.date) + '</span></div>' + svg('chevronRight', 16) + '</li>';
+      }).join('') + '</ul>' +
+      '<button class="btn btn-text" type="button" data-act="noop">View all</button>' +
+    '</section>';
+
+  const batch = '<section class="am-batch" aria-label="Open batch"><div><div class="am-batch-title">Open batch: ' + moneyC(H.batch) + '</div>' +
+      '<div class="am-batch-sub">Closes automatically at 10:00 pm. Deposit now to have it in your bank in about 30 minutes.</div></div>' +
+      '<button class="btn am-btn-plum" type="button" data-act="noop">Deposit now</button></section>';
+
+  const capital = '<section class="card am-capital" aria-label="Capital"><div class="am-capital-art" aria-hidden="true"><b></b><i></i><i></i><i></i></div>' +
+      '<div class="am-capital-body"><div class="am-capital-head"><span class="am-capital-title">' + esc(H.capital.title) + '</span>' + pagerHTML('1 of 4') + '</div>' +
+        '<p class="am-capital-text">' + esc(H.capital.text) + '</p>' +
+        '<div class="am-hactions"><button class="btn btn-secondary" type="button" data-act="noop">See offer</button>' +
+        '<button class="btn btn-text" type="button" data-act="noop">Not now</button></div></div></section>';
+
+  const sold7 = data.item.dailySales.reduce(function (s, v) { return s + v; }, 0);
+  const insight = '<section class="card am-hcard" aria-labelledby="hInsight">' +
+      '<div class="card-head"><h2 class="am-hcard-title" id="hInsight">Sales insights</h2>' +
+        '<span class="am-powered">' + svg('vera', 16) + 'Powered by ' + esc(data.name) + '</span></div>' +
+      '<p class="am-insight-text">' + esc(fillT(H.insight.text, { n: sold7, avg: H.insight.avg })) + '</p>' +
+      hbarsHTML([{ label: 'Last 7 days', value: sold7 }, { label: 'Average week', value: H.insight.avg, tone: 'violet' }], function (v) { return v + ' sold'; }) +
+      '<div class="am-hactions"><button class="btn btn-secondary" type="button" data-act="nav" data-page="item">View item</button></div>' +
+    '</section>';
+
+  const update = '<section class="card am-update" aria-labelledby="hUpdate">' +
+      '<div class="am-update-head"><h2 class="am-hsec-title" id="hUpdate">Product updates</h2>' + pagerHTML('1 of 2') + '</div>' +
+      '<div class="am-update-title">' + esc(H.update.title) + '</div><p class="am-update-text">' + esc(H.update.text) + '</p>' +
+      '<div class="am-hactions"><button class="btn btn-text" type="button" data-act="noop">Set up rounding</button></div>' +
+    '</section>';
+
+  const A = H.todaySoFar[state.stop];
+  const activity = '<div class="am-hblock"><div class="am-hsec"><h2 class="am-hsec-title">Activity summary</h2><p class="am-hsec-sub">Today so far</p></div>' +
+      '<section class="card am-activity" aria-label="Activity summary">' +
+      [['Open orders', A.open, A.openN ? plural(A.openN, 'open order') : 'No open orders'], ['Discounts', A.discounts, 'Applied today'], ['Refunds', A.refunds, 'Issued today']].map(function (c) {
+        return '<div><div class="am-fig-label">' + c[0] + svg('chevronRight', 16) + '</div><div class="am-fig-value">' + moneyC(c[1]) + '</div><div class="am-activity-sub">' + c[2] + '</div></div>';
+      }).join('') + '</section></div>';
+
+  const items = '<section class="card am-hcard" aria-labelledby="hItems">' +
+      '<h2 class="am-hcard-title" id="hItems">Item sales' + svg('chevronRight', 20) + '</h2>' +
+      '<p class="am-hcard-sub">' + H.itemsSold + ' items sold yesterday</p>' +
+      '<table class="am-topitems"><thead><tr><th scope="col">Top items</th><th scope="col">Sales</th><th scope="col">vs last week</th></tr></thead><tbody>' +
+      H.topItems.map(function (t) {
+        const up = t.pct >= 0;
+        return '<tr><td>' + esc(t.name) + '</td><td>' + moneyC(t.sales) + '</td><td><span class="am-delta ' + (up ? 'is-up' : 'is-down') + '">' +
+          svg(up ? 'arrowUp' : 'arrowDown', 14) + '<span class="am-sr">' + (up ? 'up ' : 'down ') + '</span>' + Math.abs(t.pct).toFixed(1) + '%</span></td></tr>';
+      }).join('') + '</tbody></table>' +
+      askVeraHTML([H.chips.items]) +
+    '</section>';
+
+  const total = H.collected.reduce(function (s, c) { return s + c.value; }, 0);
+  const finances = '<section class="card am-hcard" aria-labelledby="hFin">' +
+      '<h2 class="am-hcard-title" id="hFin">Finances' + svg('chevronRight', 20) + '</h2>' +
+      '<div><div class="am-fig-label">Collected yesterday</div><div class="am-fig-value">' + moneyC(total) + '</div></div>' +
+      hbarsHTML(H.collected, moneyC) +
+      askVeraHTML([data.pnl.q]) +
+    '</section>';
+
+  return '<div class="am-home">' +
+    '<div class="am-home-head"><h1 class="am-home-title">' + esc(greeting()) + '</h1>' +
+      '<button class="am-range" type="button" data-act="noop">' + svg('calendar', 16) + 'This week' + svg('chevronDown', 16) + '</button></div>' +
+    brief +
+    '<div class="am-hgrid am-hgrid--2-1">' + snapshot + notes + '</div>' +
+    batch +
+    '<div class="am-hgrid am-hgrid--1-1">' + capital + insight + '</div>' +
+    update + activity +
+    '<div class="am-hgrid am-hgrid--1-1">' + items + finances + '</div>' +
+  '</div>';
 }
 
 /* =====================================================================
    STATE 1 — Today
    ===================================================================== */
 function todayRows() {
-  const needs = [], running = [], done = [];
+  const needs = [], done = [];
   CARD_ORDER.forEach(function (id) {
     const c = data.cards[id], st = statusOf(id);
-    if (st === 'waiting') needs.push({ id: id, title: c.title, ctx: live(id).today, agent: c.agent, time: c.time });
-    else if (st === 'running') running.push({ id: id, title: c.running.title, ctx: c.running.context, agent: c.agent, time: clockLabel(c.running.from), running: true });
-    else if (st === 'done') done.push({ id: id, title: c.doneTitle, ctx: live(id).today, agent: c.agent, time: doneLabel(id), sort: c.auto ? c.at : state.doneAt[id],
+    if (st === 'waiting') needs.push({ id: id, title: c.title, ctx: live(id).today, agent: c.agent, time: clockLabel(c.at) });
+    else if (st === 'done') done.push({ id: id, title: c.doneTitle, ctx: live(id).today, agent: c.agent, time: doneLabel(id), sort: doneAt(id),
                                         tag: c.auto ? 'Done for you' : 'Approved by you' });
-    else if (st === 'dismissed') done.push({ id: id, title: c.title, ctx: 'Dismissed', agent: c.agent, time: c.time, sort: c.at, tag: '' });
   });
   if (state.now >= data.brief.at) {
     const b = data.brief;
-    done.push({ id: 'brief', title: b.title, ctx: b.context, agent: b.agent, time: b.time, sort: b.at, tag: 'Done for you' });
+    done.push({ id: 'brief', title: b.title, ctx: b.context, agent: b.agent, time: clockLabel(b.at), sort: b.at, tag: 'Done for you' });
   }
-  state.tail.forEach(function (t) {
-    if (t.kind === 'answer') done.push({ id: t.id, title: t.q, ctx: t.headline, agent: data.name, time: t.time, sort: t.at + 0.5, tag: '' });
-  });
   done.sort(function (a, b) { return b.sort - a.sort; });
-  return { needs: needs, running: running, done: done };
+  return { needs: needs, done: done };
 }
-function rowHTML(r, opts) {
-  opts = opts || {};
-  const lead = opts.done ? svg('check', 18) : r.running ? '<span class="am-spin" aria-hidden="true"></span>' : '';
-  return '<li><button class="am-row' + (opts.hl ? ' is-hl' : '') + (opts.done ? ' is-done' : '') + (state.newIds[r.id] ? ' is-new' : '') +
-      '" type="button" data-act="today-row" data-id="' + esc(r.id) + '"' + (r.running ? ' aria-busy="true"' : '') + '>' +
-    '<span class="am-row-title">' + lead + '<span>' + esc(r.title) + '</span></span>' +
+function rowHTML(r, o) {
+  o = o || {};
+  const li = o.ghost ? '<li class="is-ghost" aria-hidden="true">' : '<li data-flip="row:' + esc(r.id) + '"' + (o.held ? ' class="is-held"' : '') + '>';
+  return li + '<button class="am-row' + (o.hl ? ' is-hl' : '') + (o.done ? ' is-done' : '') + '" type="button"' +
+      (o.ghost ? ' tabindex="-1"' : ' data-act="today-row" data-id="' + esc(r.id) + '"') + (o.hl ? ' aria-current="true"' : '') + '>' +
+    '<span class="am-row-title">' + (o.done ? svg('check', 18) : '') + '<span>' + esc(r.title) + '</span></span>' +
     '<span class="am-row-meta">' + esc(r.agent) + ' · ' + esc(r.time) + '</span>' +
     '<span class="am-row-ctx">' + esc(r.ctx) + '</span>' +
     (r.tag ? '<span class="am-row-tag">' + esc(r.tag) + '</span>' : '') +
     '<span class="am-row-chev">' + svg('chevronRight', 16) + '</span>' +
   '</button></li>';
 }
-function renderToday() {
-  const R = todayRows(), y = data.yesterday;
-  /* An empty section collapses to one muted line. */
-  const section = function (label, rows, empty, opts) {
-    if (!rows.length) return '<h2 class="am-sec am-sec--empty">' + label + ' · ' + empty + '</h2>';
-    return '<h2 class="am-sec">' + label + (opts.count ? ' <span class="am-sec-count">(' + rows.length + ')</span>' : '') + '</h2>' +
-      '<ul class="am-rows">' + rows.map(function (r, i) { return rowHTML(r, Object.assign({ hl: opts.hlFirst && i === 0 }, opts)); }).join('') + '</ul>';
-  };
+/* What Today last showed, so a return can animate what changed. */
+let lastToday = null;
+/* t.prev + t.moved: rows that left Needs you stay in place as ghosts (to fade
+   out) and are held back from Done today (to fade in after). */
+function renderToday(t) {
+  t = t || {};
+  const R = todayRows(), y = data.yesterday, n = R.needs.length;
+  const moved = t.moved || {}, ghosting = Object.keys(moved).length > 0;
+  let needs = '';
+  if (ghosting) {
+    const cur = {}; R.needs.forEach(function (r) { cur[r.id] = r; });
+    const order = t.prev.needs.map(function (r) { return moved[r.id] ? { ghost: r } : cur[r.id] ? { row: cur[r.id] } : null; }).filter(Boolean);
+    R.needs.forEach(function (r) { if (!order.some(function (x) { return x.row === r; })) order.push({ row: r }); });
+    needs = '<ul class="am-rows" data-sec="needs">' + order.map(function (x) {
+      return x.ghost ? rowHTML(x.ghost, { ghost: true, hl: x.ghost.hl }) : rowHTML(x.row, {});
+    }).join('') + '</ul>';
+  } else if (n) {
+    needs = '<ul class="am-rows" data-sec="needs">' + R.needs.map(function (r, i) { return rowHTML(r, { hl: i === 0 }); }).join('') + '</ul>';
+  }
+  if (!n) needs += '<p class="am-none' + (ghosting ? ' is-held' : '') + '" data-flip="none-needs">Nothing yet. Items appear here as the day goes.</p>';
   $('#todayScroll').innerHTML =
     '<header class="am-today-head"><h1 class="am-today-title">Today</h1><span class="am-today-date">' + esc(DATES.todayLong) + '</span></header>' +
-    '<button class="am-yday" type="button" data-act="today-row" data-id="yesterday"><span class="am-yday-label">Yesterday</span> · ' +
-      money0(y.net) + ' net sales · ' + esc(ydayVs()) + ' · ' + y.orders + ' orders</button>' +
-    '<p class="am-outlook">' + esc(data.outlook) + ' ' + needsSentence(R.needs.length) + '</p>' +
-    section('Needs you', R.needs, 'nothing right now', { count: true, hlFirst: true }) +
-    section('Running', R.running, 'nothing running', {}) +
-    section('Done today', R.done, 'nothing yet', { done: true });
+    '<p class="am-yday"><span class="am-yday-label">Yesterday</span> · ' + money0(y.net) + ' net sales · ' + esc(ydayVs()) + ' · ' + y.orders + ' orders</p>' +
+    '<h2 class="am-sec">Outlook</h2>' +
+    '<p class="am-facts">' + data.outlook.facts.map(esc).join(' · ') + '</p>' +
+    '<p class="am-outlook">' + esc(data.outlook.note) + '</p>' +
+    '<h2 class="am-sec" data-flip="h-needs">Needs you' + (n ? ' <span class="am-sec-count">(' + n + ')</span>' : '') + '</h2>' + needs +
+    '<h2 class="am-sec am-sec--empty" data-flip="h-running">Running · nothing running</h2>' +
+    '<h2 class="am-sec" data-flip="h-done">Done today</h2>' +
+    '<ul class="am-rows" data-sec="done">' + R.done.map(function (r) { return rowHTML(r, { done: true, held: !!moved[r.id] }); }).join('') + '</ul>';
+  if (t.shown) lastToday = { needs: R.needs.map(function (r, i) { return Object.assign({ hl: i === 0 }, r); }) };
+}
+/* Back on Today after an approval: the row fades out in place (--dur-fast),
+   then fades in under Done today (--dur) while the list reflows (--dur). */
+function animateToday(prev) {
+  const nowDone = {};
+  todayRows().done.forEach(function (r) { nowDone[r.id] = true; });
+  const moved = {};
+  (prev ? prev.needs : []).forEach(function (r) { if (nowDone[r.id]) moved[r.id] = true; });
+  if (!Object.keys(moved).length || reduced()) { renderToday({ shown: true }); return; }
+  busy = true;
+  renderToday({ prev: prev, moved: moved, shown: true });
+  const box = $('#todayScroll');
+  void box.offsetHeight;
+  box.querySelectorAll('li.is-ghost').forEach(function (li) { li.classList.add('is-out'); });
+  later(ms('--dur-fast'), function () {
+    const before = {};
+    box.querySelectorAll('[data-flip]:not(.is-held)').forEach(function (el) { before[el.dataset.flip] = el.offsetTop; });
+    box.querySelectorAll('li.is-ghost').forEach(function (li) { li.remove(); });
+    box.querySelectorAll('.is-held').forEach(function (el) { el.classList.remove('is-held'); });
+    const first = box.querySelector('[data-sec="needs"] .am-row');
+    if (first) { first.classList.add('is-hl'); first.setAttribute('aria-current', 'true'); }
+    const dur = ms('--dur'), ease = easing();
+    box.querySelectorAll('[data-flip]').forEach(function (el) {
+      const k = el.dataset.flip;
+      if (!(k in before)) { el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: dur, easing: ease, fill: 'backwards' }); return; }
+      const dy = before[k] - el.offsetTop;
+      if (dy) el.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: dur, easing: ease });
+    });
+    busy = false;
+  });
 }
 
 /* =====================================================================
    STATES 2/3 — conversation
    ===================================================================== */
+/* Agent output arriving now drops in, 60 ms apart. dz() closes a class
+   attribute with the drop class and its stagger; '' when nothing arrives. */
+function dz(on, i, base) {
+  return on ? ' am-drop" style="--i: ' + i + (base ? '; --d: ' + base + 'ms' : '') : '';
+}
 function cardHTML(id) {
   const c = data.cards[id], st = statusOf(id), open = state.openId === id;
-  if (st === 'dismissed') {
-    return '<p class="am-dismissed" data-card-root="' + id + '">' + esc(c.title) + ' · dismissed · ' +
-      '<button class="am-link" type="button" data-act="restore-card" data-card="' + id + '">Restore</button></p>';
-  }
   if (st === 'done') {
     const tail = c.auto
-      ? '<button class="am-link" type="button" data-act="open-card" data-card="' + id + '">' + esc(c.view) + '</button>'
+      ? '<button class="am-link" type="button" data-act="view-filing" data-card="' + id + '">' + esc(c.view) + '</button>'
       : '<button class="am-link" type="button" data-act="undo" data-card="' + id + '">Undo</button>';
-    return '<article class="am-acard is-line' + (open ? ' is-open' : '') + '" data-card-root="' + id + '" aria-label="' + esc(c.title + ', ' + c.doneVerb + ' ' + doneLabel(id)) + '"' + (open ? ' aria-current="true"' : '') + '>' +   // no filled button on a done card
+    return '<article class="am-acard is-line" data-card-root="' + id + '" aria-label="' + esc(c.title + ', ' + c.doneVerb + ' ' + doneLabel(id)) + '"' + (open ? ' aria-current="true"' : '') + '>' +
       '<p class="am-acard-line">' + svg('check', 18) + '<b>' + esc(c.title) + '</b><span>· ' + esc(c.doneVerb + ' ' + doneLabel(id)) + ' ·</span>' + tail + '</p></article>';
   }
-  const L = live(id), menuOpen = state.menuFor === id;
+  const L = live(id);
   return '<article class="am-acard' + (open ? ' is-open' : '') + '" data-card-root="' + id + '" aria-label="' + esc(c.title) + '"' + (open ? ' aria-current="true"' : '') + '>' +
     '<h3 class="am-acard-title">' + esc(c.title) + '</h3>' +
     '<p class="am-acard-context" data-live="' + id + ':context">' + esc(L.context) + '</p>' +
     (id === 'reorder' ? '<div class="am-lines" data-live-html="reorder:lines">' + L.lines + '</div>' : '') +
     '<p class="am-acard-cons" data-live="' + id + ':consequence">' + esc(L.consequence) + '</p>' +
     '<div class="am-acard-actions">' +
-      '<button class="btn ' + (primaryId() === id ? 'btn-primary' : 'am-btn-outline') + '" type="button" data-act="primary" data-card="' + id + '">' + esc(c.primary) + '</button>' +
-      '<span class="am-split">' +
-        '<button class="am-textbtn" type="button" data-act="edit" data-card="' + id + '">Edit</button>' +
-        '<button class="am-textbtn am-split-more" type="button" data-act="menu" data-card="' + id + '" aria-label="More actions for ' + esc(c.title) + '" aria-haspopup="menu" aria-expanded="' + menuOpen + '">' + svg('chevronDown', 16) + '</button>' +
-        (menuOpen ? '<div class="am-menu" role="menu" aria-label="' + esc(c.title) + '"><button class="am-menu-item" type="button" role="menuitem" data-act="dismiss" data-card="' + id + '">Dismiss</button></div>' : '') +
-      '</span></div>' +
+      '<button class="btn ' + (primaryId() === id ? 'btn-primary' : 'btn-secondary') + '" type="button" data-act="primary" data-card="' + id + '">' + esc(c.primary) + '</button>' +
+      '<button class="btn btn-text" type="button" data-act="edit" data-card="' + id + '">Edit</button>' +
+    '</div>' +
   '</article>';
 }
 function whyHTML(id) {
   const L = live(id);
-  if (!L.why || !L.why.length || statusOf(id) === 'dismissed') return '';
+  if (!L.why || !L.why.length) return '';
   const open = !!state.whyOpen[id];
   return '<button class="am-why" type="button" data-act="why" data-card="' + id + '" aria-expanded="' + open + '" aria-controls="why-' + id + '">' +
       '<span data-live="' + id + ':whyLabel">' + esc(L.whyLabel) + '</span>' + svg('chevronDown', 16) + '</button>' +
@@ -1367,50 +1769,82 @@ function askHTML(key) {
   if (v === 'yes') return sysHTML(a.onYes);
   if (v === 'no') return sysHTML(a.onNo);
   return '<div class="am-ask" data-ask="' + key + '"><p class="am-sysline">' + esc(a.q) + '</p><div class="am-ask-btns">' +
-    '<button class="am-askbtn" type="button" data-act="ask-answer" data-key="' + key + '" data-val="yes">' + esc(a.yes) + '</button>' +
-    '<button class="am-askbtn" type="button" data-act="ask-answer" data-key="' + key + '" data-val="no">' + esc(a.no) + '</button></div></div>';
+    '<button class="btn btn-text" type="button" data-act="ask-answer" data-key="' + key + '" data-val="yes">' + esc(a.yes) + '</button>' +
+    '<button class="btn btn-text" type="button" data-act="ask-answer" data-key="' + key + '" data-val="no">' + esc(a.no) + '</button></div></div>';
 }
-function logsHTML(id) {
-  const list = (data.cards[id].auto && statusOf(id) === 'done' ? [{ ask: data.cards[id].ask }] : []).concat(state.logs[id]);
-  return list.map(function (l) { return l.ask ? askHTML(l.ask) : sysHTML(l.text, l.time); }).join('');
+/* Under a done card: its autonomy line (if it has one), then, while it is
+   the open card, the way back to Today. An unanswered autonomy question
+   belongs to its own stop; later in the day it simply is not asked again. */
+function stopOf(id) { return data.stops.findIndex(function (s) { return s.at === data.cards[id].at; }); }
+function afterHTML(id, on, base) {
+  const c = data.cards[id], parts = [];
+  if (statusOf(id) !== 'done') return '';
+  if (c.ask && (state.ask[c.ask] || stopOf(id) === state.stop)) parts.push(askHTML(c.ask));
+  if (state.openId === id) parts.push('<p class="am-backline"><button class="am-link" type="button" data-act="back-today">Back to Today</button></p>');
+  return '<div class="am-after" data-after="' + id + '">' + parts.map(function (p, i) {
+    return '<div class="' + dz(on, i, base) + '">' + p + '</div>';
+  }).join('') + '</div>';
 }
 /* The header already says Vera; captions carry the agent label and time only. */
-function captionHTML(agent, time) {
-  return '<p class="am-caption">' + (agent ? esc(agent) + ' · ' : '') + esc(time) + '</p>';
+function captionHTML(agent, time, drop) {
+  return '<p class="am-caption' + (drop || '') + '">' + (agent ? esc(agent) + ' · ' : '') + esc(time) + '</p>';
 }
-function answerHTML(t) {
-  const P = data.pnl;
-  return '<div class="am-entry" data-entry="' + t.id + '">' + captionHTML(data.name, t.time) +   // Vera is the agent label for connected-data answers
-    '<div class="am-answer"><p class="am-msg">' + esc(t.headline) + '</p>' +
-      '<p class="am-figs">' + P.lines.map(function (l) {
-        return esc(l.label) + ' ' + money0(l.oct) + ' <span class="am-src">' + esc(l.src) + '</span>';
-      }).join(' · ') + '</p>' +
-      '<p class="am-msg">' + esc(P.note) + '</p></div>' +
-    '<button class="am-link am-open-link" type="button" data-act="open-page" data-page="pl">Open in Reports</button></div>';
+function workingHTML(key, text) {
+  return '<div class="am-entry" data-entry="' + esc(key) + '"><p class="am-working" role="status">' + esc(data.name) + ' · ' + esc(text) +
+    '<span class="am-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></p></div>';
 }
-function entryHTML(it) {
-  if (it.kind === 'system') return sysHTML(it.text, it.time);
-  if (it.kind === 'user') return '<div class="am-entry am-entry--user"><p class="msg--sent">' + esc(it.text) + '</p></div>';
-  if (it.kind === 'answer') return answerHTML(it);
-  const cid = it.card;
-  return '<div class="am-entry"' + (it.id ? ' data-entry="' + esc(it.id) + '"' : '') + '>' +
-    captionHTML(it.agent, it.time) +
-    '<p class="am-msg">' + esc(fillT(it.text, textVars())) + '</p>' +
-    (cid ? whyHTML(cid) + cardHTML(cid) + '<div class="am-logs" data-logs="' + cid + '">' + logsHTML(cid) + '</div>' : '') +
+function briefEntryHTML() {
+  const b = data.brief;
+  return '<div class="am-entry" data-entry="brief">' + captionHTML(b.agent, clockLabel(b.at)) +
+    '<p class="am-msg">' + esc(fillT(b.text, textVars())) + '</p></div>';
+}
+function cardEntryHTML(id) {
+  const c = data.cards[id];
+  if (state.working && state.working.id === id) return workingHTML(id, c.working);
+  const d = !!state.drop[id], a = !!state.drop['after:' + id];
+  const why = whyHTML(id);
+  return '<div class="am-entry" data-entry="' + id + '">' +
+    captionHTML(c.agent, clockLabel(c.at), dz(d, 0)) +
+    '<p class="am-msg' + dz(d, 1) + '">' + esc(c.text) + '</p>' +
+    (why ? '<div class="am-whywrap' + dz(d, 2) + '">' + why + '</div>' : '') +
+    '<div class="am-cardwrap' + dz(d, 3) + '">' + cardHTML(id) + '</div>' +
+    '<div class="am-logs" data-logs="' + id + '">' + (state.logs[id] || []).map(function (l) { return sysHTML(l.text); }).join('') + '</div>' +
+    afterHTML(id, d || a, d ? 4 * 60 : ms('--dur')) +
   '</div>';
 }
+function answerHTML(t) {
+  const P = data.pnl, d = !!state.drop[t.id];
+  return '<div class="am-entry" data-entry="' + t.id + '">' + captionHTML(data.name, t.time, dz(d, 0)) +
+    '<div class="am-answer"><p class="am-msg' + dz(d, 1) + '">' + esc(t.headline) + '</p>' +
+      '<ul class="am-figs" aria-label="By source">' + P.lines.map(function (l, i) {
+        return '<li class="' + dz(d, 2 + i) + '">' + esc(l.label) + ' <b>' + money0(l.oct) + '</b> <span class="am-src">' + esc(l.src) + '</span></li>';
+      }).join('') + '</ul>' +
+      '<p class="am-msg' + dz(d, 2 + P.lines.length) + '">' + esc(P.note) + '</p></div>' +
+    '<button class="am-link am-open-link' + dz(d, 3 + P.lines.length) + '" type="button" data-act="open-page" data-page="pl">Open in Reports</button></div>';
+}
+function tailHTML(t) {
+  if (t.kind === 'user') return '<div class="am-entry am-entry--user" data-entry="' + t.id + '"><p class="msg--sent">' + esc(t.text) + '</p></div>';
+  if (t.kind === 'answer') return answerHTML(t);
+  const d = !!state.drop[t.id];
+  return '<div class="am-entry" data-entry="' + t.id + '">' + captionHTML(data.name, t.time, dz(d, 0)) + '<p class="am-msg' + dz(d, 1) + '">' + esc(t.text) + '</p></div>';
+}
+/* The thread up to now: yesterday's one history line, the brief, every card
+   that has arrived, then the merchant's questions. */
 function renderThread(opts) {
   opts = opts || {};
   const el = $('#thread'), keep = el.scrollTop;
   const a = document.activeElement;
   const focusKey = a && el.contains(a) && a.dataset.act
     ? '[data-act="' + a.dataset.act + '"]' + (a.dataset.card ? '[data-card="' + a.dataset.card + '"]' : '') : null;
-  el.innerHTML = data.feed.map(function (g, gi) {
-    const items = g.items.filter(function (it) { return it.at <= state.now; });
-    const tail = gi === data.feed.length - 1 ? state.tail.map(entryHTML).join('') + (state.pending ? '<p class="am-running">Checking Clover, QuickBooks and Gusto</p>' : '') : '';
-    if (!items.length && !tail) return '';
-    return '<section class="am-dayg" aria-label="' + esc(g.day) + '"><h2 class="am-day">' + esc(g.day) + '</h2>' + items.map(entryHTML).join('') + tail + '</section>';
-  }).join('');
+  const today = [];
+  if (state.now >= data.brief.at) today.push(briefEntryHTML());
+  CARD_ORDER.forEach(function (id) { if (arrived(id)) today.push(cardEntryHTML(id)); });
+  state.tail.forEach(function (t) { today.push(tailHTML(t)); });
+  if (state.working && state.working.tail) today.push(workingHTML(state.working.id, state.working.text));
+  el.innerHTML =
+    '<section class="am-dayg" aria-label="Yesterday"><h2 class="am-day">Yesterday</h2>' + sysHTML(data.history.text, data.history.time) + '</section>' +
+    (today.length ? '<section class="am-dayg" aria-label="Today"><h2 class="am-day">Today</h2>' + today.join('') + '</section>' : '');
+  state.drop = {};                         // each arrival animates once
   if (focusKey && !el.contains(document.activeElement)) {
     const n = el.querySelector(focusKey);
     if (n) n.focus({ preventScroll: true });
@@ -1439,36 +1873,51 @@ function scrollThreadTo(id) {
 /* =====================================================================
    STATE 3 — the page window
    ===================================================================== */
-let lastAnchor = null;
-function renderPage() {
-  const id = state.page;
-  if (!id) { $('#pageBody').innerHTML = ''; lastAnchor = null; return; }
+let lastAnchor = null, lastPageHTML = '';
+function renderPage(entering) {
+  const id = state.page, body = $('#pageBody');
+  if (!id) { body.innerHTML = lastPageHTML = ''; lastAnchor = null; return; }
   const p = data.pages[id];
   $('#winCrumb').innerHTML = crumbHTML(p.path).replace(/^<nav class="am-crumb"[^>]*>|<\/nav>$/g, '');
   $('#win').classList.toggle('has-card', !!(state.openId && data.cards[state.openId].page === id));
-  $('#pageBody').innerHTML = pageHTML(id, 'assist');
+  const html = pageHTML(id, 'assist');
+  if (html !== lastPageHTML) { body.innerHTML = lastPageHTML = html; }   // unchanged pages keep their DOM (and any pulse)
   const key = id + ':' + (state.openId || '');
-  if (lastAnchor !== key) anchorPage();      // re-renders from edits keep the scroll
+  if (lastAnchor !== key) anchorPage(entering && !reduced() ? ms('--dur-slow') + 80 : 0);
   lastAnchor = key;
   revealHighlight();
 }
-/* Open anchored to the object: the highlighted row's card sits near the top, with the
-   cards above it partly scrolled away. Without a highlight, the page opens at the top. */
-function anchorPage() {
+/* Page open: the page starts at the top and scrolls smoothly to its anchor
+   card (after the window has entered), then the highlighted cells pulse once. */
+function anchorPage(delay) {
   const sc = $('#winScroll');
   sc.style.paddingBottom = '';
-  const hl = state.openId && $('#pageBody .am-hl, #pageBody .am-hl-warn');
-  const card = hl && hl.closest('.card');
-  if (!card) { sc.scrollTop = 0; return; }
-  const s = sc.getBoundingClientRect(), c = card.getBoundingClientRect();
-  const scale = s.height / sc.offsetHeight || 1;
-  const target = Math.max(0, Math.round((c.top - s.top) / scale + sc.scrollTop - 56));
-  const body = $('#pageBody'), end = body.offsetTop + body.offsetHeight;
-  const need = target + sc.clientHeight - end;
-  if (need > parseFloat(getComputedStyle(sc).paddingBottom)) sc.style.paddingBottom = need + 'px';
-  const still = target - (sc.scrollHeight - sc.clientHeight);
-  if (still > 0) sc.style.paddingBottom = (parseFloat(getComputedStyle(sc).paddingBottom) + still) + 'px';
-  sc.scrollTop = target;
+  sc.scrollTop = 0;
+  if (!state.openId || !$('#pageBody [data-anchor]')) return;
+  const go = function () {
+    const card = $('#pageBody [data-anchor]');
+    if (!card) return;
+    sc.style.paddingBottom = '';
+    const target = Math.max(0, card.offsetTop - 16);
+    const body = $('#pageBody'), end = body.offsetTop + body.offsetHeight;
+    const need = target + sc.clientHeight - end;
+    if (need > parseFloat(getComputedStyle(sc).paddingBottom)) sc.style.paddingBottom = need + 'px';
+    if (Math.abs(sc.scrollTop - target) < 2) { pulse(); return; }
+    let fired = false;
+    const fin = function () { if (fired) return; fired = true; sc.removeEventListener('scrollend', fin); pulse(); };
+    sc.addEventListener('scrollend', fin);
+    later(700, fin);
+    sc.scrollTo({ top: target, behavior: reduced() ? 'auto' : 'smooth' });
+  };
+  if (delay) later(delay, go); else go();
+}
+function pulse() {
+  const b = $('#pageBody');
+  if (reduced() || !b.querySelector('.am-hl')) return;
+  b.classList.remove('is-pulse');
+  void b.offsetWidth;
+  b.classList.add('is-pulse');
+  later(600, function () { b.classList.remove('is-pulse'); });
 }
 function revealHighlight() {
   const wrap = $('#pageBody .am-grid-wrap');
@@ -1481,68 +1930,106 @@ function revealHighlight() {
   });
 }
 
-function renderLayout() {
+/* =====================================================================
+   render(state) — the one writer. The clock, the Vera badge, the
+   "Needs you (n)" heading, the waiting cards, Today's lists and the input
+   placeholder all derive here from the same state; nothing is set twice.
+   ===================================================================== */
+let lastState = 'today';
+function render(s, opts) {
+  opts = opts || {};
+  const n = waitingIds().length, on = s.view === 'mode';
+  $('#sbTime').textContent = clockLabel(s.now).replace(/ (am|pm)$/, '');
+  $('#merchantName').textContent = data.merchant;
+  const badge = $('#askBadge');
+  badge.textContent = n; badge.hidden = !n;
+  const btn = $('#askBtn');
+  btn.classList.toggle('is-active', on);
+  btn.setAttribute('aria-pressed', String(on));
+  $('#askLabel').textContent = data.name;      // the pill, the chat header and the working line share one name
+  btn.setAttribute('aria-label', data.name + (n ? ', ' + n + ' need' + (n === 1 ? 's' : '') + ' you' : ''));
+  const S = data.stops[s.stop], last = data.stops.length - 1;
+  $('#stepperLabel').textContent = (s.stop + 1) + ' / ' + data.stops.length;
+  $('#stepper').setAttribute('aria-label', 'Demo stepper, stop ' + (s.stop + 1) + ' of ' + data.stops.length + ': ' + clockLabel(S.at) + ', ' + S.title);
+  $('#stepper [data-act="stop-prev"]').disabled = s.stop === 0;
+  $('#stepper [data-act="stop-next"]').disabled = s.stop === last;
+  if (!on) { lastState = 'today'; renderDashboard(); return; }
+
   const name = stateName(), mobile = isMobile();
+  const entering = name === 'split' && lastState !== 'split';
+  lastState = name;
   $('#viewB').dataset.state = name;
-  const sheet = mobile && name === 'split';
-  const win = $('#win');
+  const sheet = mobile && name === 'split', win = $('#win');
   win.classList.toggle('is-sheet-open', sheet);
   win.setAttribute('role', mobile ? 'dialog' : 'region');
   win.setAttribute('aria-modal', sheet ? 'true' : 'false');
   $('#scrim').classList.toggle('is-on', sheet);
   $('#assistantName').textContent = data.name;
-  $('#composerInput').placeholder = name === 'split' && state.page ? (data.pages[state.page].ask || 'Ask about anything') : 'Ask about anything';
-}
-function renderAll(opts) {
-  renderTopnav();
-  if (state.view !== 'mode') { renderDashboard(); return; }
-  renderLayout();
-  if (state.screen === 'today') renderToday();
-  renderPage();
+  $('#todayInput').placeholder = 'Ask about anything';
+  $('#composerInput').placeholder = name === 'split' ? data.pages[s.page].ask : 'Ask about anything';
+  /* Stop 5 only: one suggestion above Today's input, until it is asked. */
+  const sug = $('#todaySuggest'), chip = s.stop === last && !s.tail.length;
+  sug.hidden = !chip;
+  sug.innerHTML = chip ? '<button class="am-chip" type="button" data-act="suggest">' + esc(data.pnl.q) + '</button>' : '';
+
+  if (name === 'today') { if (opts.animateFrom) animateToday(opts.animateFrom); else renderToday({ shown: true }); }
+  else renderToday();                      // hidden, but its counts stay true
+  renderPage(entering);
   renderThread(opts);
-  if (opts && opts.toEntry) setTimeout(function () { scrollThreadTo(opts.toEntry); }, 300);   // after the slide
+  if (opts.toEntry) setTimeout(function () { scrollThreadTo(opts.toEntry); }, 300);   // after the column settles
 }
 
 /* =====================================================================
    NAVIGATION
    ===================================================================== */
-function enterMode() {
+function showMode() {
   state.view = 'mode';
-  state.screen = 'today';
-  state.page = null; state.openId = null; state.sheetOpen = false; state.menuFor = null;
   $('#viewA').hidden = true;
   $('#viewB').hidden = false;
-  renderAll();
-  $('#todayScroll').scrollTop = 0;
+}
+function focusToday() {
   const first = $('#todayScroll .am-row.is-hl') || $('#todayInput');
   first.focus({ preventScroll: true });
 }
+function enterMode() {
+  showMode();
+  state.screen = 'today';
+  state.page = null; state.openId = null; state.sheetOpen = false;
+  render(state);
+  $('#todayScroll').scrollTop = 0;
+  focusToday();
+}
 function exitMode() {
+  clearTimers();
   state.view = 'dashboard';
-  state.sheetOpen = false; state.menuFor = null;
+  state.sheetOpen = false; state.working = null;
+  $('#today').classList.remove('is-leaving');
   $('#viewB').hidden = true;
   $('#viewA').hidden = false;
-  renderAll();
+  render(state);
   $('#viewA').scrollTop = 0;
   $('#askBtn').focus();
 }
+/* Every stop returns here. Rows that changed section animate (animateToday). */
 function backToToday() {
+  if (busy) return;
+  clearTimers();
+  const prev = lastToday;
   state.screen = 'today';
-  state.page = null; state.openId = null; state.sheetOpen = false; state.menuFor = null;
-  renderAll();
-  const first = $('#todayScroll .am-row.is-hl') || $('#todayInput');
-  first.focus({ preventScroll: true });
+  state.page = null; state.openId = null; state.sheetOpen = false; state.working = null;
+  render(state, { animateFrom: prev });
+  focusToday();
 }
 function closePage() {
-  state.page = null; state.openId = null; state.sheetOpen = false;
-  renderAll();
+  if (isMobile()) state.sheetOpen = false;        // the sheet closes; the card stays selected
+  else { state.page = null; state.openId = null; }
+  render(state);
 }
 /* Select a card: chat column, its page beside it (a sheet on single column). */
 function openCard(id, sheet) {
   state.openId = id;
   state.page = data.cards[id].page;
   state.screen = 'chat';
-  state.menuFor = null;
   if (isMobile()) state.sheetOpen = !!sheet;
 }
 function openPage(pageId, sheet) {
@@ -1556,83 +2043,93 @@ function focusIn(cardId, sel) {
   const el = root && root.querySelector(sel);
   if (el) el.focus({ preventScroll: true });
 }
+/* State 1 → 2 or 3: Today fades out (--dur-fast); the chat column then fades in (CSS). */
+function leaveToday(fn) {
+  if (stateName() !== 'today' || !ms('--dur-fast')) { fn(); return; }
+  busy = true;
+  $('#today').classList.add('is-leaving');
+  later(ms('--dur-fast'), function () {
+    $('#today').classList.remove('is-leaving');
+    busy = false;
+    fn();
+  });
+}
 function todayRow(id) {
-  if (id === 'yesterday') { openPage('sales'); renderAll({ toEntry: 'brief' }); return; }
-  if (id === 'brief' || /^ans-/.test(id)) {
-    state.screen = 'chat'; state.page = null; state.openId = null;
-    renderAll({ toEntry: id });
-    return;
-  }
-  const st = statusOf(id);
-  if (st === 'running') { openPage(data.cards[id].page); renderAll({ toEnd: true }); return; }
-  if (st === 'dismissed') { openPage(data.cards[id].page); renderAll({ toEntry: id }); return; }
+  if (busy) return;
+  leaveToday(function () {
+    if (id === 'brief') {
+      state.screen = 'chat'; state.page = null; state.openId = null;
+      render(state, { toEntry: 'brief' });
+      return;
+    }
+    reveal(id);
+  });
+}
+/* Open a card in State 3. The first time, the working line holds its place
+   for 800 ms; then the caption, message and card drop in. */
+function reveal(id) {
   openCard(id, true);
-  renderAll({ toEntry: id });
-  focusIn(id, '[data-act="primary"], [data-act="undo"], [data-act="open-card"]');
+  const focus = function () { focusIn(id, '[data-act="primary"], [data-act="undo"], [data-act="view-filing"]'); };
+  if (state.seen[id]) { render(state, { toEntry: id }); focus(); return; }
+  state.working = { id: id, text: data.cards[id].working };
+  render(state, { toEntry: id });
+  later(data.timing.working, function () {
+    state.working = null;
+    state.seen[id] = true;
+    state.drop[id] = true;
+    render(state, { toEntry: id });
+    focus();
+  });
 }
 
 /* =====================================================================
    ACTIONS
    ===================================================================== */
 function log(cardId, text) {
-  const entry = { text: text, time: clockLabel(actionMinutes()) };
-  state.logs[cardId].push(entry);
+  state.logs[cardId].push({ text: text });
   const box = $('#thread [data-logs="' + cardId + '"]');
-  if (box) box.insertAdjacentHTML('beforeend', sysHTML(entry.text, entry.time));
+  if (box) box.insertAdjacentHTML('beforeend', sysHTML(text));
 }
+/* Approve: the clock moves to the action, the card collapses to its done
+   line (height and opacity, --dur), then the autonomy line and the way back. */
 function primary(id) {
-  const mins = actionMinutes();
+  const c = data.cards[id];
+  const before = $('#thread [data-card-root="' + id + '"]'), h0 = before ? before.offsetHeight : 0;
+  state.now = Math.max(state.now, c.actAt);
+  state.done[id] = state.now;
   state.openId = id;
-  state.page = data.cards[id].page;
-  state.done[id] = clockLabel(mins);
-  state.doneAt[id] = mins;
-  state.menuFor = null;
-  const key = data.cards[id].ask;
-  if (key && state.ask[key] === null) {        // the autonomy ladder, once, in context
-    state.ask[key] = 'open';
-    state.logs[id].push({ ask: key });
+  state.page = c.page;
+  state.drop['after:' + id] = true;
+  render(state);
+  const card = $('#thread [data-card-root="' + id + '"]'), dur = ms('--dur');
+  if (card && h0 && dur) {
+    card.animate([{ height: h0 + 'px', opacity: 0 }, { height: card.offsetHeight + 'px', opacity: 1 }], { duration: dur, easing: easing() });
   }
-  renderAll();
   focusIn(id, '[data-act="undo"]');
 }
 function undo(id) {
   delete state.done[id];
-  delete state.doneAt[id];
   openCard(id, false);
-  renderAll();
-  focusIn(id, '[data-act="primary"]');
-}
-function dismiss(id) {
-  state.dismissed[id] = true;
-  state.menuFor = null;
-  if (state.openId === id) state.openId = null;
-  renderAll();
-  focusIn(id, '[data-act="restore-card"]');
-}
-function restoreCard(id) {
-  delete state.dismissed[id];
-  openCard(id, false);
-  renderAll();
+  render(state);
   focusIn(id, '[data-act="primary"]');
 }
 /* Edit focuses the field on the page where the draft lives. */
-const EDIT_TARGET = { swap: '#pageBody [data-edit="start"]', reorder: '#pageBody .am-qty' };
+const EDIT_TARGET = { swap: '#pageBody [data-edit="end"]', reorder: '#pageBody .am-qty' };
 function edit(id) {
   openCard(id, true);
-  renderAll();
+  render(state);
   const t = $(EDIT_TARGET[id]);
   if (t) { t.focus({ preventScroll: true }); if (t.select) t.select(); }
 }
 function tapCard(id) {
-  if (statusOf(id) === 'dismissed') return;
   if (state.openId === id && stateName() === 'split') return;
   openCard(id, true);
-  renderAll();
+  render(state);
 }
-function toggleMenu(id, open) {
-  state.menuFor = open ? id : null;
-  renderThread();
-  if (open) { const item = $('#thread .am-menu-item'); if (item) item.focus({ preventScroll: true }); }
+function viewFiling(id) {
+  openCard(id, true);
+  lastAnchor = null;                       // scroll back to the filing and pulse it
+  render(state);
 }
 function toggleWhy(id) {
   state.whyOpen[id] = !state.whyOpen[id];
@@ -1661,125 +2158,85 @@ function commitQty(input) {
   }
 }
 
-/* ---- the composer ---- */
-let ansSeq = 0;
-function send(text) {
-  const at = state.now;
-  state.tail.push({ kind: 'user', at: at, time: clockLabel(actionMinutes()), text: text });
-  state.screen = 'chat';
-  const reply = function (t) {
-    state.tail.push({ kind: 'assistant', at: at, time: clockLabel(actionMinutes()), text: t });
-    if (state.view === 'mode') renderThread({ toEnd: true });
-  };
-  if (new RegExp(data.profitRe, 'i').test(text)) {
-    state.pending = true;
-    renderAll({ toEnd: true });
-    setTimeout(function () {
-      state.pending = false;
-      const P = data.pnl, net = P.lines.reduce(function (s, l) { return s + l.sign * l.oct; }, 0);
-      state.tail.push({ kind: 'answer', id: 'ans-' + (++ansSeq), at: at, time: clockLabel(actionMinutes()), q: text,
+/* ---- questions: the sent bubble, the working line, then the answer ---- */
+let qSeq = 0;
+function ask(text) {
+  const n = ++qSeq, key = 'a-' + n, fixed = data.answers[text] || null;
+  const profit = !fixed && new RegExp(data.profitRe, 'i').test(text);
+  state.tail.push({ kind: 'user', id: 'q-' + n, text: text });
+  state.working = { id: key, text: profit ? data.pnl.working : fixed ? fixed.working : 'checking', tail: true };
+  render(state, { toEnd: true });
+  later(profit || fixed ? data.timing.answerWorking : data.timing.working, function () {
+    state.working = null;
+    if (fixed) {
+      state.tail.push({ kind: 'assistant', id: key, time: clockLabel(state.now), text: fixed.text });
+    } else if (profit) {
+      const net = data.pnl.lines.reduce(function (s, l) { return s + l.sign * l.oct; }, 0);
+      state.tail.push({ kind: 'answer', id: key, time: clockLabel(state.now),
                         headline: (net >= 0 ? 'Yes, by about ' : 'Not yet; down about ') + money0(Math.abs(net)) + ' so far.' });
-      if (state.view === 'mode') renderAll({ toEnd: true });
-    }, data.timing.replyDelay);
-    return;
-  }
-  const match = CARD_ORDER.find(function (id) {
-    const st = statusOf(id);
-    return (st === 'waiting' || st === 'done') && new RegExp(data.keywords[id], 'i').test(text);
+    } else {
+      state.tail.push({ kind: 'assistant', id: key, time: clockLabel(state.now), text: data.cannedReply });
+    }
+    state.drop[key] = true;
+    render(state, { toEnd: true });
   });
-  if (match) {
-    openCard(match, false);                  // asking about something with a page: State 3
-    renderAll({ toEnd: true });
-    setTimeout(function () { reply("Here's the " + data.cards[match].title.toLowerCase() + '.'); }, data.timing.replyDelay);
-    return;
-  }
-  if (new RegExp(data.salesRe, 'i').test(text)) {
-    openPage('sales', false);
-    renderAll({ toEnd: true });
-    setTimeout(function () { reply("Here's yesterday in Reports."); }, data.timing.replyDelay);
-    return;
-  }
-  renderAll({ toEnd: true });
-  setTimeout(function () { reply(data.cannedReply); }, data.timing.replyDelay);
+}
+/* Home's "Ask Vera" chips: straight into the mode's chat, question asked. */
+function askFromHome(text) {
+  clearTimers();
+  showMode();
+  $('#today').classList.remove('is-leaving');
+  state.screen = 'chat'; state.page = null; state.openId = null; state.sheetOpen = false;
+  ask(text);
+  $('#composerInput').focus({ preventScroll: true });
+}
+function askFromToday(text) {
+  if (busy) return;
+  leaveToday(function () {
+    state.screen = 'chat'; state.page = null; state.openId = null;
+    ask(text);
+  });
 }
 
 /* =====================================================================
-   DEMO STEPPER — slide 10's five moments
+   STOPS — slide 10, in order. Each jump sets the world at that stop. Stop 1
+   lands on Clover Home (the brief, then Open Vera); stops 2–5 land on
+   Vera's Today. State is cumulative: what the presenter did at an
+   earlier stop stays done; the current stop and later ones start fresh.
    ===================================================================== */
-function setMoment(i, opts) {
-  opts = opts || {};
-  const prevNow = state.now;
-  state.moment = i;
-  state.now = data.moments[i].t + data.clockAfter;   // the device reads a few minutes after the moment
-  momentSetAt = Date.now();
-  // Anything that has not happened yet at this moment is reset.
-  CARD_ORDER.forEach(function (id) {
-    if (data.cards[id].at > state.now || opts.reset) {
-      delete state.done[id]; delete state.doneAt[id]; delete state.dismissed[id];
-      state.logs[id] = []; state.whyOpen[id] = false;
-      resetDrafts(id);
-    }
-  });
-  state.tail = opts.reset ? [] : state.tail.filter(function (t) { return t.at <= state.now; });
-  state.newIds = {};
-  CARD_ORDER.forEach(function (id) { if (data.cards[id].at > prevNow && data.cards[id].at <= state.now) state.newIds[id] = true; });
-  if (state.view === 'mode') {
-    state.screen = 'today'; state.page = null; state.openId = null; state.sheetOpen = false; state.menuFor = null;
+function setStop(i) {
+  i = Math.max(0, Math.min(data.stops.length - 1, i));
+  clearTimers();
+  $('#today').classList.remove('is-leaving');
+  const S = data.stops[i];
+  state.stop = i;
+  state.now = S.clock;
+  CARD_ORDER.forEach(function (id) { if (data.cards[id].at >= S.at) resetCard(id); });
+  state.tail = []; state.working = null; state.drop = {};
+  if (document.activeElement && document.activeElement !== document.body && !$('#stepper').contains(document.activeElement)) document.activeElement.blur();
+  state.screen = 'today';
+  state.page = null; state.openId = null; state.sheetOpen = false;
+  if (i === 0) {
+    state.view = 'dashboard'; state.dashPage = 'home';
+    $('#viewB').hidden = true;
+    $('#viewA').hidden = false;
+  } else {
+    showMode();
   }
-  renderAll();
-  if (state.view === 'mode') { $('#todayScroll').scrollTop = 0; }
-  renderDemo();
-}
-function renderDemo() {
-  const M = data.moments[state.moment];
-  $('#demo').innerHTML =
-    '<div class="am-demo-steps">' + data.moments.map(function (m, i) {
-      return '<button type="button" data-act="moment" data-i="' + i + '" aria-pressed="' + (i === state.moment) + '">' + clockLabel(m.t + data.clockAfter) + '</button>';
-    }).join('') + '</div>' +
-    '<h3>' + esc(clockLabel(M.t + data.clockAfter) + ' · ' + M.title) + '</h3>' +
-    '<dl><dt>Shows</dt><dd class="am-demo-adv">' + M.shows.map(esc).join(' · ') + '</dd>' +
-    '<dt>State</dt><dd>' + esc(M.state) + '</dd>' +
-    '<dt>Do</dt><dd>' + esc(M.does) + '</dd>' +
-    '<dt>Say</dt><dd>' + esc(M.say) + '</dd></dl>' +
-    '<div class="am-demo-foot"><span>D toggles · 1–5 jump · 0 reset</span><button class="am-demo-reset" type="button" data-act="demo-reset">Reset</button></div>';
-}
-function toggleDemo(force) {
-  const d = $('#demo'), open = force === undefined ? d.hidden : force;
-  d.hidden = !open;
-  $('#demoToggle').setAttribute('aria-expanded', String(open));
+  render(state);
+  $('#viewA').scrollTop = 0;
+  $('#todayScroll').scrollTop = 0;
+  $('#thread').scrollTop = 0;
 }
 
 /* =====================================================================
    EVENTS
    ===================================================================== */
-let lp = null, swallowClick = false;
-const threadEl = $('#thread');
-threadEl.addEventListener('pointerdown', function (e) {
-  const root = e.target.closest('article[data-card-root]');
-  if (!root || e.target.closest('button, select, input') || statusOf(root.dataset.cardRoot) !== 'waiting') return;
-  const id = root.dataset.cardRoot;
-  lp = { x: e.clientX, y: e.clientY, t: setTimeout(function () { lp = null; swallowClick = true; toggleMenu(id, true); }, data.timing.longPress) };
-});
-function cancelLP() { if (lp) { clearTimeout(lp.t); lp = null; } }
-threadEl.addEventListener('pointermove', function (e) { if (lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > 8) cancelLP(); });
-['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { threadEl.addEventListener(t, cancelLP); });
-threadEl.addEventListener('contextmenu', function (e) {
-  const root = e.target.closest('article[data-card-root]');
-  if (!root || statusOf(root.dataset.cardRoot) !== 'waiting') return;
-  e.preventDefault();
-  toggleMenu(root.dataset.cardRoot, true);
-});
-document.addEventListener('pointerdown', function () { swallowClick = false; }, true);
 document.addEventListener('click', function (e) {
-  if (swallowClick) { swallowClick = false; e.stopPropagation(); e.preventDefault(); }
-}, true);
-
-document.addEventListener('click', function (e) {
-  if (state.menuFor && !e.target.closest('.am-menu, [data-act="menu"]')) { state.menuFor = null; renderThread(); }
   const el = e.target.closest('[data-act]');
   if (!el) {
     const root = e.target.closest('[data-card-root]');
-    if (root && state.view === 'mode') tapCard(root.dataset.cardRoot);
+    if (root && state.view === 'mode' && statusOf(root.dataset.cardRoot) === 'waiting') tapCard(root.dataset.cardRoot);
     return;
   }
   const id = el.dataset.card;
@@ -1791,30 +2248,29 @@ document.addEventListener('click', function (e) {
       $('#viewA').scrollTop = 0;
       break;
     case 'ask-me': if (state.view === 'mode') exitMode(); else enterMode(); break;
+    case 'open-vera': enterMode(); break;
+    case 'home-ask': askFromHome(el.dataset.q); break;
     case 'back-today': backToToday(); break;
     case 'today-row': todayRow(el.dataset.id); break;
-    case 'open-page': openPage(el.dataset.page); renderAll(); break;
+    case 'suggest': askFromToday(data.pnl.q); break;
+    case 'open-page': openPage(el.dataset.page); render(state); break;
     case 'page-tab':
-      if (state.view === 'mode') { state.page = el.dataset.page; state.openId = null; renderAll(); }
+      if (state.view === 'mode') { state.page = el.dataset.page; state.openId = null; render(state); }
       else { state.dashPage = el.dataset.page; renderDashboard(); }
       break;
     case 'open-full': state.dashPage = state.page; exitMode(); break;
     case 'close-page': closePage(); break;
     case 'primary': primary(id); break;
     case 'undo': undo(id); break;
-    case 'dismiss': dismiss(id); break;
-    case 'restore-card': restoreCard(id); break;
     case 'edit': edit(id); break;
-    case 'open-card': openCard(id, true); renderAll(); break;
-    case 'menu': toggleMenu(id, state.menuFor !== id); break;
+    case 'view-filing': viewFiling(id); break;
     case 'why': toggleWhy(id); break;
     case 'ask-answer':
       state.ask[el.dataset.key] = el.dataset.val;
-      renderThread();
+      render(state);
       break;
-    case 'moment': setMoment(+el.dataset.i); break;
-    case 'demo-reset': setMoment(0, { reset: true }); break;
-    case 'demo-toggle': toggleDemo(); break;
+    case 'stop-prev': setStop(state.stop - 1); break;
+    case 'stop-next': setStop(state.stop + 1); break;
   }
 });
 
@@ -1828,16 +2284,14 @@ pageBody.addEventListener('change', function (e) {
     if (which === 'start') { s = v; if (en <= s) en = s + 1; } else { en = v; if (s >= en) s = en - 1; }
     state.cover = { start: s, end: en };
     log('swap', 'You changed ' + SCH.cover.name + ' to ' + shiftLabel(coverShift()));
-    renderPage();
-    refreshLive('swap');
+    render(state);
     $('#pageBody [data-edit="' + which + '"]').focus();
   } else if (which === 'supplier') {
     const before = orderTotal();
     state.order.supplier = t.value;
     const diff = round2(before - orderTotal());
     log('reorder', 'You switched to ' + supplier().name + ', ' + (diff === 0 ? 'same price' : money(Math.abs(diff)) + (diff > 0 ? ' less' : ' more')));
-    renderPage();
-    refreshLive('reorder');
+    render(state);
     $('#pageBody [data-edit="supplier"]').focus();
   }
 });
@@ -1855,15 +2309,17 @@ pageBody.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.t
 /* Composer. Typing in Today's input moves to State 2 and keeps typing there. */
 const input = $('#composerInput'), sendBtn = $('#sendBtn'), todayInput = $('#todayInput');
 todayInput.addEventListener('input', function () {
-  const v = todayInput.value;
-  if (!v) return;
-  todayInput.value = '';
-  state.screen = 'chat'; state.page = null; state.openId = null;
-  renderAll({ toEnd: true });
-  input.value = v;
-  sendBtn.disabled = !v.trim();
-  input.focus();
-  input.setSelectionRange(v.length, v.length);
+  if (!todayInput.value || busy) return;
+  leaveToday(function () {
+    const v = todayInput.value;
+    todayInput.value = '';
+    state.screen = 'chat'; state.page = null; state.openId = null;
+    render(state, { toEnd: true });
+    input.value = v;
+    sendBtn.disabled = !v.trim();
+    input.focus();
+    input.setSelectionRange(v.length, v.length);
+  });
 });
 $('#todayComposer').addEventListener('submit', function (e) { e.preventDefault(); });
 input.addEventListener('input', function () { sendBtn.disabled = !input.value.trim(); });
@@ -1873,20 +2329,34 @@ $('#composer').addEventListener('submit', function (e) {
   if (!text) return;
   input.value = '';
   sendBtn.disabled = true;
-  send(text);
+  ask(text);
 });
 
+/* Stepper keys. ArrowRight at the last stop does nothing: it is the closing frame. */
 document.addEventListener('keydown', function (e) {
   const typing = e.target.closest && e.target.closest('input, textarea, select');
-  if (!typing && !e.metaKey && !e.ctrlKey && !e.altKey) {
-    if (e.key === 'd' || e.key === 'D') { toggleDemo(); return; }
-    if (/^[1-5]$/.test(e.key)) { setMoment(+e.key - 1); return; }
-    if (e.key === '0') { setMoment(0, { reset: true }); return; }
+  if (!typing && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+    const last = data.stops.length - 1;
+    if (e.key === 'ArrowRight') { e.preventDefault(); if (state.stop < last) setStop(state.stop + 1); return; }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); if (state.stop > 0) setStop(state.stop - 1); return; }
+    if (/^[1-5]$/.test(e.key)) { setStop(+e.key - 1); return; }
   }
-  if (e.key !== 'Escape' || state.view !== 'mode') return;
-  if (state.menuFor) { const id = state.menuFor; toggleMenu(id, false); focusIn(id, '[data-act="menu"]'); }
-  else if (stateName() === 'split') closePage();
+  if (e.key === 'Escape' && state.view === 'mode' && stateName() === 'split') closePage();
 });
+
+/* The stepper pill hides after 3 s without pointer movement and returns on movement. */
+(function () {
+  const pill = $('#stepper');
+  let t = null;
+  function wake() {
+    pill.classList.remove('is-idle');
+    clearTimeout(t);
+    t = setTimeout(function () { pill.classList.add('is-idle'); }, data.timing.idle);
+  }
+  document.addEventListener('pointermove', wake, { passive: true });
+  document.addEventListener('pointerdown', wake, { passive: true });
+  wake();
+})();
 
 /* Sheet: drag the handle down to dismiss. */
 (function () {
@@ -1934,20 +2404,16 @@ window.addEventListener('resize', fit);
 mqSingle.addEventListener('change', function () {
   state.sheetOpen = isMobile() && !!state.page;
   fit();
-  renderAll();
+  render(state);
 });
 
 /* =====================================================================
-   BOOT  (?moment=1..5 starts at a moment; ?mode=1 opens Ask me)
+   BOOT  (?stop=1..5 starts at a stop; stop 1 lands on Home, 2–5 on Today)
    ===================================================================== */
-document.querySelectorAll('[data-svg]').forEach(function (el) { el.outerHTML = svg(el.dataset.svg, +el.dataset.size || 24); });
+document.querySelectorAll('[data-svg]').forEach(function (el) { el.outerHTML = svg(el.dataset.svg, +el.dataset.size || 24, el.className); });
 $('#sbDate').textContent = DATES.statusbar;
 fit();
-const startAt = Math.min(5, Math.max(1, +params.get('moment') || 1)) - 1;
-setMoment(startAt);
-state.newIds = {};
-renderDemo();
-if (params.get('mode')) enterMode();
+setStop((+(params.get('stop') || params.get('moment')) || 1) - 1);
 requestAnimationFrame(function () { document.body.classList.add('is-ready'); });
 
 })();

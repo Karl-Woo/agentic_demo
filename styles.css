@@ -94,6 +94,13 @@
   --label:        500 16px/24px var(--font);   /* $label        */
   --caption:      400 14px/20px var(--font);   /* $caption      */
   --caption-bold: 500 14px/20px var(--font);   /* $caption-bold */
+
+  /* ---- motion ----------------------------------------------------------
+     Used only for the assistant's state changes (see index.html). */
+  --dur-fast: 160ms;
+  --dur:      240ms;
+  --dur-slow: 400ms;
+  --ease:     cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -276,7 +283,7 @@ svg {
 
 .navbtn img { width: var(--icon); height: var(--icon); display: block; }
 
-/* The "Ask me" toggle: a pill, same height as every other nav button. */
+/* The assistant toggle ("Vera"): a pill, same height as every other nav button. */
 .navbtn--pill {
   width: auto;
   display: inline-flex;
@@ -415,6 +422,10 @@ svg {
 }
 .btn-primary { background: var(--green); color: #fff; }
 .btn-primary:hover { background: var(--green-dk); }
+.btn-secondary { background: transparent; color: var(--green-tx); box-shadow: inset 0 0 0 1px var(--green); }
+.btn-secondary:hover { background: var(--green-tint); }
+.btn-text { padding: 0 var(--sp-2); color: var(--green-tx); }
+.btn-text:hover { background: var(--soft); }
 
 /* Figma "Recommendation bubble", sent state: Body, 12/16 padding, the
    bottom-right corner squared off so the bubble points back at the sender. */
